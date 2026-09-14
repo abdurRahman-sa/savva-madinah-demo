@@ -1,0 +1,87 @@
+---
+import { Picture } from 'astro:assets';
+import interior from '../assets/photos/interior-lounge.jpg';
+import terrace from '../assets/photos/terrace-day.jpg';
+import breakfast from '../assets/photos/breakfast-laptop.jpg';
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const a = t.atmosphere;
+---
+
+<section id="atmosphere" class="bg-sand">
+  <div class="container-page grid gap-14 py-20 lg:grid-cols-12 lg:gap-12 lg:py-28">
+    <div class="lg:col-span-5 lg:pt-6">
+      <p class="eyebrow">{a.eyebrow}</p>
+      <h2 class="h-display h-section mt-4">{a.title}</h2>
+      <p class="mt-6 text-lg leading-relaxed text-muted">{a.text}</p>
+
+      <dl class="mt-12 grid grid-cols-3 gap-5 border-t border-line pt-8">
+        {
+          a.facts.map((fact) => (
+            <div>
+              <dt class="sr-only">{fact.label}</dt>
+              <dd class="font-brand text-4xl leading-none font-semibold text-sage-deep md:text-5xl" dir="ltr">
+                {fact.value}
+              </dd>
+              <dd class="mt-2 text-sm leading-snug text-muted" aria-hidden="true">
+                {fact.label}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 sm:gap-5 lg:col-span-7">
+      <figure class="col-span-2">
+        <div class="aspect-[6/5] overflow-hidden rounded-3xl bg-cream sm:aspect-[16/10]">
+          <Picture
+            src={interior}
+            formats={['avif', 'webp']}
+            widths={[640, 960, 1242]}
+            sizes="(min-width: 1024px) 44rem, 92vw"
+            alt={a.interior.alt}
+            class="h-full w-full object-cover"
+            pictureAttributes={{ class: 'block h-full w-full' }}
+          />
+        </div>
+        <figcaption class="photo-caption">{a.interior.caption}</figcaption>
+      </figure>
+
+      <figure>
+        <div class="aspect-[3/4] overflow-hidden rounded-t-full bg-cream">
+          <Picture
+            src={terrace}
+            formats={['avif', 'webp']}
+            widths={[360, 540, 720]}
+            sizes="(min-width: 1024px) 21rem, 45vw"
+            alt={a.terrace.alt}
+            class="h-full w-full object-cover object-[center_35%]"
+            pictureAttributes={{ class: 'block h-full w-full' }}
+          />
+        </div>
+        <figcaption class="photo-caption">{a.terrace.caption}</figcaption>
+      </figure>
+
+      <figure>
+        <div class="aspect-[3/4] overflow-hidden rounded-3xl bg-cream">
+          <Picture
+            src={breakfast}
+            formats={['avif', 'webp']}
+            widths={[360, 478]}
+            sizes="(min-width: 1024px) 21rem, 45vw"
+            alt={a.breakfast.alt}
+            class="h-full w-full object-cover"
+            pictureAttributes={{ class: 'block h-full w-full' }}
+          />
+        </div>
+        <figcaption class="photo-caption">{a.breakfast.caption}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>

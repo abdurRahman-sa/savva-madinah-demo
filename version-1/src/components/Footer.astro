@@ -1,0 +1,60 @@
+---
+import Icon from './Icon.astro';
+import { cafe } from '../data/cafe';
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+---
+
+<footer class="bg-ink pb-28 text-cream md:pb-0">
+  <div class="container-page grid gap-10 py-16 md:grid-cols-12">
+    <div class="md:col-span-6">
+      <p class="flex items-baseline gap-3">
+        <span class="font-brand text-4xl font-semibold tracking-[0.16em]" dir="ltr">SAVVA</span>
+        <span class="text-2xl text-cream/70" lang="ar" dir="rtl">سافا</span>
+      </p>
+      <p class="mt-5 font-brand text-2xl text-cream/90 italic" dir="ltr" lang="en">
+        “A day in savva is what you need to be savva”
+      </p>
+      <p class="mt-1 text-sm text-cream/60">— {t.footer.sloganNote}</p>
+    </div>
+
+    <ul class="grid content-start gap-3 text-cream/85 md:col-span-3">
+      <li>
+        <a href={cafe.instagramUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-cream">
+          <Icon name="instagram" class="size-4" />
+          <span dir="ltr">{cafe.instagramHandle}</span>
+        </a>
+      </li>
+      <li>
+        <a href={cafe.phoneHref} class="inline-flex items-center gap-2 hover:text-cream">
+          <Icon name="phone" class="size-4" />
+          <span dir="ltr">{cafe.phone}</span>
+        </a>
+      </li>
+      <li>
+        <a href={cafe.mapsUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-cream">
+          <Icon name="pin" class="size-4" />
+          Google Maps
+        </a>
+      </li>
+    </ul>
+
+    <div class="md:col-span-3">
+      <a href={t.langSwitch.href} lang={t.langSwitch.lang} hreflang={t.langSwitch.lang} class="inline-flex rounded-full px-4 py-2 text-sm ring-1 ring-cream/25 hover:bg-cream/10">
+        {t.langSwitch.label}
+      </a>
+    </div>
+  </div>
+
+  <div class="border-t border-cream/10">
+    <div class="container-page flex flex-col gap-2 py-6 text-xs text-cream/55 md:flex-row md:justify-between">
+      <p>{t.footer.rights}</p>
+      <p class="max-w-2xl md:text-end">{t.footer.demo}</p>
+    </div>
+  </div>
+</footer>

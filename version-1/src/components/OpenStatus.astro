@@ -1,0 +1,68 @@
+---
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+  class?: string;
+}
+
+const { t, class: className = '' } = Astro.props;
+---
+
+<p
+  class:list={['inline-flex items-center gap-2.5', className]}
+  data-open-status
+  data-label-open={t.status.open}
+  data-label-closed={t.status.closed}
+  data-close-time={t.status.closeTime}
+  data-open-times={JSON.stringify(t.status.openTimes)}
+>
+  <span class="size-2 shrink-0 rounded-full" data-dot></span>
+  <span data-text>{t.status.fallback}</span>
+</p>
+
+<script>
+  import { cafe } from '../data/cafe';
+
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  function nowInCafe() {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: cafe.timeZone,
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const get = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+    return {
+      day: weekdays.indexOf(get('weekday')),
+      minutes: Number(get('hour')) * 60 + Number(get('minute')),
+    };
+  }
+
+  function update() {
+    const { day, minutes } = nowInCafe();
+    if (day < 0) return;
+
+    // До 02:00 ещё идёт смена предыдущего дня; дальше — открыто с часа открытия.
+    const isOpen = minutes < cafe.closesAt || minutes >= cafe.opensAt[day];
+
+    document.querySelectorAll<HTMLElement>('[data-open-status]').forEach((el) => {
+      const openTimes: string[] = JSON.parse(el.dataset.openTimes ?? '[]');
+      const label = isOpen
+        ? (el.dataset.labelOpen ?? '').replace('{time}', el.dataset.closeTime ?? '')
+        : (el.dataset.labelClosed ?? '').replace('{time}', openTimes[day] ?? '');
+      const text = el.querySelector('[data-text]');
+      if (text) text.textContent = label;
+      el.dataset.state = isOpen ? 'open' : 'closed';
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-hours-day]').forEach((row) => {
+      row.toggleAttribute('data-today', Number(row.dataset.hoursDay) === day);
+    });
+  }
+
+  update();
+  setInterval(update, 60_000);
+</script>

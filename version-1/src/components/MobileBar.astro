@@ -1,0 +1,24 @@
+---
+import Icon from './Icon.astro';
+import { cafe } from '../data/cafe';
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+---
+
+<div class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-cream/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:hidden">
+  <div class="grid grid-cols-2 gap-3">
+    <a href={cafe.mapsUrl} target="_blank" rel="noopener" class="btn-primary !py-3">
+      <Icon name="pin" class="size-4" />
+      {t.mobileBar.route}
+    </a>
+    <a href={cafe.phoneHref} class="btn-secondary !py-3">
+      <Icon name="phone" class="size-4" />
+      {t.mobileBar.call}
+    </a>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+---
+
+<header class="sticky top-0 z-40 border-b border-line/70 bg-cream/85 backdrop-blur-md">
+  <div class="container-page flex h-16 items-center justify-between gap-6 md:h-18">
+    <a href={t.home} class="flex items-baseline gap-2.5" aria-label="Savva">
+      <span class="font-brand text-[1.7rem] leading-none font-semibold tracking-[0.16em] text-sage-deep" dir="ltr">SAVVA</span>
+      <span class="text-lg leading-none text-sage" lang="ar" dir="rtl">سافا</span>
+    </a>
+
+    <nav class="hidden lg:block" aria-label={t.nav.label}>
+      <ul class="flex items-center gap-7 text-sm text-muted">
+        {
+          t.nav.items.map((item) => (
+            <li>
+              <a href={`#${item.id}`} class="transition-colors hover:text-ink">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a
+        href={t.langSwitch.href}
+        lang={t.langSwitch.lang}
+        hreflang={t.langSwitch.lang}
+        class="rounded-full px-3 py-2 text-sm text-muted transition-colors hover:bg-sand hover:text-ink"
+      >
+        {t.langSwitch.label}
+      </a>
+      <a href="#booking" class="btn-primary hidden !px-5 !py-2.5 !text-sm sm:inline-flex">{t.header.cta}</a>
+
+      <details class="group relative lg:hidden" data-nav-menu>
+        <summary
+          class="flex size-10 cursor-pointer list-none items-center justify-center rounded-full text-ink transition-colors hover:bg-sand [&::-webkit-details-marker]:hidden"
+          aria-label={t.nav.toggle}
+        >
+          <Icon name="burger" class="size-5 group-open:hidden" />
+          <Icon name="close" class="hidden size-5 group-open:block" />
+        </summary>
+        <nav
+          class="absolute end-0 mt-3 w-60 rounded-2xl border border-line bg-cream p-2 shadow-[0_18px_50px_-20px_rgb(38_37_31/0.35)]"
+          aria-label={t.nav.label}
+        >
+          <ul>
+            {
+              t.nav.items.map((item) => (
+                <li>
+                  <a href={`#${item.id}`} class="block rounded-xl px-4 py-3 text-ink transition-colors hover:bg-sand">
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('[data-nav-menu]');
+
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => menu.removeAttribute('open'));
+  });
+
+  document.addEventListener('click', (event) => {
+    if (menu?.open && !menu.contains(event.target as Node)) menu.removeAttribute('open');
+  });
+</script>

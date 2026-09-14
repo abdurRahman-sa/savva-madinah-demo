@@ -1,1 +1,154 @@
 @import "tailwindcss";
+
+@theme {
+  --color-cream: #faf7f1;
+  --color-sand: #f2ede3;
+  --color-line: #e2dbcd;
+  --color-ink: #26251f;
+  --color-muted: #625f56;
+  --color-sage: #7c846c;
+  --color-sage-deep: #4f5945;
+  --color-sage-soft: #e6e9dd;
+  --color-coffee: #7a5234;
+
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  /* Латинский словесный знак и крупные цифры — одинаково в обеих языковых версиях */
+  --font-brand: "Cormorant Garamond", ui-serif, Georgia, serif;
+}
+
+/* Арабская версия: одна гарнитура с арабским начертанием для всего текста */
+html[lang="ar"] {
+  --font-sans: "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+
+  section[id] {
+    scroll-margin-top: 4.5rem;
+  }
+
+  ::selection {
+    @apply bg-sage-soft text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sage-deep);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 md:px-8;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.22em] text-sage-deep uppercase;
+  }
+
+  .h-display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .h-hero {
+    font-size: clamp(3rem, 7vw, 5.75rem);
+  }
+
+  .h-section {
+    font-size: clamp(2.4rem, 4.6vw, 3.75rem);
+  }
+
+  .h-card {
+    font-size: 1.75rem;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-sage-deep px-6 py-3.5 text-[0.95rem] font-medium text-cream transition-colors duration-200 hover:bg-ink;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3.5 text-[0.95rem] font-medium text-ink transition-colors duration-200 hover:border-ink/35 hover:bg-white/70;
+  }
+
+  .field {
+    @apply mt-2 block w-full rounded-xl border border-line bg-white px-4 py-3 text-[0.95rem] text-ink transition-colors placeholder:text-muted/60 focus:border-sage-deep focus:ring-2 focus:ring-sage/25 focus:outline-none;
+  }
+
+  .field-label {
+    @apply text-sm font-medium text-ink;
+  }
+
+  .photo-caption {
+    @apply mt-3 text-sm text-muted;
+  }
+}
+
+html[lang="ar"] .eyebrow {
+  font-size: 0.875rem;
+  letter-spacing: 0;
+}
+
+html[lang="ar"] .h-display {
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+html[lang="ar"] .h-hero {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+}
+
+html[lang="ar"] .h-section {
+  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
+}
+
+html[lang="ar"] .h-card {
+  font-size: 1.3rem;
+}
+
+/* Статус «открыто/закрыто» — выставляет скрипт в OpenStatus.astro */
+[data-open-status] [data-dot] {
+  background: var(--color-sage);
+}
+
+[data-open-status][data-state="open"] [data-dot] {
+  background: #3f8a57;
+  box-shadow: 0 0 0 4px rgb(63 138 87 / 0.15);
+}
+
+[data-open-status][data-state="closed"] [data-dot] {
+  background: var(--color-coffee);
+}
+
+.today-badge {
+  display: none;
+}
+
+[data-today] {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+[data-today] .today-badge {
+  display: inline-flex;
+}

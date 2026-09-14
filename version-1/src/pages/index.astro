@@ -1,12 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Landing from '../components/Landing.astro';
+import { ru } from '../i18n/ru';
 ---
 
-<Layout
-  title="Savva — specialty coffee в Медине"
-  description="Кофейня Savva в Медине: specialty coffee, десерты, холодные напитки, зал, веранда и drive-through."
->
-  <main class="min-h-screen grid place-items-center">
-    <p>Savva — каркас version-1</p>
-  </main>
-</Layout>
+<Landing t={ru} />

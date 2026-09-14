@@ -1,0 +1,64 @@
+---
+import { Picture } from 'astro:assets';
+import drinks from '../assets/photos/cold-drinks-trio.jpg';
+import { coldDrinks } from '../data/cafe';
+import type { Dict } from '../i18n/types';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const m = t.menu;
+---
+
+<section id="menu" class="bg-sand">
+  <div class="container-page grid gap-14 py-20 lg:grid-cols-12 lg:gap-12 lg:py-28">
+    <div class="lg:col-span-4">
+      <div class="lg:sticky lg:top-28">
+        <p class="eyebrow">{m.eyebrow}</p>
+        <h2 class="h-display h-section mt-4">{m.title}</h2>
+        <p class="mt-6 leading-relaxed text-muted">{m.intro}</p>
+        <div class="mt-10 hidden aspect-[3/4] max-w-xs overflow-hidden rounded-t-full bg-cream lg:block">
+          <Picture
+            src={drinks}
+            formats={['avif', 'webp']}
+            widths={[320, 477]}
+            sizes="20rem"
+            alt={m.photo.alt}
+            class="h-full w-full object-cover"
+            pictureAttributes={{ class: 'block h-full w-full' }}
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-8">
+      <ul class="grid gap-x-12 md:grid-cols-2">
+        {
+          coldDrinks.map((drink) => (
+            <li class="flex items-baseline justify-between gap-5 border-b border-line py-5">
+              <div class="min-w-0">
+                <p class="font-medium text-ink">{drink[t.lang]}</p>
+                <p class="mt-1 text-xs text-muted" dir="ltr" lang="en">
+                  {drink.en}
+                </p>
+              </div>
+              <div class="shrink-0 text-end">
+                <p class="font-semibold whitespace-nowrap text-coffee tabular-nums">
+                  {drink.price} {m.currency}
+                </p>
+                <p class="mt-1 text-xs whitespace-nowrap text-muted tabular-nums">
+                  {drink.kcal} {m.kcal}
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-10 max-w-2xl leading-relaxed text-ink">{m.also}</p>
+      <p class="mt-3 text-sm text-muted">{m.source}</p>
+    </div>
+  </div>
+</section>
