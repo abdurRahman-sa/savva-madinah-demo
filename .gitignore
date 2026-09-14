@@ -1,0 +1,13 @@
+# зависимости и сборка
+node_modules/
+dist/
+.astro/
+
+# рабочие материалы — не в git
+references/
+content-sources.md
+
+# системное
+.DS_Store
+.env
+.env.*
