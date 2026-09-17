@@ -67,21 +67,9 @@ const groups: Group[] = [
   {
     title: 'Первый экран',
     controls: [
-      {
-        kind: 'select',
-        label: 'Размер кусочка',
-        token: '--collage-cell',
-        value: 'clamp(150px, 19vw, 300px)',
-        options: [
-          { label: 'Как сейчас', value: 'clamp(150px, 19vw, 300px)' },
-          { label: 'Мельче', value: 'clamp(120px, 14vw, 220px)' },
-          { label: 'Крупнее', value: 'clamp(190px, 24vw, 380px)' },
-          { label: 'Ровно 4 колонки', value: '24vw' },
-          { label: 'Ровно 6 колонок', value: '16vw' },
-        ],
-      },
+      { kind: 'range', label: 'Колонок', token: '--collage-cols', min: 2, max: 10, step: 1, unit: '', value: 6 },
       { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 6 },
-      { kind: 'range', label: 'Рядов в коллаже', token: '--collage-rows', min: 2, max: 7, step: 1, unit: '', value: 4 },
+      { kind: 'range', label: 'Рядов', token: '--collage-rows', min: 2, max: 9, step: 1, unit: '', value: 4 },
       { kind: 'range', label: 'Свет в центре', token: '--center-glow', min: 0, max: 1.1, step: 0.01, unit: '', value: 1 },
       { kind: 'range', label: 'Стакан', token: '--cup-size', min: 10, max: 40, step: 0.5, unit: 'vh', value: 24 },
     ],
