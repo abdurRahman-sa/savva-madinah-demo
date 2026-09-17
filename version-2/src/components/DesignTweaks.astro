@@ -67,7 +67,19 @@ const groups: Group[] = [
   {
     title: 'Первый экран',
     controls: [
-      { kind: 'range', label: 'Размер кусочка', token: '--collage-cell', min: 8, max: 26, step: 0.5, unit: 'vw', value: 13 },
+      {
+        kind: 'select',
+        label: 'Размер кусочка',
+        token: '--collage-cell',
+        value: 'clamp(104px, 12vw, 190px)',
+        options: [
+          { label: 'Как сейчас', value: 'clamp(104px, 12vw, 190px)' },
+          { label: 'Мельче', value: 'clamp(90px, 9vw, 150px)' },
+          { label: 'Крупнее', value: 'clamp(120px, 15vw, 240px)' },
+          { label: 'Ровно 7 колонок', value: '13vw' },
+          { label: 'Ровно 5 колонок', value: '19vw' },
+        ],
+      },
       { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 6 },
       { kind: 'range', label: 'Приглушение краёв', token: '--mute-strength', min: 0, max: 0.9, step: 0.01, unit: '', value: 0.42 },
       { kind: 'range', label: 'Свет в центре', token: '--center-glow', min: 0, max: 1.1, step: 0.01, unit: '', value: 1 },

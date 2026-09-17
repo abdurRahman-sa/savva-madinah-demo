@@ -45,7 +45,7 @@
   --hand-tilt: -3deg;
   --motion: 1;
   --ease: var(--ease-out-expo);
-  --collage-cell: 13vw;
+  --collage-cell: clamp(104px, 12vw, 190px);
   --collage-gap: 6px;
   --mute-strength: 0.42;
   --center-glow: 1;
