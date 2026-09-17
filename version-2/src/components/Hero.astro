@@ -1,0 +1,163 @@
+---
+import { Image } from 'astro:assets';
+import { cafe, menu } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+import hibiscusCup from '../assets/photos/hibiscus-cup.jpg';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const h = t.hero;
+---
+
+<section class="hero relative pb-[60px]">
+  <div class="ribbon-clip" aria-hidden="true"><div class="ribbon"></div></div>
+  <div class="wrap hero-grid relative grid items-center gap-10">
+    <div>
+      <h1 class="brand font-display font-semibold">Savva<i lang="ar" dir="rtl">سافا</i></h1>
+      <p class="mt-5 max-w-[26ch] text-[clamp(18px,1.8vw,24px)] font-medium">{h.lead}</p>
+      <div class="mt-[26px] flex flex-wrap gap-2.5">
+        <a class="btn" href="#fork" data-open-door="visit">{h.book}</a>
+        <a class="btn btn-dark" href="#fork" data-open-door="order">{h.order}</a>
+        <a class="btn btn-line" href="#fork" data-open-door="takeaway">{h.route}</a>
+        <a class="btn btn-line" href={cafe.phoneHref}>{h.call}</a>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2.5">
+        <span class="pill"><b class="font-medium text-coffee-deep">6:30 – 02:00</b> {h.hours}</span>
+        <span class="pill"><b class="font-medium text-coffee-deep">{cafe.rating}</b> {h.rating}</span>
+        <span class="pill">{h.area}</span>
+      </div>
+    </div>
+    <div class="relative">
+      <figure class="aspect-[4/5] overflow-hidden rounded-[20px] bg-cream">
+        <Image
+          src={hibiscusCup}
+          alt={h.photoAlt}
+          widths={[400, 480]}
+          sizes="(max-width: 980px) 100vw, 480px"
+          class="size-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      <span class="sticker sticker-one bg-red text-white"><b>{menu.hibiscus.price}</b><span>{h.stickerHibiscus}</span></span>
+      <span class="sticker sticker-two bg-sage text-cream"><b>{menu.matchaBerry.price}</b><span>{h.stickerMatcha}</span></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ribbon-clip {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 235px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ribbon {
+    position: absolute;
+    top: -40px;
+    left: -6%;
+    width: 112%;
+    height: 210px;
+    transform: rotate(-4deg);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-red) 0 74px,
+      var(--color-cream) 74px 126px,
+      var(--color-coffee) 126px 168px,
+      var(--color-cream) 168px 220px
+    );
+    box-shadow: 0 18px 40px -22px rgb(60 60 74 / 0.6);
+  }
+  .hero-grid {
+    padding-top: 210px;
+    grid-template-columns: 1.08fr 0.92fr;
+  }
+  .brand {
+    font-size: clamp(70px, 13vw, 176px);
+    line-height: 0.84;
+    letter-spacing: -0.02em;
+  }
+  .brand i {
+    font-style: normal;
+    font-size: 0.26em;
+    color: var(--color-sage);
+    margin-left: 16px;
+  }
+  .sticker {
+    width: 112px;
+    height: 112px;
+  }
+  .sticker b {
+    font-size: 27px;
+  }
+  .sticker span {
+    font-size: 12px;
+  }
+  .sticker-one {
+    top: -22px;
+    right: 10px;
+    transform: rotate(-9deg);
+  }
+  .sticker-two {
+    bottom: 30px;
+    left: -16px;
+    transform: rotate(7deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .ribbon,
+      .sticker-one,
+      .sticker-two {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll();
+        animation-range: 0 80vh;
+      }
+      .ribbon {
+        animation-name: slide;
+      }
+      .sticker-one {
+        animation-name: spin-one;
+      }
+      .sticker-two {
+        animation-name: spin-two;
+      }
+    }
+  }
+  @keyframes slide {
+    to {
+      transform: rotate(-4deg) translateX(-120px);
+    }
+  }
+  @keyframes spin-one {
+    to {
+      transform: rotate(6deg) translateY(-14px);
+    }
+  }
+  @keyframes spin-two {
+    to {
+      transform: rotate(-8deg) translateY(10px);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      padding-top: 184px;
+    }
+  }
+  @media (max-width: 640px) {
+    .sticker {
+      width: 92px;
+      height: 92px;
+    }
+    .sticker-two {
+      left: -14px;
+    }
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+import { cafe } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const f = t.footer;
+---
+
+<footer class="pt-[70px] pb-[74px]">
+  <div class="wrap">
+    <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      <div>
+        <h4 class="mb-1.5 text-[13px] text-muted">{f.address}</h4>
+        <p>{f.addressValue[0]}<br />{f.addressValue[1]}</p>
+      </div>
+      <div>
+        <h4 class="mb-1.5 text-[13px] text-muted">{f.hours}</h4>
+        <p>{f.hoursValue[0]}<br />{f.hoursValue[1]}</p>
+      </div>
+      <div>
+        <h4 class="mb-1.5 text-[13px] text-muted">{f.phone}</h4>
+        <p><a class="no-underline hover:text-red" href={cafe.phoneHref} dir="ltr">{cafe.phone}</a></p>
+      </div>
+      <div>
+        <h4 class="mb-1.5 text-[13px] text-muted">{f.instagram}</h4>
+        <p><a class="no-underline hover:text-red" href={cafe.instagramUrl} target="_blank" rel="noopener" dir="ltr">{cafe.instagramHandle}</a></p>
+      </div>
+    </div>
+    <p class="foot-brand mt-11 font-display font-semibold">Savva<i lang="ar" dir="rtl">سافا</i></p>
+  </div>
+</footer>
+
+<style>
+  .foot-brand {
+    font-size: clamp(46px, 8vw, 96px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+  .foot-brand i {
+    font-style: normal;
+    font-size: 0.28em;
+    color: var(--color-sage);
+    margin-left: 12px;
+  }
+</style>

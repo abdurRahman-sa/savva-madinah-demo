@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/* Мир «Навес»: контракт — ../.impeccable/surfaces/version-2-src-pages-index-astro.md */
+@theme {
+  --color-linen: #e9dfcb;
+  --color-cream: #f7efe0;
+  --color-coffee: #6f4a2e;
+  --color-coffee-deep: #47301f;
+  --color-shade: #3c3c4a;
+  --color-on-dark: #f7efe0;
+  --color-on-dark-soft: #d9cfc0;
+  --color-blush: #f3b7a6;
+  --color-red: #b23c38;
+  --color-red-ink: #96302c;
+  --color-sage: #5c6450;
+  --color-ink: #231e19;
+  --color-muted: #575042;
+  --color-line: #d3c6aa;
+
+  --font-display: "El Messiri Variable", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Rubik Variable", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Caveat Variable", "Segoe Print", cursive;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  [hidden] {
+    display: none !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--color-coffee) var(--color-linen);
+    accent-color: var(--color-red);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-linen font-sans text-ink antialiased;
+    line-height: 1.5;
+    caret-color: var(--color-red);
+    overflow-x: clip;
+  }
+
+  section[id] {
+    scroll-margin-top: 1.5rem;
+  }
+
+  ::selection {
+    background: var(--color-red);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+  }
+
+  a {
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1.5px;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-7;
+  }
+
+  /* Рукописное слово над заголовком — часть мира «Навес» */
+  .hand {
+    @apply inline-block font-hand text-[34px] leading-none text-red;
+    font-weight: 500;
+    transform: rotate(-3deg);
+  }
+
+  .h-section {
+    @apply mt-2 font-display font-semibold;
+    font-size: clamp(36px, 5.4vw, 68px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .btn {
+    @apply inline-flex cursor-pointer items-center gap-2.5 rounded-full border-0 bg-red px-[26px] py-4 text-base leading-none font-medium text-white no-underline;
+    transition:
+      background-color 0.25s var(--ease-out-expo),
+      color 0.25s var(--ease-out-expo),
+      box-shadow 0.25s var(--ease-out-expo);
+  }
+  .btn:hover {
+    @apply bg-coffee text-white;
+    box-shadow: none;
+  }
+  .btn svg {
+    @apply size-[19px] flex-none;
+  }
+  .btn-dark {
+    @apply bg-shade text-on-dark;
+  }
+  .btn-line {
+    @apply bg-transparent text-ink;
+    box-shadow: inset 0 0 0 1.5px var(--color-coffee);
+  }
+
+  /* Круглая наклейка-ценник */
+  .sticker {
+    @apply absolute grid place-content-center rounded-full text-center font-display leading-[1.05] font-semibold;
+    box-shadow: 0 12px 30px -16px rgb(35 30 25 / 0.6);
+  }
+  .sticker b {
+    @apply block tabular-nums;
+  }
+  .sticker span {
+    @apply mt-0.5 block font-sans font-medium;
+  }
+
+  .pill {
+    @apply rounded-full border border-line bg-cream px-4 py-2.5 text-sm text-muted;
+  }
+
+  .field-label {
+    @apply grid gap-1.5 text-sm text-muted;
+  }
+  .field {
+    @apply w-full rounded-[14px] border-[1.5px] border-line bg-white px-[15px] py-[13px] text-base text-ink;
+    line-height: 1.4;
+  }
+  .field::placeholder {
+    color: #8a7f6c;
+  }
+  .field:focus {
+    outline: 2px solid var(--color-red);
+    outline-offset: 1px;
+    border-color: var(--color-red);
+  }
+  .field:user-invalid {
+    border-color: var(--color-red);
+  }
+}

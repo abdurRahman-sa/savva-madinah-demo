@@ -1,0 +1,177 @@
+---
+import { cafe, reviews } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const r = t.reviews;
+const topics = Object.entries(cafe.reviewTopics) as [keyof typeof cafe.reviewTopics, number][];
+const maxTopic = Math.max(...topics.map(([, n]) => n));
+---
+
+<section class="pt-[96px] pb-10" id="reviews">
+  <div class="wrap">
+    <p class="hand">{r.hand}</p>
+    <h2 class="h-section">{r.title}</h2>
+    <div class="tape mt-8 grid gap-3.5">
+      <div class="score">
+        <b>{cafe.rating}</b>
+        <p>{r.scoreText}</p>
+        <a href={cafe.mapsUrl} target="_blank" rel="noopener">{r.readAll}</a>
+      </div>
+      {
+        reviews.map((review, i) => (
+          <article class="voice">
+            <blockquote>
+              <p>{r.translations[i]}</p>
+            </blockquote>
+            <details>
+              <summary>{r.original}</summary>
+              <p lang="en">{review.original}</p>
+            </details>
+            <footer>
+              <b>{review.author}</b>
+              <span>{r.source}</span>
+            </footer>
+          </article>
+        ))
+      }
+      <div class="topics">
+        <h3>{r.topicsTitle}</h3>
+        <ul>
+          {
+            topics.map(([key, n]) => (
+              <li>
+                {r.topics[key]} <b>{n}</b>
+                <i style={`--w:${((n / maxTopic) * 100).toFixed(1)}%`} />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tape {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(290px, 1fr);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+  }
+  .tape > * {
+    scroll-snap-align: start;
+    border-radius: 28px;
+    padding: 28px;
+  }
+  .score {
+    background: var(--color-red);
+    color: #fff;
+    display: grid;
+    align-content: space-between;
+    gap: 18px;
+  }
+  .score b {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 96px;
+    line-height: 0.8;
+    font-variant-numeric: tabular-nums;
+  }
+  .score p {
+    color: #fbe3dc;
+  }
+  .score a {
+    color: #fff;
+    font-weight: 500;
+  }
+  .voice {
+    background: var(--color-cream);
+    display: grid;
+    align-content: space-between;
+    gap: 18px;
+  }
+  .voice blockquote p {
+    font-size: 17px;
+  }
+  .voice details {
+    font-size: 13.5px;
+    color: var(--color-muted);
+  }
+  .voice summary {
+    cursor: pointer;
+    color: var(--color-coffee);
+    font-weight: 500;
+    width: max-content;
+  }
+  .voice details p {
+    margin-top: 8px;
+  }
+  .voice footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--color-muted);
+    border-top: 1px solid var(--color-line);
+    padding-top: 14px;
+  }
+  .voice footer b {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  .topics {
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+  }
+  .topics h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .topics ul {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .topics li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    font-size: 15.5px;
+  }
+  .topics li b {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--color-red-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .topics li i {
+    grid-column: 1 / -1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-linen);
+    position: relative;
+    overflow: hidden;
+  }
+  .topics li i::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--w);
+    background: var(--color-coffee);
+    border-radius: 3px;
+  }
+  @media (max-width: 640px) {
+    .score b {
+      font-size: 80px;
+    }
+  }
+</style>

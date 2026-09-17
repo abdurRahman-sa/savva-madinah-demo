@@ -1,0 +1,144 @@
+---
+import { Image } from 'astro:assets';
+import { menu } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+import hibiscusPour from '../assets/photos/hibiscus-pour.jpg';
+import matchaMelon from '../assets/photos/matcha-berry-vs-melon.jpg';
+import cookies from '../assets/photos/madini-cookies.jpg';
+import sandwich from '../assets/photos/sandwich-plate.jpg';
+import coffeePour from '../assets/photos/coffee-pour-cups.jpg';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const x = t.fresh;
+---
+
+<section class="pb-[100px]" id="fresh">
+  <div class="wrap">
+    <div class="fresh-head grid items-end gap-5">
+      <div>
+        <p class="hand">{x.hand}</p>
+        <h2 class="h-section">{x.title}</h2>
+      </div>
+      <p class="max-w-[34ch] text-[15px] text-muted">{x.note}</p>
+    </div>
+
+    <div class="mosaic mt-[34px] grid">
+      <figure class="shot s-a">
+        <Image src={hibiscusPour} alt={x.hibiscusAlt} widths={[480]} sizes="(max-width: 980px) 100vw, 520px" class="object-[50%_70%]" />
+        <span class="sticker st-a bg-red text-white"><b>{menu.hibiscus.price}</b><span>SAR</span></span>
+        <figcaption><span>{x.hibiscus}</span></figcaption>
+      </figure>
+      <figure class="shot s-b">
+        <Image src={matchaMelon} alt={x.matchaAlt} widths={[360]} sizes="(max-width: 980px) 100vw, 400px" class="object-[50%_72%]" />
+        <span class="sticker st-b1 bg-sage text-cream"><b>{menu.matchaBerry.price}</b><span>{x.stickerMatcha}</span></span>
+        <span class="sticker st-b2 bg-red text-white"><b>{menu.melon.price}</b><span>{x.stickerMelon}</span></span>
+        <figcaption><span>{x.matcha}</span><span>{x.melon}</span></figcaption>
+      </figure>
+      <figure class="shot s-c">
+        <Image src={cookies} alt={x.cookiesAlt} widths={[482]} sizes="(max-width: 980px) 50vw, 300px" />
+        <figcaption><span>{x.cookies}</span></figcaption>
+      </figure>
+      <figure class="shot s-d">
+        <Image src={sandwich} alt={x.breakfastAlt} widths={[512]} sizes="(max-width: 980px) 50vw, 300px" />
+        <figcaption><span>{x.breakfast}</span></figcaption>
+      </figure>
+      <figure class="shot s-e">
+        <Image src={coffeePour} alt={x.coffeeAlt} widths={[360]} sizes="(max-width: 980px) 50vw, 400px" class="object-[50%_40%]" />
+        <figcaption><span>{x.coffee}</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fresh-head {
+    grid-template-columns: 1fr auto;
+  }
+  .mosaic {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 300px 300px;
+    gap: 14px;
+  }
+  .shot {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--color-cream);
+  }
+  .shot :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out-expo);
+  }
+  .shot:hover :global(img) {
+    transform: scale(1.04);
+  }
+  .shot figcaption {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .shot figcaption span {
+    background: var(--color-cream);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .sticker {
+    width: 86px;
+    height: 86px;
+  }
+  .sticker b {
+    font-size: 23px;
+  }
+  .sticker span {
+    font-size: 11px;
+  }
+  .s-a { grid-column: 1 / 6; grid-row: 1 / 3; }
+  .s-b { grid-column: 6 / 10; grid-row: 1; }
+  .s-c { grid-column: 10 / 13; grid-row: 1; }
+  .s-d { grid-column: 6 / 9; grid-row: 2; }
+  .s-e { grid-column: 9 / 13; grid-row: 2; }
+  .st-a { top: 18px; right: 18px; transform: rotate(-8deg); }
+  .st-b1 { top: 16px; left: 16px; transform: rotate(6deg); }
+  .st-b2 { top: 30px; right: 18px; transform: rotate(-7deg); }
+
+  @media (max-width: 980px) {
+    .mosaic {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: none;
+      grid-auto-rows: 220px;
+    }
+    .s-a { grid-column: 1 / -1; grid-row: span 2; }
+    .s-b { grid-column: 1 / -1; grid-row: auto; }
+    .s-c, .s-d, .s-e { grid-column: auto; grid-row: auto; }
+  }
+  @media (max-width: 720px) {
+    .fresh-head {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .mosaic {
+      grid-auto-rows: 190px;
+      gap: 10px;
+    }
+    .sticker {
+      width: 72px;
+      height: 72px;
+    }
+    .sticker b {
+      font-size: 19px;
+    }
+  }
+</style>

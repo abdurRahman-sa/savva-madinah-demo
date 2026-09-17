@@ -1,0 +1,28 @@
+---
+import '@fontsource-variable/el-messiri';
+import '@fontsource-variable/rubik';
+import '@fontsource-variable/caveat';
+import '../styles/global.css';
+import type { Dict } from '../i18n/ru';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+---
+
+<!doctype html>
+<html lang={t.lang} dir={t.dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#e9dfcb" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{t.meta.title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

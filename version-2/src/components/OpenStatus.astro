@@ -1,0 +1,67 @@
+---
+import { cafe } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const hhmm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+---
+
+<p
+  class="open-status inline-flex items-center gap-2.5 rounded-full bg-cream px-[18px] py-2.5 text-[15px]"
+  aria-live="polite"
+  data-open-status
+  data-tz={cafe.timeZone}
+  data-opens={cafe.opensAt}
+  data-opens-friday={cafe.opensAtFriday}
+  data-closes={cafe.closesAt}
+  data-closed-text={t.status.closedUntil}
+  data-opens-label={hhmm(cafe.opensAt)}
+  data-opens-friday-label={hhmm(cafe.opensAtFriday)}
+>
+  <i class="dot"></i><span>{t.status.open}</span>
+</p>
+
+<style>
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-sage);
+    box-shadow: 0 0 0 4px rgb(92 100 80 / 0.2);
+  }
+  [data-state='closed'] .dot {
+    background: var(--color-red);
+    box-shadow: 0 0 0 4px rgb(178 60 56 / 0.18);
+  }
+</style>
+
+<script>
+  // Статус по времени Медины: закрытие в 02:00 следующих суток, пятница открывается позже.
+  document.querySelectorAll<HTMLElement>('[data-open-status]').forEach((el) => {
+    try {
+      const d = el.dataset;
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: d.tz,
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }).formatToParts(new Date());
+      const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+      const minutes = Number(get('hour')) * 60 + Number(get('minute'));
+      const friday = get('weekday') === 'Fri';
+      const opens = Number(friday ? d.opensFriday : d.opens);
+      const open = minutes < Number(d.closes) || minutes >= opens;
+      if (!open) {
+        el.dataset.state = 'closed';
+        el.querySelector('span')!.textContent = `${d.closedText} ${friday ? d.opensFridayLabel : d.opensLabel}`;
+      }
+    } catch {
+      /* оставляем текст по умолчанию */
+    }
+  });
+</script>
