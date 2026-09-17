@@ -17,9 +17,9 @@ export const ru = {
     hours: 'ежедневно',
     rating: 'на картах',
     area: 'Bir Uthman, Медина',
-    photoAlt: 'Каркаде Savva в прозрачном стакане с логотипом',
-    stickerHibiscus: 'каркаде, SAR',
-    stickerMatcha: 'матча берри',
+    cupAlt: 'Стакан Savva наполняется напитком цвета дыни',
+    collageAlt: 'Напитки, десерты и завтраки Savva',
+    skip: 'Пропустить заставку',
   },
   status: {
     open: 'Сейчас открыто до 02:00',
