@@ -1,0 +1,196 @@
+---
+import Icon from './Icon.astro';
+import { cafe } from '../data/cafe';
+import type { Dict } from '../i18n/ru';
+
+interface Props {
+  t: Dict;
+}
+
+const { t } = Astro.props;
+const b = t.bar;
+const h = t.hero;
+---
+
+<!-- Действия остаются под рукой после первого экрана: снизу на телефоне, сверху на компьютере -->
+<nav class="action-bar" aria-label={b.label} data-action-bar hidden>
+  <p class="brand-mark" aria-hidden="true">Savva</p>
+  <div class="items">
+    <a class="item item-primary" href="#fork" data-open-door="visit">
+      <Icon name="chair" class="ico" />
+      <span class="short">{b.book}</span>
+      <span class="full">{h.book}</span>
+    </a>
+    <a class="item item-dark" href="#fork" data-open-door="order">
+      <Icon name="bag" class="ico" />
+      <span class="short">{b.order}</span>
+      <span class="full">{h.order}</span>
+    </a>
+    <a class="item" href={cafe.routeUrl} target="_blank" rel="noopener">
+      <Icon name="pin" class="ico" />
+      <span class="short">{b.route}</span>
+      <span class="full">{h.route}</span>
+    </a>
+    <a class="item" href={cafe.phoneHref}>
+      <Icon name="phone" class="ico" />
+      <span class="short">{b.call}</span>
+      <span class="full">{h.call}</span>
+    </a>
+  </div>
+</nav>
+
+<style is:global>
+  /* нижняя полоса не должна закрывать конец страницы */
+  @media (max-width: 720px) {
+    body {
+      padding-bottom: 84px;
+    }
+  }
+</style>
+
+<style>
+  .action-bar {
+    position: fixed;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-cream);
+    transition:
+      transform calc(0.35s * var(--motion)) var(--ease),
+      opacity calc(0.35s * var(--motion)) var(--ease);
+  }
+  .action-bar[hidden] {
+    display: none;
+  }
+  .brand-mark {
+    display: none;
+  }
+  .items {
+    display: flex;
+    width: 100%;
+  }
+  .item {
+    flex: 1;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    border-radius: 14px;
+    /* палец достаёт: высота цели не меньше 44 px */
+    min-height: 56px;
+    align-content: center;
+  }
+  .item :global(.ico) {
+    width: 22px;
+    height: 22px;
+  }
+  .item-primary {
+    background: var(--color-red);
+    color: #fff;
+  }
+  .item-dark {
+    background: var(--color-shade);
+    color: var(--color-on-dark);
+  }
+  .full {
+    display: none;
+  }
+
+  /* Телефон: полоса снизу, в зоне большого пальца */
+  @media (max-width: 720px) {
+    .action-bar {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--color-line);
+      box-shadow: 0 -12px 30px -24px rgb(35 30 25 / 0.8);
+    }
+    .items {
+      gap: 6px;
+    }
+    .action-bar[data-state='hidden'] {
+      transform: translateY(110%);
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* Компьютер: узкая полоса сверху, с именем слева и полными надписями */
+  @media (min-width: 721px) {
+    .action-bar {
+      top: 0;
+      left: 0;
+      right: 0;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 10px clamp(20px, 3vw, 40px);
+      border-bottom: 1px solid var(--color-line);
+      box-shadow: 0 14px 30px -28px rgb(35 30 25 / 0.8);
+    }
+    .brand-mark {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: var(--display-weight);
+      font-size: 26px;
+      line-height: 1;
+      letter-spacing: var(--brand-tracking);
+    }
+    .items {
+      width: auto;
+      gap: 8px;
+    }
+    .item {
+      flex: none;
+      grid-auto-flow: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      min-height: 44px;
+      border-radius: 999px;
+      font-size: 15px;
+    }
+    .item:not(.item-primary):not(.item-dark) {
+      box-shadow: inset 0 0 0 1.5px var(--color-coffee);
+    }
+    .short {
+      display: none;
+    }
+    .full {
+      display: inline;
+    }
+    .action-bar[data-state='hidden'] {
+      transform: translateY(-110%);
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .action-bar {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Полоса появляется, когда первый экран уходит из вида
+  const bar = document.querySelector<HTMLElement>('[data-action-bar]');
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+
+  if (bar && hero) {
+    bar.hidden = false;
+    bar.dataset.state = 'hidden';
+    new IntersectionObserver(
+      ([entry]) => {
+        bar.dataset.state = entry.isIntersecting ? 'hidden' : 'shown';
+      },
+      { threshold: 0.35 },
+    ).observe(hero);
+  }
+</script>

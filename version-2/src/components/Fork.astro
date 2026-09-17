@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import OpenStatus from './OpenStatus.astro';
-import { cafe, menu } from '../data/cafe';
+import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
 import driveThrough from '../assets/photos/drive-through-tray.jpg';
 import coldTrio from '../assets/photos/cold-drinks-trio.jpg';
@@ -14,7 +14,6 @@ interface Props {
 
 const { t } = Astro.props;
 const f = t.fork;
-const quick = [menu.americano, menu.latte, menu.hibiscus, menu.spanishLatte];
 const doors = [
   { id: 'takeaway', icon: 'car' },
   { id: 'order', icon: 'bag' },
@@ -68,25 +67,13 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
           <li><span>{f.takeaway.plusCode}</span><bdi dir="ltr">{cafe.plusCode}</bdi></li>
           <li><span>{f.takeaway.hours}</span>{f.takeaway.hoursValue}</li>
         </ul>
-        <div class="mt-[22px] flex flex-wrap gap-2.5">
+        <div class="mt-4 flex flex-wrap gap-2">
           <a class="btn" href={cafe.routeUrl} target="_blank" rel="noopener">
             <Icon name="pin" strokeWidth={1.8} />
             {f.takeaway.route}
           </a>
           <a class="btn btn-line" href={cafe.phoneHref}>{f.takeaway.call}</a>
-        </div>
-        <div class="mt-[26px]">
-          <h4 class="font-display text-[22px] font-semibold">{f.takeaway.quick}</h4>
-          <ul class="mt-2.5 flex flex-wrap gap-2">
-            {
-              quick.map((item) => (
-                <li class="quick-item">
-                  {item.ru} <b>{item.price}</b>
-                </li>
-              ))
-            }
-          </ul>
-          <a class="textlink" href="#menu">{f.takeaway.allMenu}</a>
+          <a class="btn btn-line" href="#menu">{f.takeaway.allMenu}</a>
         </div>
       </div>
     </div>
@@ -105,9 +92,8 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
             <label class="field-label" for="order-name">{f.name}<input class="field" id="order-name" name="name" type="text" autocomplete="name" required /></label>
             <label class="field-label" for="order-phone">{f.phone}<input class="field" id="order-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
             <label class="field-label wide" for="order-address">{f.order.address}<input class="field" id="order-address" name="address" type="text" autocomplete="street-address" required /></label>
-            <label class="field-label wide" for="order-items">{f.order.items}<textarea class="field min-h-[84px] resize-y" id="order-items" name="items" rows="3" placeholder={f.order.itemsPlaceholder} required></textarea></label>
           </div>
-          <div class="mt-[22px] flex flex-wrap gap-2.5">
+          <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.order.submit}</button>
             <a class="btn btn-line" href="#menu">{f.order.openMenu}</a>
           </div>
@@ -141,9 +127,14 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
             </fieldset>
             <label class="field-label" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" required /></label>
             <label class="field-label" for="visit-phone">{f.phone}<input class="field" id="visit-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
-            <label class="field-label" for="visit-date">{f.visit.date}<input class="field" id="visit-date" name="date" type="date" required /></label>
-            <label class="field-label" for="visit-time">{f.visit.time}<input class="field" id="visit-time" name="time" type="time" required /></label>
-            <label class="field-label" for="visit-guests">{f.visit.guests}
+            <!-- дата, время и гости стоят одной строкой: форма короче -->
+            <label class="field-label third" for="visit-date">{f.visit.date}
+              <select class="field" id="visit-date" name="date" data-visit-date></select>
+            </label>
+            <label class="field-label third" for="visit-time">{f.visit.time}
+              <select class="field" id="visit-time" name="time" data-visit-time></select>
+            </label>
+            <label class="field-label third" for="visit-guests">{f.visit.guests}
               <select class="field" id="visit-guests" name="guests">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option selected={n === 2}>{n}</option>)}
               </select>
@@ -151,9 +142,9 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
             <label class="check wide" for="visit-preorder"><input id="visit-preorder" type="checkbox" name="preorder" data-preorder />{f.visit.preorder}</label>
             <label class="field-label wide" for="visit-items" data-preorder-field hidden>{f.visit.items}<textarea class="field min-h-[84px] resize-y" id="visit-items" name="items" rows="3" placeholder={f.visit.itemsPlaceholder}></textarea></label>
           </div>
-          <div class="mt-[22px] flex flex-wrap gap-2.5">
+          <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.visit.submit}</button>
-            <a class="btn btn-line" href="#menu" data-preorder-field hidden>{f.visit.openMenu}</a>
+            <a class="btn btn-line" href="#menu">{f.visit.openMenu}</a>
           </div>
           <p class="demo-note">{f.visit.note}</p>
         </form>
@@ -239,16 +230,16 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     margin-top: 12px;
     background: var(--color-cream);
     border-radius: var(--radius-block);
-    padding: 36px;
+    padding: 22px;
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 40px;
+    grid-template-columns: 0.75fr 1.25fr;
+    gap: 26px;
     align-items: start;
   }
   .panel-photo {
     border-radius: 22px;
     overflow: hidden;
-    aspect-ratio: 4/5;
+    aspect-ratio: 4/3;
     background: var(--color-linen);
     position: relative;
   }
@@ -265,44 +256,30 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
   .panel-title {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(30px, 3.4vw, 44px);
+    font-size: clamp(24px, 2.6vw, 34px);
     line-height: 1.05;
     text-wrap: balance;
   }
   .panel-sub {
     color: var(--color-muted);
-    margin-top: 10px;
-    max-width: 48ch;
+    margin-top: 8px;
+    max-width: 52ch;
+    font-size: 15px;
   }
   .facts {
-    margin-top: 22px;
+    margin-top: 16px;
     border-top: 1px solid var(--color-line);
   }
   .facts li {
     display: grid;
-    grid-template-columns: 140px 1fr;
+    grid-template-columns: 130px 1fr;
     gap: 14px;
-    padding: 12px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--color-line);
-    font-size: 15px;
+    font-size: 14.5px;
   }
   .facts span {
     color: var(--color-muted);
-  }
-  .quick-item {
-    border: 1.5px solid var(--color-coffee);
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 15px;
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-  }
-  .quick-item b {
-    font-family: var(--font-display);
-    font-weight: 600;
-    color: var(--color-red-ink);
-    font-variant-numeric: tabular-nums;
   }
   .textlink {
     font-weight: 500;
@@ -316,9 +293,16 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
 
   .fields {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    margin-top: 22px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .fields > * {
+    grid-column: span 3;
+  }
+  /* дата, время и гости — одной строкой */
+  .fields .third {
+    grid-column: span 2;
   }
   .wide {
     grid-column: 1 / -1;
@@ -395,11 +379,11 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
   @media (max-width: 980px) {
     .panel {
       grid-template-columns: 1fr;
-      padding: 26px;
-      gap: 26px;
+      padding: 18px;
+      gap: 18px;
     }
     .panel-photo {
-      aspect-ratio: 16/11;
+      aspect-ratio: 16/9;
     }
   }
   @media (max-width: 720px) {
@@ -424,8 +408,11 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     }
   }
   @media (max-width: 640px) {
-    .fields {
-      grid-template-columns: 1fr;
+    .fields > * {
+      grid-column: 1 / -1;
+    }
+    .fields .third {
+      grid-column: span 2;
     }
     .facts li {
       grid-template-columns: 110px 1fr;
@@ -471,6 +458,70 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
       if (door) openDoor(door);
     });
   });
+
+  // Дата: ближайшие три дня. Время: получасовые слоты в часах работы этого дня.
+  const dateSelect = document.querySelector<HTMLSelectElement>('[data-visit-date]');
+  const timeSelect = document.querySelector<HTMLSelectElement>('[data-visit-time]');
+  const TZ = 'Asia/Riyadh';
+  const OPEN = 390;
+  const OPEN_FRIDAY = 780;
+  const CLOSE = 120; // 02:00 следующих суток
+
+  function madinahNow() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      weekday: 'short',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+    return {
+      iso: `${get('year')}-${get('month')}-${get('day')}`,
+      minutes: Number(get('hour')) * 60 + Number(get('minute')),
+    };
+  }
+
+  function fillTimes(dayIso: string, offset: number) {
+    if (!timeSelect) return;
+    const day = new Date(`${dayIso}T12:00:00Z`);
+    const friday = day.getUTCDay() === 5;
+    const opens = friday ? OPEN_FRIDAY : OPEN;
+    const now = madinahNow().minutes;
+    const options: string[] = [];
+    for (let m = opens; m <= 24 * 60 + CLOSE; m += 30) {
+      if (offset === 0 && m <= now + 30) continue;
+      const h = Math.floor(m / 60) % 24;
+      options.push(`${String(h).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    }
+    timeSelect.innerHTML = options.map((value) => `<option>${value}</option>`).join('');
+    return options.length;
+  }
+
+  if (dateSelect && timeSelect) {
+    const today = madinahNow();
+    const labels = ['сегодня', 'завтра', 'послезавтра'];
+    const days = [0, 1, 2].map((offset) => {
+      const date = new Date(`${today.iso}T12:00:00Z`);
+      date.setUTCDate(date.getUTCDate() + offset);
+      const iso = date.toISOString().slice(0, 10);
+      const human = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(date);
+      return { iso, offset, label: `${labels[offset]}, ${human}` };
+    });
+    dateSelect.innerHTML = days.map((day) => `<option value="${day.iso}" data-offset="${day.offset}">${day.label}</option>`).join('');
+    // Если на сегодня слотов уже нет, первым днём становится завтра
+    if (!fillTimes(days[0].iso, 0)) {
+      dateSelect.remove(0);
+      fillTimes(dateSelect.value, Number(dateSelect.selectedOptions[0].dataset.offset));
+    }
+    dateSelect.addEventListener('change', () => {
+      const option = dateSelect.selectedOptions[0];
+      fillTimes(dateSelect.value, Number(option.dataset.offset));
+    });
+  }
 
   // «Подать заказ к приходу» показывает поле заказа и ссылку на меню
   const preorder = document.querySelector<HTMLInputElement>('[data-preorder]');

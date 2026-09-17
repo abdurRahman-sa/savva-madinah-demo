@@ -6,6 +6,7 @@ import Fresh from '../components/Fresh.astro';
 import CalmMenu from '../components/CalmMenu.astro';
 import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
+import ActionBar from '../components/ActionBar.astro';
 import DesignTweaks from '../components/DesignTweaks.astro';
 import { ru as t } from '../i18n/ru';
 ---
@@ -19,5 +20,6 @@ import { ru as t } from '../i18n/ru';
     <Reviews t={t} />
   </main>
   <Footer t={t} />
+  <ActionBar t={t} />
   {import.meta.env.DEV && <DesignTweaks />}
 </Layout>
