@@ -1,24 +1,53 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
-import hibiscusCup from '../assets/photos/hibiscus-cup.jpg';
-import hibiscusPour from '../assets/photos/hibiscus-pour.jpg';
-import matchaMelon from '../assets/photos/matcha-berry-vs-melon.jpg';
-import cookies from '../assets/photos/madini-cookies.jpg';
-import sandwich from '../assets/photos/sandwich-plate.jpg';
-import coffeePour from '../assets/photos/coffee-pour-cups.jpg';
-import coldTrio from '../assets/photos/cold-drinks-trio.jpg';
-import drinksShelf from '../assets/photos/cold-drinks-shelf.jpg';
-import driveThrough from '../assets/photos/drive-through-tray.jpg';
-import breakfastLaptop from '../assets/photos/breakfast-laptop.jpg';
-import terrace from '../assets/photos/terrace-day.jpg';
-import juice from '../assets/photos/juice.jpg';
-import cappuccino from '../assets/photos/cappuccino.jpg';
-import cakeCup from '../assets/photos/cake-cup.jpg';
-import cheesecakeWindow from '../assets/photos/cheesecake-window.jpg';
-import interiorLounge from '../assets/photos/interior-lounge.jpg';
-import cookiesPlate from '../assets/photos/cookies-plate.jpg';
+
+// Все настоящие кадры Savva: Instagram и Google Maps, людей в кадре нет.
+const sources = Object.values(
+  import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.jpg', { eager: true }),
+).map((m) => m.default);
+const byName = (name: string) => sources.find((s) => s.src.includes(`/${name}.`))!;
+
+// Кусочков столько, сколько влезает в экран: на широком мониторе их больше.
+// Крупные и широкие идут первыми, дальше мелкие заполняют дыры.
+const shown = [
+  { name: 'melon-drink', size: 'big' },
+  { name: 'raspberry-umbrella' },
+  { name: 'hibiscus-pour' },
+  { name: 'cheesecake-window', size: 'wide' },
+  { name: 'redvelvet-terrace' },
+  { name: 'tray-tart', size: 'big' },
+  { name: 'cookies-stack' },
+  { name: 'drive-through-tray' },
+  { name: 'matcha-pour' },
+  { name: 'cold-drinks-trio' },
+  { name: 'sandwich-plate' },
+  { name: 'interior-lounge', size: 'big' },
+  { name: 'madini-cookies' },
+  { name: 'facade-day' },
+  { name: 'duo-cups' },
+  { name: 'racket-cookies', size: 'wide' },
+  { name: 'choco-cake-close' },
+  { name: 'hands-latte' },
+  { name: 'juice' },
+  { name: 'matcha-sea' },
+  { name: 'cappuccino' },
+  { name: 'caramel-cake' },
+  { name: 'terrace-day' },
+  { name: 'cookies-plate' },
+];
+
+// Два размера: мелкий для телефона, крупный для монитора
+const optimize = async (src: ImageMetadata) => ({
+  small: (await getImage({ src, width: 260, format: 'webp' })).src,
+  large: (await getImage({ src, width: 480, format: 'webp' })).src,
+});
+const tiles = await Promise.all(
+  shown.map(async (tile) => ({ ...tile, ...(await optimize(byName(tile.name))) })),
+);
+// Запас для обновления: остальные кадры подгружаются по мере смены.
+const pool = await Promise.all(sources.map(optimize));
 
 interface Props {
   t: Dict;
@@ -26,36 +55,22 @@ interface Props {
 
 const { t } = Astro.props;
 const h = t.hero;
-
-// Коллаж: 17 настоящих кадров Savva, без повторов. Крупные и широкий кусочки
-// ломают сетку, порядок появления перемешивается при каждой загрузке.
-const tiles = [
-  { src: hibiscusPour },
-  { src: cookiesPlate },
-  { src: coldTrio },
-  { src: interiorLounge, size: 'big' },
-  { src: sandwich },
-  { src: matchaMelon },
-  { src: coffeePour },
-  { src: cheesecakeWindow, size: 'wide' },
-  { src: drinksShelf },
-  { src: breakfastLaptop },
-  { src: cakeCup, size: 'big' },
-  { src: driveThrough },
-  { src: juice },
-  { src: terrace },
-  { src: hibiscusCup },
-  { src: cappuccino },
-  { src: cookies },
-];
 ---
 
 <section class="hero" data-hero>
-  <div class="collage" role="img" aria-label={h.collageAlt}>
+  <div class="collage" role="img" aria-label={h.collageAlt} data-pool={JSON.stringify(pool)}>
     {
       tiles.map((tile, i) => (
         <span class:list={['tile', tile.size]} style={`--step:${i}`}>
-          <Image src={tile.src} alt="" widths={[220, 420]} sizes="(max-width: 720px) 30vw, 20vw" loading="eager" />
+          <img
+            src={tile.large}
+            srcset={`${tile.small} 260w, ${tile.large} 480w`}
+            sizes="(max-width: 720px) 34vw, 14vw"
+            data-url={tile.large}
+            alt=""
+            loading={i < 12 ? 'eager' : 'lazy'}
+            decoding="async"
+          />
         </span>
       ))
     }
@@ -75,8 +90,7 @@ const tiles = [
       });
     })();
   </script>
-  <div class="veil" aria-hidden="true"></div>
-  <div class="ribbon" aria-hidden="true"></div>
+  <div class="mute" aria-hidden="true"></div>
 
   <div class="wrap stage">
     <div class="cup-wrap">
@@ -136,11 +150,12 @@ const tiles = [
     inset: 0;
     z-index: -2;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(clamp(104px, 12vw, 190px), 1fr));
+    grid-auto-rows: clamp(104px, 12vw, 190px);
     grid-auto-flow: dense;
     gap: 6px;
     padding: 6px;
+    overflow: hidden;
   }
   .tile {
     overflow: hidden;
@@ -155,40 +170,46 @@ const tiles = [
   .tile.wide {
     grid-column: span 2;
   }
-  .tile :global(img) {
+  .tile img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: opacity 0.5s var(--ease-out-expo);
   }
-  .veil {
+  /* приглушение коллажа по краям: центр остаётся чистым и тянет взгляд */
+  .mute {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(95% 75% at 50% 46%, rgb(233 223 203 / 0.92) 26%, rgb(233 223 203 / 0.74) 58%, rgb(233 223 203 / 0.46) 100%);
-  }
-  .ribbon {
-    position: absolute;
-    top: -34px;
-    left: -6%;
-    width: 112%;
-    height: 96px;
-    transform: rotate(-4deg);
-    background: repeating-linear-gradient(
-      90deg,
-      var(--color-red) 0 74px,
-      var(--color-cream) 74px 126px,
-      var(--color-coffee) 126px 168px,
-      var(--color-cream) 168px 220px
-    );
-    box-shadow: 0 18px 40px -22px rgb(60 60 74 / 0.6);
+    background: var(--color-linen);
+    opacity: 0;
+    -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 82%);
+    mask-image: radial-gradient(closest-side, transparent 34%, #000 82%);
   }
 
   /* сцена по центру */
   .stage {
+    position: relative;
     display: grid;
     justify-items: center;
     text-align: center;
     gap: 0;
+    width: min(880px, 100%);
+    margin-inline: auto;
+  }
+  /* мягкое пятно света только под надписью и кнопками: по краям фото видно целиком */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: -8% -12%;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side,
+      rgb(233 223 203 / 0.94) 0%,
+      rgb(233 223 203 / 0.88) 48%,
+      rgb(233 223 203 / 0.64) 74%,
+      rgb(233 223 203 / 0) 100%
+    );
   }
   .cup-wrap {
     position: relative;
@@ -204,7 +225,7 @@ const tiles = [
     stroke: var(--color-coffee-deep);
     stroke-width: 3;
     stroke-linecap: round;
-    opacity: 0.55;
+    opacity: 0.42;
   }
   .cup-shine {
     stroke: #fff;
@@ -215,7 +236,7 @@ const tiles = [
     fill: none;
     stroke: var(--color-coffee-deep);
     stroke-width: 3;
-    opacity: 0.55;
+    opacity: 0.42;
   }
   .liquid {
     fill: var(--color-melon);
@@ -278,14 +299,16 @@ const tiles = [
     color: var(--color-red);
   }
 
-  /* заставка: 2,5 секунды, коллаж собирается, стакан наполняется, потом надпись и кнопки */
+  /* заставка: коллаж собирается, наполняется стакан, на второй секунде
+     разом выходят надпись, строка и кнопки, а края коллажа приглушаются */
   .tile,
   .liquid,
+  .mute,
   .brand,
   .lead,
   .actions,
   .meta {
-    animation-duration: 0.4s;
+    animation-duration: 0.45s;
     animation-timing-function: var(--ease-out-expo);
     animation-fill-mode: both;
   }
@@ -299,22 +322,20 @@ const tiles = [
     animation-duration: 1.5s;
     animation-delay: 0.15s;
   }
+  .mute {
+    animation-name: mute-in;
+    animation-duration: 0.7s;
+    animation-delay: 2s;
+  }
   .brand {
     animation-name: brand-in;
-    animation-duration: 0.45s;
-    animation-delay: 1.6s;
+    animation-delay: 2s;
   }
-  .lead {
-    animation-name: rise;
-    animation-delay: 1.9s;
-  }
-  .actions {
-    animation-name: rise;
-    animation-delay: 2.05s;
-  }
+  .lead,
+  .actions,
   .meta {
     animation-name: rise;
-    animation-delay: 2.2s;
+    animation-delay: 2s;
   }
   .skip {
     animation: rise 0.3s var(--ease-out-expo) 0.4s both;
@@ -325,11 +346,15 @@ const tiles = [
   }
   .hero[data-intro='done'] .tile,
   .hero[data-intro='done'] .liquid,
+  .hero[data-intro='done'] .mute,
   .hero[data-intro='done'] .brand,
   .hero[data-intro='done'] .lead,
   .hero[data-intro='done'] .actions,
   .hero[data-intro='done'] .meta {
     animation: none;
+  }
+  .hero[data-intro='done'] .mute {
+    opacity: 0.42;
   }
 
   @keyframes tile-in {
@@ -349,6 +374,14 @@ const tiles = [
       transform: scale(0.97);
     }
   }
+  @keyframes mute-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 0.42;
+    }
+  }
   @keyframes rise {
     from {
       opacity: 0;
@@ -359,12 +392,16 @@ const tiles = [
   @media (prefers-reduced-motion: reduce) {
     .tile,
     .liquid,
+    .mute,
     .brand,
     .lead,
     .actions,
     .meta,
     .skip {
       animation: none;
+    }
+    .mute {
+      opacity: 0.42;
     }
     .skip {
       display: none;
@@ -373,8 +410,6 @@ const tiles = [
 
   @media (max-width: 720px) {
     .collage {
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(6, 1fr);
       gap: 5px;
       padding: 5px;
     }
@@ -395,6 +430,51 @@ const tiles = [
 </style>
 
 <script>
+  // Кусочки коллажа по одному сменяют фото: за минуту гость видит весь запас кадров
+  const collage = document.querySelector<HTMLElement>('[data-pool]');
+  const pool: { small: string; large: string }[] = JSON.parse(collage?.dataset.pool ?? '[]');
+  const calm = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function swapOneTile() {
+    if (!collage) return;
+    const images = [...collage.querySelectorAll<HTMLImageElement>('img')];
+    const used = new Set(images.map((img) => img.dataset.url));
+    const fresh = pool.filter((photo) => !used.has(photo.large));
+    if (!fresh.length) return;
+
+    const image = images[Math.floor(Math.random() * images.length)];
+    const next = fresh[Math.floor(Math.random() * fresh.length)];
+    const preload = new Image();
+    preload.srcset = `${next.small} 260w, ${next.large} 480w`;
+    preload.sizes = image.sizes;
+    preload.src = next.large;
+    preload
+      .decode()
+      .catch(() => {})
+      .then(() => {
+        image.style.opacity = '0';
+        setTimeout(() => {
+          image.srcset = preload.srcset;
+          image.src = next.large;
+          image.dataset.url = next.large;
+          image.style.opacity = '';
+        }, 500);
+      });
+  }
+
+  let onScreen = true;
+  function tick() {
+    // Смена идёт, только пока первый экран виден и движение не выключено
+    if (onScreen && !document.hidden && !calm.matches) swapOneTile();
+    setTimeout(tick, 2800 + Math.random() * 1700);
+  }
+
+  if (collage && pool.length > collage.children.length) {
+    // Смены начинаются после заставки
+    setTimeout(tick, 3000);
+    new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting), { threshold: 0.15 }).observe(collage);
+  }
+
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const KEY = 'savva-intro-seen';
 
