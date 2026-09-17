@@ -45,12 +45,19 @@
   --hand-tilt: -3deg;
   --motion: 1;
   --ease: var(--ease-out-expo);
-  --collage-cell: clamp(104px, 12vw, 190px);
+  --collage-cell: clamp(150px, 19vw, 300px);
+  --collage-rows: 4;
   --collage-gap: 6px;
-  --mute-strength: 0.42;
   --center-glow: 1;
   --intro-lead: 2s;
+  --brand-reveal: 0.9s;
   --cup-size: 24vh;
+}
+
+@property --brand-fill {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 118%;
 }
 
 @layer base {

@@ -23,21 +23,12 @@ const shown = [
   { name: 'matcha-pour' },
   { name: 'cold-drinks-trio' },
   { name: 'sandwich-plate' },
-  { name: 'interior-lounge', size: 'big' },
+  { name: 'cake-cup', size: 'big' },
   { name: 'madini-cookies' },
   { name: 'facade-day' },
   { name: 'duo-cups' },
-  { name: 'racket-cookies', size: 'wide' },
-  { name: 'choco-cake-close' },
-  { name: 'hands-latte' },
   { name: 'juice' },
-  { name: 'matcha-sea' },
-  { name: 'cappuccino' },
-  { name: 'caramel-cake' },
-  { name: 'terrace-day' },
-  { name: 'cookies-plate' },
 ];
-
 // Два размера: мелкий для телефона, крупный для монитора
 const optimize = async (src: ImageMetadata) => ({
   small: (await getImage({ src, width: 260, format: 'webp' })).src,
@@ -90,7 +81,6 @@ const h = t.hero;
       });
     })();
   </script>
-  <div class="mute" aria-hidden="true"></div>
 
   <div class="wrap stage">
     <div class="cup-wrap">
@@ -151,7 +141,7 @@ const h = t.hero;
     z-index: -2;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--collage-cell), 1fr));
-    grid-auto-rows: var(--collage-cell);
+    grid-template-rows: repeat(var(--collage-rows), 1fr);
     grid-auto-flow: dense;
     gap: var(--collage-gap);
     padding: var(--collage-gap);
@@ -176,17 +166,6 @@ const h = t.hero;
     object-fit: cover;
     transition: opacity calc(0.5s * var(--motion)) var(--ease);
   }
-  /* приглушение коллажа по краям: центр остаётся чистым и тянет взгляд */
-  .mute {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--color-linen);
-    opacity: 0;
-    -webkit-mask-image: radial-gradient(closest-side, transparent 34%, #000 82%);
-    mask-image: radial-gradient(closest-side, transparent 34%, #000 82%);
-  }
-
   /* сцена по центру */
   .stage {
     position: relative;
@@ -255,6 +234,11 @@ const h = t.hero;
     color: var(--color-ink);
     white-space: nowrap;
   }
+  .brand {
+    --brand-fill: 118%;
+    -webkit-mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
+    mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
+  }
   .brand i {
     font-style: normal;
     font-size: 0.26em;
@@ -303,7 +287,6 @@ const h = t.hero;
      разом выходят надпись, строка и кнопки, а края коллажа приглушаются */
   .tile,
   .liquid,
-  .mute,
   .brand,
   .lead,
   .actions,
@@ -322,13 +305,9 @@ const h = t.hero;
     animation-duration: calc(1.5s * var(--motion));
     animation-delay: calc(0.15s * var(--motion));
   }
-  .mute {
-    animation-name: mute-in;
-    animation-duration: calc(0.7s * var(--motion));
-    animation-delay: var(--intro-lead);
-  }
   .brand {
-    animation-name: brand-in;
+    animation-name: brand-pour;
+    animation-duration: calc(var(--brand-reveal) * var(--motion));
     animation-delay: var(--intro-lead);
   }
   .lead,
@@ -346,15 +325,11 @@ const h = t.hero;
   }
   .hero[data-intro='done'] .tile,
   .hero[data-intro='done'] .liquid,
-  .hero[data-intro='done'] .mute,
   .hero[data-intro='done'] .brand,
   .hero[data-intro='done'] .lead,
   .hero[data-intro='done'] .actions,
   .hero[data-intro='done'] .meta {
     animation: none;
-  }
-  .hero[data-intro='done'] .mute {
-    opacity: var(--mute-strength);
   }
 
   @keyframes tile-in {
@@ -368,18 +343,20 @@ const h = t.hero;
       transform: scaleY(0);
     }
   }
-  @keyframes brand-in {
+  /* имя наливается снизу вверх и набирает вес: то же движение, что у стакана */
+  @keyframes brand-pour {
     from {
-      opacity: 0;
-      transform: scale(0.97);
+      --brand-fill: 0%;
+      font-variation-settings: 'wght' 420;
+      opacity: 0.35;
     }
-  }
-  @keyframes mute-in {
-    from {
-      opacity: 0;
+    60% {
+      opacity: 1;
     }
     to {
-      opacity: var(--mute-strength);
+      --brand-fill: 118%;
+      font-variation-settings: 'wght' var(--display-weight);
+      opacity: 1;
     }
   }
   @keyframes rise {
@@ -392,16 +369,12 @@ const h = t.hero;
   @media (prefers-reduced-motion: reduce) {
     .tile,
     .liquid,
-    .mute,
     .brand,
     .lead,
     .actions,
     .meta,
     .skip {
       animation: none;
-    }
-    .mute {
-      opacity: var(--mute-strength);
     }
     .skip {
       display: none;
@@ -410,6 +383,9 @@ const h = t.hero;
 
   @media (max-width: 720px) {
     .collage {
+      /* на телефоне три колонки: кусочки крупные, но не в половину экрана */
+      grid-template-columns: repeat(auto-fill, minmax(30vw, 1fr));
+      grid-template-rows: repeat(5, 1fr);
       gap: 5px;
       padding: 5px;
     }
