@@ -1,0 +1,399 @@
+---
+// Панель твиков: только на локальном сервере (npm run dev), в сборку не попадает.
+// Каждая ручка меняет переменную из global.css прямо на живой странице.
+type Control =
+  | { kind: 'range'; label: string; token: string; min: number; max: number; step: number; unit: string; value: number }
+  | { kind: 'color'; label: string; token: string; value: string }
+  | { kind: 'select'; label: string; token: string; value: string; options: { label: string; value: string }[] };
+
+type Group = { title: string; controls: Control[] };
+
+const fonts = [
+  { label: 'El Messiri', value: '"El Messiri Variable", serif' },
+  { label: 'Rubik', value: '"Rubik Variable", sans-serif' },
+  { label: 'Caveat', value: '"Caveat Variable", cursive' },
+  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Системный', value: 'system-ui, sans-serif' },
+];
+
+const groups: Group[] = [
+  {
+    title: 'Заголовки',
+    controls: [
+      { kind: 'select', label: 'Шрифт', token: '--font-display', value: '"El Messiri Variable", serif', options: fonts },
+      { kind: 'range', label: 'Размер', token: '--display-scale', min: 0.6, max: 1.8, step: 0.02, unit: '', value: 1 },
+      { kind: 'range', label: 'Начертание', token: '--display-weight', min: 300, max: 800, step: 10, unit: '', value: 600 },
+      { kind: 'range', label: 'Межстрочный', token: '--display-leading', min: 0.8, max: 1.8, step: 0.01, unit: '', value: 1.04 },
+      { kind: 'range', label: 'Межбуквенный', token: '--display-tracking', min: -0.06, max: 0.08, step: 0.002, unit: 'em', value: -0.01 },
+      { kind: 'range', label: 'Имя Savva, межстрочный', token: '--brand-leading', min: 0.7, max: 1.4, step: 0.01, unit: '', value: 0.84 },
+      { kind: 'range', label: 'Имя Savva, межбуквенный', token: '--brand-tracking', min: -0.08, max: 0.06, step: 0.002, unit: 'em', value: -0.02 },
+    ],
+  },
+  {
+    title: 'Текст',
+    controls: [
+      { kind: 'select', label: 'Шрифт', token: '--font-sans', value: '"Rubik Variable", sans-serif', options: fonts },
+      { kind: 'range', label: 'Размер', token: '--text-size', min: 13, max: 22, step: 0.5, unit: 'px', value: 16 },
+      { kind: 'range', label: 'Межстрочный', token: '--text-leading', min: 1.2, max: 2, step: 0.02, unit: '', value: 1.5 },
+      { kind: 'select', label: 'Рукописный шрифт', token: '--font-hand', value: '"Caveat Variable", cursive', options: fonts },
+      { kind: 'range', label: 'Рукописный, размер', token: '--hand-size', min: 20, max: 56, step: 1, unit: 'px', value: 34 },
+      { kind: 'range', label: 'Рукописный, наклон', token: '--hand-tilt', min: -10, max: 10, step: 0.5, unit: 'deg', value: -3 },
+    ],
+  },
+  {
+    title: 'Цвета',
+    controls: [
+      { kind: 'color', label: 'Акцент, красный', token: '--color-red', value: '#b23c38' },
+      { kind: 'color', label: 'Тёмный, синева', token: '--color-shade', value: '#3c3c4a' },
+      { kind: 'color', label: 'Шалфей', token: '--color-sage', value: '#5c6450' },
+      { kind: 'color', label: 'Напиток в стакане', token: '--color-melon', value: '#f0a93a' },
+      { kind: 'color', label: 'Кофейный', token: '--color-coffee', value: '#6f4a2e' },
+      { kind: 'color', label: 'Фон, песок', token: '--color-linen', value: '#e9dfcb' },
+      { kind: 'color', label: 'Фон, сливочный', token: '--color-cream', value: '#f7efe0' },
+      { kind: 'color', label: 'Текст', token: '--color-ink', value: '#231e19' },
+      { kind: 'color', label: 'Текст приглушённый', token: '--color-muted', value: '#575042' },
+    ],
+  },
+  {
+    title: 'Раскладка',
+    controls: [
+      { kind: 'range', label: 'Ширина контента', token: '--wrap-max', min: 900, max: 1800, step: 20, unit: 'px', value: 1280 },
+      { kind: 'range', label: 'Поля по бокам', token: '--wrap-gutter', min: 12, max: 64, step: 2, unit: 'px', value: 28 },
+      { kind: 'range', label: 'Отступ между блоками', token: '--space-section', min: 30, max: 180, step: 2, unit: 'px', value: 90 },
+      { kind: 'range', label: 'Скругление блоков', token: '--radius-block', min: 0, max: 60, step: 1, unit: 'px', value: 34 },
+      { kind: 'range', label: 'Скругление кусочков', token: '--radius-tile', min: 0, max: 40, step: 1, unit: 'px', value: 14 },
+    ],
+  },
+  {
+    title: 'Первый экран',
+    controls: [
+      { kind: 'range', label: 'Размер кусочка', token: '--collage-cell', min: 8, max: 26, step: 0.5, unit: 'vw', value: 13 },
+      { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 6 },
+      { kind: 'range', label: 'Приглушение краёв', token: '--mute-strength', min: 0, max: 0.9, step: 0.01, unit: '', value: 0.42 },
+      { kind: 'range', label: 'Свет в центре', token: '--center-glow', min: 0, max: 1.1, step: 0.01, unit: '', value: 1 },
+      { kind: 'range', label: 'Стакан', token: '--cup-size', min: 10, max: 40, step: 0.5, unit: 'vh', value: 24 },
+    ],
+  },
+  {
+    title: 'Анимация',
+    controls: [
+      { kind: 'range', label: 'Скорость (1 = как сейчас)', token: '--motion', min: 0, max: 2.5, step: 0.05, unit: '', value: 1 },
+      { kind: 'range', label: 'Надпись выходит через', token: '--intro-lead', min: 0.2, max: 5, step: 0.1, unit: 's', value: 2 },
+      {
+        kind: 'select',
+        label: 'Кривая',
+        token: '--ease',
+        value: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        options: [
+          { label: 'Мягкое торможение', value: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+          { label: 'Плавная', value: 'ease-in-out' },
+          { label: 'Ровная', value: 'linear' },
+          { label: 'С отскоком', value: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+          { label: 'Резкая', value: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+        ],
+      },
+    ],
+  },
+];
+---
+
+<aside class="tweaks" data-tweaks hidden>
+  <header>
+    <b>Твики</b>
+    <div class="head-actions">
+      <button type="button" data-copy>Скопировать CSS</button>
+      <button type="button" data-reset>Сбросить</button>
+      <button type="button" data-close aria-label="Свернуть">×</button>
+    </div>
+  </header>
+  <div class="body">
+    {
+      groups.map((group) => (
+        <details open>
+          <summary>{group.title}</summary>
+          {group.controls.map((control) => (
+            <label class="row">
+              <span class="name">{control.label}</span>
+              {control.kind === 'range' && (
+                <span class="field">
+                  <input
+                    type="range"
+                    data-token={control.token}
+                    data-unit={control.unit}
+                    data-default={control.value}
+                    min={control.min}
+                    max={control.max}
+                    step={control.step}
+                    value={control.value}
+                  />
+                  <output>
+                    {control.value}
+                    {control.unit}
+                  </output>
+                </span>
+              )}
+              {control.kind === 'color' && (
+                <span class="field">
+                  <input type="color" data-token={control.token} data-unit="" data-default={control.value} value={control.value} />
+                  <output>{control.value}</output>
+                </span>
+              )}
+              {control.kind === 'select' && (
+                <span class="field">
+                  <select data-token={control.token} data-unit="" data-default={control.value}>
+                    {control.options.map((option) => (
+                      <option value={option.value} selected={option.value === control.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+              )}
+            </label>
+          ))}
+        </details>
+      ))
+    }
+  </div>
+  <footer class="note" data-note>Меняется только эта страница. Кнопка отдаёт CSS с тем, что вы правда трогали.</footer>
+</aside>
+
+<button class="tweaks-open" type="button" data-tweaks-open>Твики</button>
+
+<style>
+  .tweaks,
+  .tweaks-open {
+    position: fixed;
+    z-index: 9999;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    color: #f4f1ea;
+  }
+  .tweaks-open {
+    right: 16px;
+    bottom: 16px;
+    border: 0;
+    border-radius: 999px;
+    background: #1d1d22;
+    padding: 10px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 14px 30px -18px rgb(0 0 0 / 0.8);
+  }
+  .tweaks {
+    top: 16px;
+    right: 16px;
+    width: 330px;
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    background: #1d1d22;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.9);
+    font-size: 12.5px;
+  }
+  .tweaks[hidden] {
+    display: none;
+  }
+  .tweaks header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid #33333c;
+  }
+  .head-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .tweaks button {
+    font: inherit;
+    color: #f4f1ea;
+    background: #2b2b33;
+    border: 0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  .tweaks button:hover {
+    background: #3a3a45;
+  }
+  .tweaks .body {
+    overflow-y: auto;
+    padding: 6px 12px 12px;
+  }
+  .tweaks details {
+    border-bottom: 1px solid #2b2b33;
+    padding: 6px 0;
+  }
+  .tweaks summary {
+    cursor: pointer;
+    padding: 6px 0;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+  }
+  .name {
+    color: #c9c6be;
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field input[type='range'] {
+    width: 88px;
+    accent-color: #e0705f;
+  }
+  .field input[type='color'] {
+    width: 34px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .field select {
+    width: 100%;
+    font: inherit;
+    color: #f4f1ea;
+    background: #2b2b33;
+    border: 0;
+    border-radius: 8px;
+    padding: 5px 6px;
+  }
+  .field output {
+    min-width: 46px;
+    font-variant-numeric: tabular-nums;
+    color: #8f8c85;
+  }
+  .row.changed .name {
+    color: #f0a93a;
+  }
+  .note {
+    padding: 10px 12px;
+    border-top: 1px solid #33333c;
+    color: #8f8c85;
+    line-height: 1.35;
+  }
+</style>
+
+<script>
+  const panel = document.querySelector<HTMLElement>('[data-tweaks]');
+  const openButton = document.querySelector<HTMLButtonElement>('[data-tweaks-open]');
+  const note = document.querySelector<HTMLElement>('[data-note]');
+  const inputs = [...document.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-token]')];
+  const STORAGE = 'savva-tweaks';
+  const changed = new Map<string, string>();
+
+  function valueOf(input: HTMLInputElement | HTMLSelectElement) {
+    return input.value + (input.dataset.unit ?? '');
+  }
+
+  function apply(input: HTMLInputElement | HTMLSelectElement, remember = true) {
+    const token = input.dataset.token!;
+    const value = valueOf(input);
+    const isDefault = input.value === input.dataset.default;
+    document.documentElement.style.setProperty(token, value);
+    if (isDefault) {
+      changed.delete(token);
+      document.documentElement.style.removeProperty(token);
+    } else if (remember) {
+      changed.set(token, value);
+    }
+    input.closest('.row')?.classList.toggle('changed', !isDefault);
+    const out = input.parentElement?.querySelector('output');
+    if (out) out.textContent = input.type === 'color' ? input.value : value;
+    if (remember) save();
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE, JSON.stringify([...changed]));
+    } catch {
+      /* приватный режим */
+    }
+  }
+
+  function restore() {
+    let saved: [string, string][] = [];
+    try {
+      saved = JSON.parse(localStorage.getItem(STORAGE) ?? '[]');
+    } catch {
+      /* пусто */
+    }
+    const map = new Map(saved);
+    inputs.forEach((input) => {
+      const token = input.dataset.token!;
+      if (!map.has(token)) return;
+      const unit = input.dataset.unit ?? '';
+      const raw = map.get(token)!;
+      input.value = unit ? raw.slice(0, -unit.length) : raw;
+      apply(input, true);
+    });
+  }
+
+  inputs.forEach((input) => {
+    input.addEventListener('input', () => apply(input));
+  });
+
+  document.querySelector('[data-copy]')?.addEventListener('click', async () => {
+    if (!changed.size) {
+      if (note) note.textContent = 'Пока ничего не менялось, копировать нечего.';
+      return;
+    }
+    const css = [':root {', ...[...changed].map(([token, value]) => `  ${token}: ${value};`), '}'].join('\n');
+    try {
+      await navigator.clipboard.writeText(css);
+      if (note) note.textContent = `Скопировано, ${changed.size} значений:\n${css}`;
+    } catch {
+      if (note) note.textContent = css;
+    }
+  });
+
+  document.querySelector('[data-reset]')?.addEventListener('click', () => {
+    inputs.forEach((input) => {
+      input.value = input.dataset.default!;
+      document.documentElement.style.removeProperty(input.dataset.token!);
+      input.closest('.row')?.classList.remove('changed');
+      const out = input.parentElement?.querySelector('output');
+      if (out) out.textContent = input.type === 'color' ? input.value : valueOf(input);
+    });
+    changed.clear();
+    save();
+    if (note) note.textContent = 'Всё сброшено к значениям сайта.';
+  });
+
+  function togglePanel(open: boolean) {
+    if (panel) panel.hidden = !open;
+    if (openButton) openButton.hidden = open;
+    try {
+      localStorage.setItem(`${STORAGE}-open`, open ? '1' : '0');
+    } catch {
+      /* приватный режим */
+    }
+  }
+
+  openButton?.addEventListener('click', () => togglePanel(true));
+  document.querySelector('[data-close]')?.addEventListener('click', () => togglePanel(false));
+  // Панель прячется и показывается по клавише T
+  document.addEventListener('keydown', (event) => {
+    if (event.key.toLowerCase() === 't' && !/input|select|textarea/i.test((event.target as HTMLElement).tagName)) {
+      togglePanel(panel?.hidden ?? true);
+    }
+  });
+
+  restore();
+  let wasOpen = '1';
+  try {
+    wasOpen = localStorage.getItem(`${STORAGE}-open`) ?? '1';
+  } catch {
+    /* приватный режим */
+  }
+  togglePanel(wasOpen === '1');
+</script>

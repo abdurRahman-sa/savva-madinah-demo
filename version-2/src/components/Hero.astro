@@ -36,6 +36,12 @@ const shown = [
   { name: 'caramel-cake' },
   { name: 'terrace-day' },
   { name: 'cookies-plate' },
+  { name: 'breakfast-laptop' },
+  { name: 'cake-cup' },
+  { name: 'choco-cake-fork' },
+  { name: 'coffee-pour-cups' },
+  { name: 'cold-drinks-shelf' },
+  { name: 'hibiscus-cup' },
 ];
 
 // Два размера: мелкий для телефона, крупный для монитора
@@ -150,16 +156,16 @@ const h = t.hero;
     inset: 0;
     z-index: -2;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(clamp(104px, 12vw, 190px), 1fr));
-    grid-auto-rows: clamp(104px, 12vw, 190px);
+    grid-template-columns: repeat(auto-fill, minmax(var(--collage-cell), 1fr));
+    grid-template-rows: repeat(5, 1fr);
     grid-auto-flow: dense;
-    gap: 6px;
-    padding: 6px;
+    gap: var(--collage-gap);
+    padding: var(--collage-gap);
     overflow: hidden;
   }
   .tile {
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: var(--radius-tile);
     background: var(--color-cream);
   }
   .tile.big {
@@ -174,7 +180,7 @@ const h = t.hero;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity 0.5s var(--ease-out-expo);
+    transition: opacity calc(0.5s * var(--motion)) var(--ease);
   }
   /* приглушение коллажа по краям: центр остаётся чистым и тянет взгляд */
   .mute {
@@ -205,9 +211,9 @@ const h = t.hero;
     z-index: -1;
     background: radial-gradient(
       closest-side,
-      rgb(233 223 203 / 0.94) 0%,
-      rgb(233 223 203 / 0.88) 48%,
-      rgb(233 223 203 / 0.64) 74%,
+      rgb(233 223 203 / calc(0.94 * var(--center-glow))) 0%,
+      rgb(233 223 203 / calc(0.88 * var(--center-glow))) 48%,
+      rgb(233 223 203 / calc(0.64 * var(--center-glow))) 74%,
       rgb(233 223 203 / 0) 100%
     );
   }
@@ -217,7 +223,7 @@ const h = t.hero;
     place-items: center;
   }
   .cup {
-    width: clamp(170px, 24vh, 270px);
+    width: clamp(120px, var(--cup-size), 320px);
     height: auto;
   }
   .cup-body,
@@ -248,10 +254,10 @@ const h = t.hero;
   .brand {
     position: absolute;
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: clamp(72px, 15vw, 190px);
-    line-height: 0.84;
-    letter-spacing: -0.02em;
+    font-weight: var(--display-weight);
+    font-size: calc(clamp(72px, 15vw, 190px) * var(--display-scale));
+    line-height: var(--brand-leading);
+    letter-spacing: var(--brand-tracking);
     color: var(--color-ink);
     white-space: nowrap;
   }
@@ -308,34 +314,34 @@ const h = t.hero;
   .lead,
   .actions,
   .meta {
-    animation-duration: 0.45s;
-    animation-timing-function: var(--ease-out-expo);
+    animation-duration: calc(0.45s * var(--motion));
+    animation-timing-function: var(--ease);
     animation-fill-mode: both;
   }
   .tile {
     animation-name: tile-in;
-    animation-duration: 0.5s;
-    animation-delay: calc(var(--step) * 0.06s);
+    animation-duration: calc(0.5s * var(--motion));
+    animation-delay: calc(var(--step) * 0.06s * var(--motion));
   }
   .liquid {
     animation-name: pour;
-    animation-duration: 1.5s;
-    animation-delay: 0.15s;
+    animation-duration: calc(1.5s * var(--motion));
+    animation-delay: calc(0.15s * var(--motion));
   }
   .mute {
     animation-name: mute-in;
-    animation-duration: 0.7s;
-    animation-delay: 2s;
+    animation-duration: calc(0.7s * var(--motion));
+    animation-delay: var(--intro-lead);
   }
   .brand {
     animation-name: brand-in;
-    animation-delay: 2s;
+    animation-delay: var(--intro-lead);
   }
   .lead,
   .actions,
   .meta {
     animation-name: rise;
-    animation-delay: 2s;
+    animation-delay: var(--intro-lead);
   }
   .skip {
     animation: rise 0.3s var(--ease-out-expo) 0.4s both;
@@ -354,7 +360,7 @@ const h = t.hero;
     animation: none;
   }
   .hero[data-intro='done'] .mute {
-    opacity: 0.42;
+    opacity: var(--mute-strength);
   }
 
   @keyframes tile-in {
@@ -379,7 +385,7 @@ const h = t.hero;
       opacity: 0;
     }
     to {
-      opacity: 0.42;
+      opacity: var(--mute-strength);
     }
   }
   @keyframes rise {
@@ -401,7 +407,7 @@ const h = t.hero;
       animation: none;
     }
     .mute {
-      opacity: 0.42;
+      opacity: var(--mute-strength);
     }
     .skip {
       display: none;
@@ -410,6 +416,7 @@ const h = t.hero;
 
   @media (max-width: 720px) {
     .collage {
+      grid-template-columns: repeat(auto-fill, minmax(calc(var(--collage-cell) * 2.3), 1fr));
       gap: 5px;
       padding: 5px;
     }

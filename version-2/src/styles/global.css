@@ -26,6 +26,33 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Решения дизайна одной ручкой: панель твиков (только в dev) меняет их живьём */
+:root {
+  --wrap-max: 1280px;
+  --wrap-gutter: 28px;
+  --space-section: 90px;
+  --radius-block: 34px;
+  --radius-tile: 14px;
+  --display-scale: 1;
+  --display-weight: 600;
+  --display-leading: 1.04;
+  --display-tracking: -0.01em;
+  --brand-leading: 0.84;
+  --brand-tracking: -0.02em;
+  --text-size: 16px;
+  --text-leading: 1.5;
+  --hand-size: 34px;
+  --hand-tilt: -3deg;
+  --motion: 1;
+  --ease: var(--ease-out-expo);
+  --collage-cell: 13vw;
+  --collage-gap: 6px;
+  --mute-strength: 0.42;
+  --center-glow: 1;
+  --intro-lead: 2s;
+  --cup-size: 24vh;
+}
+
 @layer base {
   [hidden] {
     display: none !important;
@@ -46,7 +73,8 @@
 
   body {
     @apply bg-linen font-sans text-ink antialiased;
-    line-height: 1.5;
+    font-size: var(--text-size);
+    line-height: var(--text-leading);
     caret-color: var(--color-red);
     overflow-x: clip;
   }
@@ -73,30 +101,39 @@
 
 @layer components {
   .wrap {
-    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-7;
+    @apply mx-auto w-full;
+    max-width: var(--wrap-max);
+    padding-inline: clamp(20px, var(--wrap-gutter), 40px);
+  }
+
+  /* вертикальный ритм между блоками */
+  .section {
+    padding-block: var(--space-section);
   }
 
   /* Рукописное слово над заголовком — часть мира «Навес» */
   .hand {
-    @apply inline-block font-hand text-[34px] leading-none text-red;
+    @apply inline-block font-hand leading-none text-red;
+    font-size: var(--hand-size);
     font-weight: 500;
-    transform: rotate(-3deg);
+    transform: rotate(var(--hand-tilt));
   }
 
   .h-section {
-    @apply mt-2 font-display font-semibold;
-    font-size: clamp(36px, 5.4vw, 68px);
-    line-height: 1.04;
-    letter-spacing: -0.01em;
+    @apply mt-2 font-display;
+    font-size: calc(clamp(36px, 5.4vw, 68px) * var(--display-scale));
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
     text-wrap: balance;
   }
 
   .btn {
     @apply inline-flex cursor-pointer items-center gap-2.5 rounded-full border-0 bg-red px-[26px] py-4 text-base leading-none font-medium text-white no-underline;
     transition:
-      background-color 0.25s var(--ease-out-expo),
-      color 0.25s var(--ease-out-expo),
-      box-shadow 0.25s var(--ease-out-expo);
+      background-color calc(0.25s * var(--motion)) var(--ease),
+      color calc(0.25s * var(--motion)) var(--ease),
+      box-shadow calc(0.25s * var(--motion)) var(--ease);
   }
   .btn:hover {
     @apply bg-coffee text-white;

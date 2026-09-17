@@ -12,7 +12,7 @@ const topics = Object.entries(cafe.reviewTopics) as [keyof typeof cafe.reviewTop
 const maxTopic = Math.max(...topics.map(([, n]) => n));
 ---
 
-<section class="pt-[96px] pb-10" id="reviews">
+<section class="section" id="reviews">
   <div class="wrap">
     <p class="hand">{r.hand}</p>
     <h2 class="h-section">{r.title}</h2>
@@ -66,7 +66,7 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
   }
   .tape > * {
     scroll-snap-align: start;
-    border-radius: 28px;
+    border-radius: calc(var(--radius-block) * 0.82);
     padding: 28px;
   }
   .score {
