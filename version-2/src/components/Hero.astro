@@ -48,7 +48,6 @@ const h = t.hero;
 ---
 
 <section class="hero" data-hero>
-  <div class="scene">
   <div class="collage" role="img" aria-label={h.collageAlt} data-pool={JSON.stringify(pool)}>
     {
       tiles.map((tile, i) => (
@@ -82,7 +81,8 @@ const h = t.hero;
     })();
   </script>
 
-  <div class="cup-wrap">
+  <div class="wrap stage">
+    <div class="cup-wrap">
       <svg class="cup" viewBox="0 0 200 268" role="img" aria-label={h.cupAlt}>
         <defs>
           <clipPath id="cup-inside">
@@ -99,13 +99,10 @@ const h = t.hero;
         />
         <rect class="cup-lid" x="20" y="34" width="160" height="22" rx="8" />
         <path class="cup-shine" d="M54 70 L48 226" fill="none" />
-    </svg>
-  </div>
-  </div>
+      </svg>
+      <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
+    </div>
 
-  <div class="band">
-  <div class="wrap stage">
-    <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
     <p class="lead">{h.lead}</p>
 
     <div class="actions">
@@ -121,7 +118,6 @@ const h = t.hero;
       <span class="pill">{h.area}</span>
     </div>
   </div>
-  </div>
 
   <button class="skip" type="button" data-skip-intro>{h.skip}</button>
 </section>
@@ -131,27 +127,10 @@ const h = t.hero;
     position: relative;
     min-height: 100svh;
     display: grid;
-    /* сверху коллаж, снизу свободная полоса под имя и действия */
-    grid-template-rows: minmax(0, 1fr) auto;
+    align-content: center;
+    padding: clamp(80px, 12vh, 140px) 0 clamp(48px, 8vh, 96px);
     overflow: hidden;
     isolation: isolate;
-  }
-  .scene {
-    position: relative;
-    display: grid;
-    place-items: center;
-    min-height: 0;
-  }
-  /* полоса под надпись: по умолчанию четверть экрана, растёт под содержимое */
-  .band {
-    position: relative;
-    z-index: 1;
-    min-height: var(--hero-band);
-    display: grid;
-    align-content: center;
-    background: var(--color-cream);
-    border-radius: var(--radius-block) var(--radius-block) 0 0;
-    padding-block: clamp(12px, 1.8vh, 22px);
   }
 
   /* коллаж из кадров кафе */
@@ -188,7 +167,9 @@ const h = t.hero;
     object-fit: cover;
     transition: opacity calc(0.5s * var(--motion)) var(--ease);
   }
+  /* сцена по центру */
   .stage {
+    position: relative;
     display: grid;
     justify-items: center;
     text-align: center;
@@ -196,25 +177,26 @@ const h = t.hero;
     width: min(880px, 100%);
     margin-inline: auto;
   }
-  /* стакан стоит по центру коллажа, под ним мягкий свет, чтобы он читался на фото */
+  /* мягкое пятно света только под надписью и кнопками: по краям фото видно целиком */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: -8% -12%;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side,
+      rgb(233 223 203 / calc(0.94 * var(--center-glow))) 0%,
+      rgb(233 223 203 / calc(0.88 * var(--center-glow))) 48%,
+      rgb(233 223 203 / calc(0.64 * var(--center-glow))) 74%,
+      rgb(233 223 203 / 0) 100%
+    );
+  }
   .cup-wrap {
     position: relative;
     display: grid;
     place-items: center;
   }
-  .cup-wrap::before {
-    content: '';
-    position: absolute;
-    inset: -40% -60%;
-    background: radial-gradient(
-      closest-side,
-      rgb(233 223 203 / calc(0.9 * var(--center-glow))) 0%,
-      rgb(233 223 203 / calc(0.55 * var(--center-glow))) 60%,
-      rgb(233 223 203 / 0) 100%
-    );
-  }
   .cup {
-    position: relative;
     width: clamp(120px, var(--cup-size), 320px);
     height: auto;
   }
@@ -242,10 +224,12 @@ const h = t.hero;
     transform-origin: 50% 100%;
   }
 
+  /* надпись поверх стакана, как в референсе, но без тени */
   .brand {
+    position: absolute;
     font-family: var(--font-display);
     font-weight: var(--display-weight);
-    font-size: calc(clamp(40px, 7vw, 104px) * var(--display-scale));
+    font-size: calc(clamp(72px, 15vw, 190px) * var(--display-scale));
     line-height: var(--brand-leading);
     letter-spacing: var(--brand-tracking);
     color: var(--color-ink);
@@ -264,9 +248,9 @@ const h = t.hero;
   }
 
   .lead {
-    margin-top: clamp(8px, 1.4vh, 16px);
-    max-width: 30ch;
-    font-size: clamp(16px, 1.5vw, 20px);
+    margin-top: clamp(18px, 4vh, 34px);
+    max-width: 24ch;
+    font-size: clamp(18px, 1.8vw, 24px);
     font-weight: 500;
     text-wrap: balance;
   }
@@ -275,14 +259,14 @@ const h = t.hero;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    margin-top: clamp(14px, 2vh, 22px);
+    margin-top: clamp(18px, 3vh, 26px);
   }
   .meta {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
-    margin-top: clamp(12px, 1.8vh, 18px);
+    gap: 10px;
+    margin-top: clamp(16px, 2.5vh, 24px);
   }
   .skip {
     position: absolute;
@@ -404,26 +388,6 @@ const h = t.hero;
       gap: 5px;
       padding: 5px;
     }
-    /* на телефоне полоса собраннее: кнопки в два ряда по две, факты мельче */
-    .lead {
-      font-size: 15px;
-      max-width: 28ch;
-    }
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      width: 100%;
-    }
-    .actions :global(.btn) {
-      justify-content: center;
-      padding: 13px 14px;
-      font-size: 15px;
-    }
-    .meta :global(.pill) {
-      font-size: 12.5px;
-      padding: 6px 12px;
-    }
     .brand i {
       margin-left: 10px;
     }
@@ -439,8 +403,14 @@ const h = t.hero;
 
   /* Увеличение кусочка под курсором — только там, где курсор есть */
   @media (hover: none) {
+    .shot:hover img,
     .tile:hover img {
       transform: none;
+    }
+  }
+    .skip {
+      right: 50%;
+      transform: translateX(50%);
     }
   }
 </style>

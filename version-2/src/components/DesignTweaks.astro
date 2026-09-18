@@ -72,7 +72,6 @@ const groups: Group[] = [
       { kind: 'range', label: 'Рядов', token: '--collage-rows', min: 2, max: 9, step: 1, unit: '', value: 4 },
       { kind: 'range', label: 'Свет в центре', token: '--center-glow', min: 0, max: 1.1, step: 0.01, unit: '', value: 1 },
       { kind: 'range', label: 'Стакан', token: '--cup-size', min: 10, max: 40, step: 0.5, unit: 'vh', value: 24 },
-      { kind: 'range', label: 'Полоса под именем', token: '--hero-band', min: 12, max: 60, step: 1, unit: 'svh', value: 25 },
     ],
   },
   {
@@ -283,27 +282,6 @@ const groups: Group[] = [
     color: #8f8c85;
     line-height: 1.35;
   }
-
-  /* На телефоне панель становится нижним листом, кнопка встаёт над полосой действий */
-  @media (max-width: 720px) {
-    .tweaks {
-      top: auto;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      width: auto;
-      max-height: 72vh;
-    }
-    .tweaks-open {
-      /* слева, чтобы не закрывать главную кнопку сайта */
-      right: auto;
-      left: 12px;
-      bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-    }
-    .row {
-      grid-template-columns: 1fr 132px;
-    }
-  }
 </style>
 
 <script>
@@ -412,10 +390,9 @@ const groups: Group[] = [
   });
 
   restore();
-  // На телефоне панель по умолчанию свёрнута, чтобы не закрывать сайт
-  let wasOpen = innerWidth > 720 ? '1' : '0';
+  let wasOpen = '1';
   try {
-    wasOpen = localStorage.getItem(`${STORAGE}-open`) ?? wasOpen;
+    wasOpen = localStorage.getItem(`${STORAGE}-open`) ?? '1';
   } catch {
     /* приватный режим */
   }
