@@ -50,6 +50,9 @@
   --collage-rows: 4;
   --collage-gap: 6px;
   --collage-min: 46svh;
+  /* подъём имени Savva вверх (отрицательное — вниз) */
+  --brand-lift-tablet: 0px;
+  --brand-lift-desktop: 0px;
   --intro-lead: 2s;
   --brand-reveal: 0.9s;
 }

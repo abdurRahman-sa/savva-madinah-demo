@@ -149,6 +149,17 @@ const h = t.hero;
     display: grid;
     justify-items: center;
   }
+  /* подъём имени ручкой из панели твиков: отдельно для планшета и ноутбука */
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .brand-row {
+      translate: 0 calc(-1 * var(--brand-lift-tablet));
+    }
+  }
+  @media (min-width: 1024px) {
+    .brand-row {
+      translate: 0 calc(-1 * var(--brand-lift-desktop));
+    }
+  }
 
   /* стакан у имени: сначала наливается он, потом имя */
   .cup {
@@ -185,6 +196,10 @@ const h = t.hero;
     letter-spacing: var(--brand-tracking);
     color: var(--color-ink);
     white-space: nowrap;
+    /* маска режет всё, что выходит за блок, а при межстрочном 0,84 верх S выходит:
+       запас внутри блока, снаружи он же вычитается — место не меняется */
+    padding-block: 0.16em 0.08em;
+    margin-block: -0.16em -0.08em;
     --brand-fill: 118%;
     -webkit-mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
     mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
