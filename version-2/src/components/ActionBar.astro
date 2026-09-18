@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { cafe } from '../data/cafe';
+import wordmark from '../assets/brand/savva-wordmark.svg?raw';
 import type { Dict } from '../i18n/ru';
 
 interface Props {
@@ -14,7 +15,7 @@ const h = t.hero;
 
 <!-- Действия остаются под рукой после первого экрана: снизу на телефоне, сверху на компьютере -->
 <nav class="action-bar" aria-label={b.label} data-action-bar hidden>
-  <p class="brand-mark" aria-hidden="true">Savva</p>
+  <p class="brand-mark" aria-hidden="true" set:html={wordmark} />
   <div class="items">
     <a class="item item-primary" href="#fork" data-open-door="visit">
       <Icon name="chair" class="ico" />
@@ -135,11 +136,13 @@ const h = t.hero;
     }
     .brand-mark {
       display: block;
-      font-family: var(--font-display);
-      font-weight: var(--display-weight);
-      font-size: 26px;
-      line-height: 1;
-      letter-spacing: var(--brand-tracking);
+      line-height: 0;
+      /* настоящий логотип, как в герое: шалфей сайта */
+      color: var(--color-sage);
+    }
+    .brand-mark :global(svg) {
+      height: 26px;
+      width: auto;
     }
     .items {
       width: auto;

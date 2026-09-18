@@ -22,18 +22,24 @@ export const cafe = {
 
 export type MenuItem = {
   ru: string;
-  /** Арабское название — только из меню или подписей кафе */
-  ar?: string;
+  /** Арабское название — как в меню кафе */
+  ar: string;
   en: string;
   /** Цена в SAR; нет цены — «у стойки» */
   price?: number;
+  /** Цена диапазоном, как в меню (кофе дня) */
+  priceText?: string;
   kcal?: number;
-  /** Подпись вместо калорийности */
-  note?: string;
+  /** Фото позиции: имя файла в src/assets/photos или src/assets/menu (без .jpg). Нет фото — плашка */
+  photo?: string;
+  /** Как кадрировать фото в карточке (object-position) */
+  focus?: string;
 };
 
-// Холодные напитки — по фото меню в Google Maps. Остальное — позиции с фото и карточки, без цен.
-const drinks = {
+// Всё меню — из хайлайта «Muno» в Instagram кафе (скриншоты references/меню, 2026-09-19);
+// холодные напитки совпадают с фото меню в Google Maps. Калорийность — как в их меню.
+// Фото привязаны только там, где позиция на кадре точно известна (подпись кафе или однозначный вид).
+const cold = {
   americano: { en: 'Iced Americano', ru: 'Айс американо', ar: 'ايس أمريكانو', price: 15, kcal: 2 },
   alfredo: { en: 'Alfredo', ru: 'Альфредо', ar: 'ألفريدو', price: 14, kcal: 100 },
   latte: { en: 'Iced Latte', ru: 'Айс латте', ar: 'ايس لاتيه', price: 17, kcal: 100 },
@@ -41,34 +47,64 @@ const drinks = {
   matchaLatte: { en: 'Iced Matcha Latte', ru: 'Айс матча латте', ar: 'ايس ماتشا لاتيه', price: 17, kcal: 130 },
   matchaSpanish: { en: 'Iced Matcha Spanish Latte', ru: 'Айс матча спаниш латте', ar: 'ايس ماتشا سبانيش لاتيه', price: 19, kcal: 230 },
   savvaMatcha: { en: 'Savva Matcha', ru: 'Матча Savva', ar: 'سافا ماتشا', price: 22, kcal: 2 },
-  matchaBerry: { en: 'Matcha Berry', ru: 'Матча берри', ar: 'ماتشا بيري', price: 24, kcal: 230 },
+  matchaBerry: { en: 'Matcha Berry', ru: 'Матча берри', ar: 'ماتشا بيري', price: 24, kcal: 230, photo: 'matcha-berry-vs-melon', focus: '22% 60%' },
   iceTea: { en: 'Ice Tea Savva', ru: 'Холодный чай Savva', ar: 'ايس تي سافا', price: 17, kcal: 189 },
-  hibiscus: { en: 'Ice Hibiscus Savva', ru: 'Каркаде Savva', ar: 'ايس كركديه سافا', price: 17, kcal: 180 },
-  slush: { en: 'Hibiscus Slush Savva', ru: 'Слаш из каркаде Savva', ar: 'سلاش كركديه سافا', price: 17, kcal: 180 },
+  hibiscus: { en: 'Ice Hibiscus Savva', ru: 'Каркаде Savva', ar: 'ايس كركديه سافا', price: 17, kcal: 180, photo: 'hibiscus-pour', focus: '50% 70%' },
+  slush: { en: 'Hibiscus Slush Savva', ru: 'Слаш из каркаде Savva', ar: 'سلاش كركديه سافا', price: 17, kcal: 180, photo: 'hibiscus-slush' },
   shaken: { en: 'Ice Shaken', ru: 'Айс шейкен', ar: 'ايس شيكن', price: 20, kcal: 231 },
   whiteMocha: { en: 'Ice White Mocha', ru: 'Айс уайт мока', ar: 'ايس وايت موكا', price: 19, kcal: 230 },
   chocolate: { en: 'Ice Chocolate', ru: 'Холодный шоколад', ar: 'ايس شوكلت', price: 17, kcal: 230 },
-  melon: { en: 'Savva Melon', ru: 'Дыня Savva', ar: 'شمام سافا', price: 16, kcal: 50 },
+  melon: { en: 'Savva Melon', ru: 'Дыня Savva', ar: 'شمام سافا', price: 16, kcal: 50, photo: 'melon-drink' },
 } satisfies Record<string, MenuItem>;
 
-const food = {
-  madiniCookies: { en: 'Madini Cookies', ru: 'Мединское печенье', ar: 'كوكيز مديني', note: 'финики, кардамон, чёрный тмин' },
-  cheesecake: { en: 'Blueberry Cheesecake', ru: 'Черничный чизкейк', note: 'популярное на картах' },
-  cappuccino: { en: 'Cappuccino', ru: 'Капучино', note: 'популярное на картах' },
-  sandwich: { en: 'Breakfast sandwich', ru: 'Сэндвич на завтрак' },
+const hot = {
+  espresso: { en: 'Espresso', ru: 'Эспрессо', ar: 'إسبريسو', price: 11, kcal: 2 },
+  americano: { en: 'Americano', ru: 'Американо', ar: 'أمريكانو', price: 12, kcal: 2 },
+  cortado: { en: 'Cortado', ru: 'Кортадо', ar: 'كورتادو', price: 14, kcal: 50 },
+  macchiato: { en: 'Macchiato', ru: 'Макиато', ar: 'ميكاتو', price: 13, kcal: 13 },
+  flatWhite: { en: 'Flat White', ru: 'Флэт уайт', ar: 'فلات وايت', price: 15, kcal: 50 },
+  latte: { en: 'Latte', ru: 'Латте', ar: 'لاتيه', price: 16, kcal: 75 },
+  cappuccino: { en: 'Cappuccino', ru: 'Капучино', ar: 'كابتشينو', price: 16, kcal: 60, photo: 'cappuccino', focus: '30% 75%' },
+  spanishLatte: { en: 'Spanish Latte', ru: 'Спаниш латте', ar: 'سبانش لاتيه', price: 18, kcal: 178 },
+  matchaLatte: { en: 'Matcha Latte', ru: 'Матча латте', ar: 'ماتشا لاتيه', price: 16, kcal: 75 },
+  whiteMocha: { en: 'White Mocha', ru: 'Уайт мока', ar: 'وايت موكا', price: 16, kcal: 230 },
+  hotChocolate: { en: 'Hot Chocolate', ru: 'Горячий шоколад', ar: 'هوت شوكليت', price: 15, kcal: 237 },
+  englishTea: { en: 'English Tea', ru: 'Английский чай', ar: 'شاي انجليزي', price: 6, kcal: 2 },
+  turkish: { en: 'Turkish Coffee', ru: 'Турецкий кофе', ar: 'تركي سادة', price: 11, kcal: 50 },
+  turkishMilk: { en: 'Turkish Coffee with Milk', ru: 'Турецкий кофе с молоком', ar: 'تركي حليب', price: 13, kcal: 50 },
+  coffeeOfDay: { en: 'Coffee of the Day, hot / ice', ru: 'Кофе дня, горячий или со льдом', ar: 'قهوة اليوم بارد / حار', priceText: '10–13' },
+  // цена в меню закрыта полем ответа Instagram
+  drip: { en: 'Drip', ru: 'Дрип', ar: 'قهوة المقطرة' },
 } satisfies Record<string, MenuItem>;
 
-export const menu = { ...drinks, ...food };
+const sweet = {
+  madiniCookies: { en: 'Madini Cookies', ru: 'Мединское печенье', ar: 'مديني كوكيز', price: 12, kcal: 170, photo: 'madini-cookies' },
+  cinnamonDanish: { en: 'Cinnamon Danish', ru: 'Даниш с корицей', ar: 'دانيش سينابون', price: 19, kcal: 170, photo: 'cinnamon-danish' },
+  marbleCake: { en: 'Marble Cake', ru: 'Мраморный кекс', ar: 'ماربل كيك', price: 11, kcal: 170 },
+  crunchyChocolate: { en: 'Crunchy Chocolate', ru: 'Кранчи шоколад', ar: 'كرانشي شوكلت', price: 8, kcal: 170 },
+  cheesecake: { en: 'Blueberry Cheesecake', ru: 'Черничный чизкейк', ar: 'تشيز كيك بلوبيري', price: 27, kcal: 170, photo: 'blueberry-cheesecake', focus: '50% 70%' },
+  pecanCake: { en: 'Pecan Cake', ru: 'Кейк с пеканом', ar: 'كيكة البيكان', price: 21, kcal: 170, photo: 'cake-cup', focus: '60% 80%' },
+  chocolateCake: { en: 'Chocolate Cake', ru: 'Шоколадный кейк', ar: 'كيكة شوكلت', price: 17, kcal: 170, photo: 'choco-cake-fork', focus: '50% 75%' },
+} satisfies Record<string, MenuItem>;
+
+const breakfast = {
+  turkey: { en: 'Turkey Sandwich', ru: 'Сэндвич с индейкой', ar: 'ساندوتش تركي', price: 19, kcal: 300 },
+  halloumi: { en: 'Halloumi Sandwich', ru: 'Сэндвич с халуми', ar: 'ساندوتش حلوم', price: 18, kcal: 300 },
+} satisfies Record<string, MenuItem>;
+
+export const menu = { cold, hot, sweet, breakfast };
+
+// Внутри группы сначала позиции с фото, потом плашки
+const withPhotosFirst = (items: MenuItem[]) => [...items.filter((i) => i.photo), ...items.filter((i) => !i.photo)];
 
 export const menuGroups: { id: string; items: MenuItem[] }[] = [
-  { id: 'own', items: [drinks.hibiscus, drinks.slush, drinks.savvaMatcha, drinks.iceTea, drinks.melon, food.madiniCookies] },
-  { id: 'cold', items: [drinks.americano, drinks.alfredo, drinks.latte, drinks.spanishLatte, drinks.shaken, drinks.whiteMocha] },
-  { id: 'matcha', items: [drinks.matchaLatte, drinks.matchaSpanish, drinks.matchaBerry, drinks.chocolate] },
-  { id: 'hot', items: [food.cappuccino] },
-  { id: 'sweet', items: [food.cheesecake, food.madiniCookies, food.sandwich] },
+  { id: 'own', items: withPhotosFirst([cold.hibiscus, cold.slush, cold.melon, sweet.madiniCookies, cold.savvaMatcha, cold.iceTea]) },
+  { id: 'cold', items: withPhotosFirst(Object.values(cold)) },
+  { id: 'hot', items: withPhotosFirst(Object.values(hot)) },
+  { id: 'sweet', items: withPhotosFirst(Object.values(sweet)) },
+  { id: 'breakfast', items: Object.values(breakfast) },
 ];
 
-// Отзывы — дословно с Google Maps (оригинал на английском), см. content-sources.md.
 export const reviews = [
   {
     author: 'Mani',
