@@ -17,7 +17,6 @@
   --color-muted: #5d634f;
   --color-line: #d3c6aa;
   /* сочный жёлтый, как мякоть дыни: напиток в стакане героя */
-  --color-melon: #f0a93a;
 
   --font-display: "El Messiri Variable", "Segoe UI", system-ui, sans-serif;
   --font-sans: "Rubik Variable", "Segoe UI", system-ui, sans-serif;
@@ -34,8 +33,8 @@
      --block-pad — высота блока: воздух внутри сверху и снизу (у цветной полосы — её толщина);
      --block-gap — от нижнего края контента одного блока до верхнего края контента следующего.
      Между блоками добавляется поле, если gap больше двух pad; если меньше — блоки просто стоят вплотную. */
-  --block-pad: 80px;
-  --block-gap: 160px;
+  --block-pad: 52px;
+  --block-gap: 140px;
   /* свои значения у развилки: высота её полосы и расстояние от героя до неё (подобраны пользователем 2026-09-19) */
   /* вступление героя: шрифт, начертание, масштаб и цвет обеих строк (Caveat 1,2 — выбор пользователя 2026-09-19) */
   --lead-font: var(--font-hand);
@@ -50,7 +49,9 @@
   --display-weight: 400;
   --display-leading: 1.25;
   --display-tracking: -0.01em;
-  --brand-leading: 0.84;
+  /* логотип в герое: высота слова SAVVA от размера имени, разрядка COFFEE */
+  --logo-height: 0.8em;
+  --coffee-tracking: 1.4em;
   --brand-tracking: -0.02em;
   --text-size: 16px;
   --text-leading: 1.5;
@@ -99,6 +100,12 @@
     --collage-rows: 2;
     --collage-min: 70svh;
   }
+}
+
+@property --coffee-track {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
 }
 
 @property --brand-fill {

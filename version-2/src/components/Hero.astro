@@ -3,6 +3,9 @@ import { getImage } from 'astro:assets';
 import sharp from 'sharp';
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
+// Слово SAVVA из настоящего логотипа (references/лого.jpeg, 295 × 295), обведено в вектор potrace.
+// Цвет задаёт CSS (fill: currentColor), строка COFFEE набрана Rubik — в исходнике она слишком мелкая для обводки.
+import wordmark from '../assets/brand/savva-wordmark.svg?raw';
 
 // Все настоящие кадры Savva: Instagram, Google Maps и фото кафе, лиц в кадре нет.
 const photos = Object.entries(
@@ -60,23 +63,12 @@ const h = t.hero;
   <!-- имя, строка и действия стоят над коллажем, на чистом фоне -->
   <div class="wrap band">
     <div class="brand-row">
-      <svg class="cup" viewBox="16 30 168 222" role="img" aria-label={h.cupAlt}>
-        <defs>
-          <clipPath id="cup-inside">
-            <path d="M32 54 L168 54 L152 236 a14 14 0 0 1 -14 12 L62 248 a14 14 0 0 1 -14 -12 Z" />
-          </clipPath>
-        </defs>
-        <g clip-path="url(#cup-inside)">
-          <rect class="liquid" x="28" y="54" width="144" height="196" />
-        </g>
-        <path
-          class="cup-body"
-          d="M32 54 L168 54 L152 236 a14 14 0 0 1 -14 12 L62 248 a14 14 0 0 1 -14 -12 Z"
-          fill="none"
-        />
-        <rect class="cup-lid" x="20" y="34" width="160" height="22" rx="8" />
-      </svg>
-      <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
+      <h1 class="brand">
+        <span class="sr-only">Savva Coffee</span>
+        <span class="wordmark" aria-hidden="true" set:html={wordmark} />
+        <i lang="ar" dir="rtl">سافا</i>
+        <span class="coffee" aria-hidden="true"><span>Coffee</span></span>
+      </h1>
     </div>
     <script is:inline>
       // Где имя стоит в заставке: центр экрана, чуть крупнее, но не шире 86% экрана
@@ -176,11 +168,7 @@ const h = t.hero;
     padding-top: max(clamp(28px, 5vh, 56px), env(safe-area-inset-top));
     padding-bottom: clamp(20px, 3.5vh, 36px);
   }
-  /* стакан стоит на базовой линии имени, крышка вровень с верхом «S» */
   .brand-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.12em;
     font-size: calc(clamp(60px, 11vw, 150px) * var(--display-scale));
   }
   .copy {
@@ -199,48 +187,53 @@ const h = t.hero;
     }
   }
 
-  /* стакан у имени: сначала наливается он, потом имя */
-  .cup {
-    flex: none;
-    /* высота заглавной у El Messiri — 0,68 размера шрифта; viewBox обрезан по краям стакана */
-    height: 0.68em;
-    width: auto;
-  }
-  .cup-body,
-  .cup-lid {
-    fill: none;
-    stroke: var(--color-coffee-deep);
-    stroke-width: 7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .liquid {
-    fill: var(--color-melon);
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-  }
-
+  /* логотип: SAVVA, справа سافا на уровне низа букв, под ним COFFEE — пропорции как в оригинале */
   .brand {
-    font-family: var(--font-display);
-    font-weight: var(--display-weight);
-    font-size: 1em;
-    line-height: var(--brand-leading);
-    letter-spacing: var(--brand-tracking);
-    color: var(--color-ink);
-    white-space: nowrap;
-    /* маска режет всё, что выходит за блок, а при межстрочном 0,84 верх S выходит:
-       запас внутри блока, снаружи он же вычитается — место не меняется */
-    padding-block: 0.16em 0.08em;
-    margin-block: -0.16em -0.08em;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: end;
+    column-gap: 0.14em;
+    color: var(--color-sage);
+    font-weight: 400;
+  }
+  .wordmark {
+    display: block;
+    line-height: 0;
     --brand-fill: 118%;
     -webkit-mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
     mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
   }
+  .wordmark :global(svg) {
+    display: block;
+    height: var(--logo-height);
+    width: auto;
+  }
   .brand i {
+    font-family: var(--font-display);
     font-style: normal;
     font-size: 0.26em;
-    color: var(--color-sage);
-    margin-inline-start: 0.4em;
+    line-height: 1;
+    /* низ арабского слова — по низу «S», хвосты «A» уходят ниже */
+    margin-bottom: calc(var(--logo-height) * 0.1);
+  }
+  /* COFFEE: блок нулевой ширины, слово по центру под SAVVA и не двигает вёрстку,
+     пока разрядка сужается в заставке */
+  .coffee {
+    grid-column: 1;
+    justify-self: center;
+    width: 0;
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--logo-height) * 0.19);
+    font: 500 max(10px, calc(var(--logo-height) * 0.155)) / 1 var(--font-sans);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .coffee span {
+    --coffee-track: var(--coffee-tracking);
+    letter-spacing: var(--coffee-track);
+    /* разрядка после последней буквы сдвигала бы слово из центра */
+    margin-inline-end: calc(-1 * var(--coffee-track));
   }
 
   /* вступление о кафе: две строки одним шрифтом и одного размера.
@@ -391,7 +384,7 @@ const h = t.hero;
   }
 
   /* Заставка в три такта:
-     1) имя со стаканом по центру экрана наливается (--brand-reveal);
+     1) логотип по центру экрана наливается, следом сужается COFFEE (--brand-reveal);
      2) стоит по центру (--intro-lead) и переезжает на своё место (--intro-move);
      3) когда имя встало, за --collage-reveal проявляются кадры, за ними строка, кнопки, плашки.
      Смещение к центру (--fx, --fy, --fs) считает скрипт сразу после разметки. */
@@ -404,8 +397,9 @@ const h = t.hero;
   }
   .brand-row,
   .tile,
-  .liquid,
-  .brand,
+  .wordmark,
+  .brand i,
+  .coffee span,
   .lead,
   .lead-sub,
   .actions,
@@ -420,14 +414,21 @@ const h = t.hero;
     animation-delay: var(--t-home);
     animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
   }
-  .liquid {
-    animation-name: pour;
-    animation-duration: calc(var(--t-reveal) * 0.85);
-  }
-  .brand {
+  .wordmark {
     animation-name: brand-pour;
     animation-duration: var(--t-reveal);
     animation-delay: calc(0.2s * var(--motion));
+  }
+  /* когда SAVVA почти налилось: проявляется سافا, а COFFEE сжимает разрядку до своей */
+  .brand i {
+    animation-name: fade;
+    animation-duration: calc(0.6s * var(--motion));
+    animation-delay: calc(var(--t-reveal) * 0.6);
+  }
+  .coffee span {
+    animation-name: coffee-in;
+    animation-duration: calc(1.1s * var(--motion));
+    animation-delay: calc(var(--t-reveal) * 0.6);
   }
   /* кадры по очереди в первой половине окна, текст и кнопки — во второй */
   .tile {
@@ -457,8 +458,9 @@ const h = t.hero;
   }
   .hero[data-intro='done'] .brand-row,
   .hero[data-intro='done'] .tile,
-  .hero[data-intro='done'] .liquid,
-  .hero[data-intro='done'] .brand,
+  .hero[data-intro='done'] .wordmark,
+  .hero[data-intro='done'] .brand i,
+  .hero[data-intro='done'] .coffee span,
   .hero[data-intro='done'] .lead,
   .hero[data-intro='done'] .lead-sub,
   .hero[data-intro='done'] .actions,
@@ -478,12 +480,7 @@ const h = t.hero;
       transform: scale(0.94);
     }
   }
-  @keyframes pour {
-    from {
-      transform: scaleY(0);
-    }
-  }
-  /* имя наливается снизу вверх: то же движение, что у стакана */
+  /* SAVVA наливается снизу вверх */
   @keyframes brand-pour {
     from {
       --brand-fill: 0%;
@@ -497,6 +494,17 @@ const h = t.hero;
       opacity: 1;
     }
   }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes coffee-in {
+    from {
+      opacity: 0;
+      --coffee-track: calc(var(--coffee-tracking) * 1.9);
+    }
+  }
   @keyframes rise {
     from {
       opacity: 0;
@@ -507,8 +515,9 @@ const h = t.hero;
   @media (prefers-reduced-motion: reduce) {
     .brand-row,
     .tile,
-    .liquid,
-    .brand,
+    .wordmark,
+    .brand i,
+    .coffee span,
     .lead,
     .lead-sub,
     .actions,

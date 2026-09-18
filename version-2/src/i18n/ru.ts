@@ -19,7 +19,6 @@ export const ru = {
     hours: 'ежедневно',
     rating: 'на картах',
     area: 'Bir Uthman, Медина',
-    cupAlt: 'Стакан Savva наполняется напитком цвета дыни',
     collageAlt: 'Напитки, десерты и завтраки Savva',
     skip: 'Пропустить заставку',
   },
