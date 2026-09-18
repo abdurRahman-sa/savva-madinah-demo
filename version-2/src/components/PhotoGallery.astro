@@ -57,9 +57,12 @@ const frameRatio = (src: ImageMetadata) => Math.max(src.width / src.height, 0.75
 </figure>
 
 <style>
+  /* подпись и стрелка решают по ширине самого фото, а не экрана:
+     узкое фото (телефон, колонка на планшете) — они под ним, широкое — поверх */
   .gallery {
     position: relative;
     margin: 0;
+    container-type: inline-size;
   }
   .frame {
     position: relative;
@@ -127,8 +130,8 @@ const frameRatio = (src: ImageMetadata) => Math.max(src.width / src.height, 0.75
     width: 22px;
     height: 22px;
   }
-  /* Телефон: фото целиком, подпись и стрелка строкой под ним, ничего не перекрывает кадр */
-  @media (max-width: 640px) {
+  /* Узкое фото: подпись и стрелка строкой под ним, ничего не перекрывает кадр */
+  @container (max-width: 420px) {
     .visit-bar {
       position: static;
       margin-top: 10px;

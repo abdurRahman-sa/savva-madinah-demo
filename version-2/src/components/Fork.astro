@@ -155,89 +155,94 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       </div>
     </div>
 
-    <!-- Прийти -->
-    <div class="panel" role="tabpanel" id="panel-visit" aria-labelledby="tab-visit" hidden>
-      <!-- фото меняется вместе с зоной; в каждой зоне два кадра, стрелка листает -->
-      {
-        visitGalleries.map((gallery) => (
-          <PhotoGallery
-            photos={gallery.photos}
-            nextLabel={gallery.nextLabel}
-            sizes={photoSizes}
-            zone={gallery.zone}
-            hidden={gallery.zone !== 'hall'}
-          />
-        ))
-      }
-      <div>
-        <h3 class="panel-title">{f.visit.title}</h3>
-        <p class="panel-sub">{f.visit.text}</p>
-        <form class="demo-form" novalidate>
-          <div class="fields">
-            <fieldset class="field-label wide">
-              <legend class="mb-1.5">{f.visit.zone}</legend>
-              <div class="seg">
-                <label><input type="radio" name="zone" value="hall" checked data-zone /><span>{f.visit.hall}<small>{f.visit.hallCount}</small></span></label>
-                <label><input type="radio" name="zone" value="terrace" data-zone /><span>{f.visit.terrace}<small>{f.visit.terraceCount}</small></span></label>
-              </div>
-            </fieldset>
-            <fieldset class="field-label wide tables">
-              <legend class="mb-1.5">{f.visit.table}</legend>
-              <div class="tables-row">
-                {
-                  (['hall', 'terrace'] as const).map((zone) => (
-                    <div
-                      class:list={['plan', `plan-${zone}`]}
-                      role="radiogroup"
-                      aria-label={zone === 'hall' ? f.visit.planHallLabel : f.visit.planTerraceLabel}
-                      data-plan={zone}
-                      hidden={zone === 'terrace'}
-                    >
-                      {zone === 'hall' ? (
-                        <>
-                          <span class="counter">{f.visit.planCounter}</span>
-                          <span class="entrance">{f.visit.planEntrance}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span class="awning" aria-hidden="true" />
-                          <span class="edge edge-top">{f.visit.planCafe}</span>
-                          <span class="edge edge-bottom">{f.visit.planWalk}</span>
-                        </>
-                      )}
-                      {plans[zone].map(([row, col], i) => (
-                        <label class="table" style={`grid-row:${row};grid-column:${col}`}>
-                          <input type="radio" name="table" value={tableNumber(zone, i)} disabled={zone === 'terrace'} />
-                          <span>{tableNumber(zone, i)}</span>
-                        </label>
-                      ))}
-                    </div>
-                  ))
-                }
-                <div class="tables-side">
-                  <p class="picked" aria-live="polite" data-table-picked data-any={f.visit.tableAny} data-picked={f.visit.tablePicked}>
-                    {f.visit.tableAny}
-                  </p>
-                  <p class="hint">{f.visit.tableHint} {f.visit.planNote}</p>
+    <!-- Прийти. Слева всё про место: зона, фото, схема столиков; справа заголовок и короткая форма столбиком.
+         Зона и столик вынесены из формы, но принадлежат ей через атрибут form. -->
+    <div class="panel panel-visit" role="tabpanel" id="panel-visit" aria-labelledby="tab-visit" hidden>
+      <div class="v-col">
+        <!-- фото меняется вместе с зоной; в каждой зоне два кадра, стрелка листает -->
+        {
+          visitGalleries.map((gallery) => (
+            <PhotoGallery
+              photos={gallery.photos}
+              nextLabel={gallery.nextLabel}
+              sizes={photoSizes}
+              zone={gallery.zone}
+              hidden={gallery.zone !== 'hall'}
+            />
+          ))
+        }
+        <fieldset class="field-label tables v-tables" data-part-of="visit-form">
+          <legend class="mb-1.5">{f.visit.table}</legend>
+          <div class="tables-row">
+            {
+              (['hall', 'terrace'] as const).map((zone) => (
+                <div
+                  class:list={['plan', `plan-${zone}`]}
+                  role="radiogroup"
+                  aria-label={zone === 'hall' ? f.visit.planHallLabel : f.visit.planTerraceLabel}
+                  data-plan={zone}
+                  hidden={zone === 'terrace'}
+                >
+                  {zone === 'hall' ? (
+                    <>
+                      <span class="counter">{f.visit.planCounter}</span>
+                      <span class="entrance">{f.visit.planEntrance}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span class="awning" aria-hidden="true" />
+                      <span class="edge edge-top">{f.visit.planCafe}</span>
+                      <span class="edge edge-bottom">{f.visit.planWalk}</span>
+                    </>
+                  )}
+                  {plans[zone].map(([row, col], i) => (
+                    <label class="table" style={`grid-row:${row};grid-column:${col}`}>
+                      <input type="radio" form="visit-form" name="table" value={tableNumber(zone, i)} disabled={zone === 'terrace'} />
+                      <span>{tableNumber(zone, i)}</span>
+                    </label>
+                  ))}
                 </div>
-              </div>
-            </fieldset>
-            <label class="field-label" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" required /></label>
-            <label class="field-label" for="visit-phone">{f.phone}<input class="field" id="visit-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
-            <!-- дата, время и гости стоят одной строкой: форма короче -->
-            <label class="field-label third" for="visit-date">{f.visit.date}
-              <select class="field" id="visit-date" name="date" data-visit-date></select>
-            </label>
-            <label class="field-label third" for="visit-time">{f.visit.time}
-              <select class="field" id="visit-time" name="time" data-visit-time></select>
-            </label>
-            <label class="field-label third" for="visit-guests">{f.visit.guests}
-              <select class="field" id="visit-guests" name="guests">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option selected={n === 2}>{n}</option>)}
-              </select>
-            </label>
-            <label class="check wide" for="visit-preorder"><input id="visit-preorder" type="checkbox" name="preorder" data-preorder />{f.visit.preorder}</label>
-            <label class="field-label wide" for="visit-items" data-preorder-field hidden>{f.visit.items}<textarea class="field min-h-[84px] resize-y" id="visit-items" name="items" rows="3" placeholder={f.visit.itemsPlaceholder}></textarea></label>
+              ))
+            }
+            <div class="tables-side">
+              <p class="picked" aria-live="polite" data-table-picked data-any={f.visit.tableAny} data-picked={f.visit.tablePicked}>
+                {f.visit.tableAny}
+              </p>
+              <p class="hint">{f.visit.tableHint} {f.visit.planNote}</p>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="v-col">
+        <div class="v-head">
+          <h3 class="panel-title">{f.visit.title}</h3>
+          <p class="panel-sub">{f.visit.text}</p>
+        </div>
+        <fieldset class="field-label v-zone" data-part-of="visit-form">
+          <legend class="mb-1.5">{f.visit.zone}</legend>
+          <div class="seg">
+            <label><input type="radio" form="visit-form" name="zone" value="hall" checked data-zone /><span>{f.visit.hall}<small>{f.visit.hallCount}</small></span></label>
+            <label><input type="radio" form="visit-form" name="zone" value="terrace" data-zone /><span>{f.visit.terrace}<small>{f.visit.terraceCount}</small></span></label>
+          </div>
+        </fieldset>
+        <form class="demo-form v-form" id="visit-form" novalidate>
+          <div class="fields">
+          <label class="field-label wide" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" required /></label>
+          <label class="field-label wide" for="visit-phone">{f.phone}<input class="field" id="visit-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
+          <!-- поля столбиком: колонка формы выравнивается по высоте с фото и схемой -->
+          <label class="field-label wide" for="visit-date">{f.visit.date}
+            <select class="field" id="visit-date" name="date" data-visit-date></select>
+          </label>
+          <label class="field-label wide" for="visit-time">{f.visit.time}
+            <select class="field" id="visit-time" name="time" data-visit-time></select>
+          </label>
+          <label class="field-label wide" for="visit-guests">{f.visit.guests}
+            <select class="field" id="visit-guests" name="guests">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option selected={n === 2}>{n}</option>)}
+            </select>
+          </label>
+          <!-- что приготовить, гость выберет в общей форме заказа; здесь только отметка -->
+          <label class="check wide" for="visit-preorder"><input id="visit-preorder" type="checkbox" name="preorder" />{f.visit.preorder}</label>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.visit.submit}</button>
@@ -245,7 +250,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           </div>
           <p class="demo-note">{f.visit.note}</p>
         </form>
-        <div class="ok" hidden>
+        <div class="ok v-form" hidden>
           <h4 tabindex="-1">{f.visit.okTitle}</h4>
           <p>{f.visit.okText}</p>
           <button class="btn btn-line mt-5" type="button" data-again>{f.again}</button>
@@ -333,9 +338,23 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     gap: 26px;
     align-items: start;
   }
-  /* в «Прийти» фото шире: зал снят горизонтально и должен читаться целиком */
-  #panel-visit {
+  /* «Прийти»: слева фото и схема столиков, справа заголовок, зона и форма столбиком —
+     колонки близки по высоте, пустот нет */
+  .panel-visit {
     grid-template-columns: 1fr 1fr;
+    column-gap: 32px;
+  }
+  .v-col {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+  .v-zone :global(legend),
+  .v-tables :global(legend) {
+    margin-bottom: 6px;
+  }
+  .panel-visit .fields {
+    margin-top: 0;
   }
   .panel-title {
     font-family: var(--font-display);
@@ -383,10 +402,6 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
   .fields > * {
     grid-column: span 3;
-  }
-  /* дата, время и гости — одной строкой */
-  .fields .third {
-    grid-column: span 2;
   }
   .wide {
     grid-column: 1 / -1;
@@ -501,8 +516,13 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     border-radius: 18px 18px 0 0;
     background: repeating-linear-gradient(90deg, var(--color-red) 0 16px, var(--color-cream) 16px 32px);
   }
+  /* зона касания 44 × 44 вокруг круга: палец попадает, даже если круг меньше */
   .table {
     position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
   }
   .table input {
@@ -527,8 +547,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       color 0.2s var(--ease-out-expo),
       transform 0.2s var(--ease-out-expo);
   }
-  .table:hover span {
-    transform: scale(1.08);
+  /* подъём при наведении — только там, где есть курсор: на телефоне он «залипает» после касания */
+  @media (hover: hover) {
+    .table:hover span {
+      transform: scale(1.08);
+    }
   }
   .table input:checked + span {
     background: var(--color-red);
@@ -557,6 +580,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     display: flex;
     align-items: center;
     gap: 10px;
+    min-height: 44px;
     font-size: 15px;
     cursor: pointer;
   }
@@ -582,13 +606,42 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
 
   @media (max-width: 980px) {
-    .panel,
-    #panel-visit {
+    .panel {
       grid-template-columns: 1fr;
       padding: 18px;
       gap: 18px;
     }
+    /* «Прийти» на планшете остаётся в две колонки: так блок вдвое ниже */
+    .panel-visit {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 20px;
+    }
   }
+  @media (max-width: 720px) {
+    /* одна колонка: колонки раскрываются, порядок — фото, заголовок, зона, схема, форма */
+    .panel-visit {
+      grid-template-columns: 1fr;
+    }
+    .panel-visit .v-col {
+      display: contents;
+    }
+    .panel-visit > .v-col > :global(figure) {
+      order: 1;
+    }
+    .v-head {
+      order: 2;
+    }
+    .v-zone {
+      order: 3;
+    }
+    .v-tables {
+      order: 4;
+    }
+    .v-form {
+      order: 5;
+    }
+  }
+
   @media (max-width: 720px) {
     .doors {
       grid-template-columns: 1fr;
@@ -613,9 +666,6 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   @media (max-width: 640px) {
     .fields > * {
       grid-column: 1 / -1;
-    }
-    .fields .third {
-      grid-column: span 2;
     }
     .facts li {
       grid-template-columns: 110px 1fr;
@@ -733,11 +783,6 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     });
   }
 
-  // «Подать заказ к приходу» показывает поле заказа и ссылку на меню
-  const preorder = document.querySelector<HTMLInputElement>('[data-preorder]');
-  const togglePreorder = () =>
-    document.querySelectorAll<HTMLElement>('[data-preorder-field]').forEach((el) => (el.hidden = !preorder?.checked));
-  preorder?.addEventListener('change', togglePreorder);
 
   // Стрелка на фото зоны листает кадры по кругу
   document.querySelectorAll<HTMLButtonElement>('[data-next-slide]').forEach((button) => {
@@ -792,11 +837,13 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       }
       form.hidden = true;
       ok.hidden = false;
+      // зона и схема стоят вне формы, но относятся к ней: прячем вместе
+      document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = true));
       ok.querySelector('h4')?.focus();
     });
     ok.querySelector('[data-again]')?.addEventListener('click', () => {
       form.reset();
-      togglePreorder();
+      document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = false));
       showZone();
       form.hidden = false;
       ok.hidden = true;
