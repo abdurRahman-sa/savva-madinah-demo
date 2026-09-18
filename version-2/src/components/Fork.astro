@@ -150,6 +150,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <a class="btn btn-line" href="#menu">{f.order.openMenu}</a>
           </div>
           <p class="demo-note">{f.order.note}</p>
+          <p class="demo-note kept">
+            <span data-kept-text data-text={f.kept}>{f.kept}</span>
+            <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
+          </p>
         </form>
         <div class="ok" hidden>
           <h4 tabindex="-1">{f.order.okTitle}</h4>
@@ -253,6 +257,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <a class="btn btn-line" href="#menu">{f.visit.openMenu}</a>
           </div>
           <p class="demo-note">{f.visit.note}</p>
+          <p class="demo-note kept">
+            <span data-kept-text data-text={f.kept}>{f.kept}</span>
+            <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
+          </p>
         </form>
         <div class="ok v-form" hidden>
           <h4 tabindex="-1">{f.visit.okTitle}</h4>
@@ -664,6 +672,26 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     color: var(--color-muted);
     margin-top: 12px;
   }
+  .kept {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    align-items: baseline;
+  }
+  .forget {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--color-red);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .forget:hover {
+    color: var(--color-red-ink);
+  }
   .ok h4 {
     font-family: var(--font-display);
     font-weight: 600;
@@ -964,6 +992,119 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       form.hidden = false;
       ok.hidden = true;
       form.querySelector<HTMLInputElement>('input:not([type="radio"])')?.focus();
+      saveDraft();
+    });
+  });
+
+  // Черновик заказа и брони: поля, зона, столик и открытая вкладка сохраняются в этом браузере,
+  // переживают обновление страницы и живут 15 минут с последней правки. Никуда не отправляются.
+  const DRAFT_KEY = 'savva-order-draft';
+  const DRAFT_TTL = 15 * 60 * 1000;
+  // поля форм и то, что относится к форме брони снаружи (зона, столик)
+  const draftFields = () => [
+    ...document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+      '#fork .demo-form input, #fork .demo-form select, #fork input[form="visit-form"]',
+    ),
+  ];
+  const fieldKey = (el: HTMLInputElement | HTMLSelectElement) =>
+    el instanceof HTMLInputElement && el.type === 'radio' ? `${el.name}=${el.value}` : el.id;
+
+  type Draft = { savedAt: number; door?: string; values: Record<string, string | boolean> };
+  let expiry: number | undefined;
+
+  function dropDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* хранилище недоступно */
+    }
+  }
+
+  function saveDraft() {
+    const values: Draft['values'] = {};
+    draftFields().forEach((el) => {
+      const key = fieldKey(el);
+      if (!key) return;
+      if (el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox')) values[key] = el.checked;
+      else values[key] = el.value;
+    });
+    const door = doors.find((d) => d.getAttribute('aria-selected') === 'true')?.dataset.door;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), door, values } satisfies Draft));
+    } catch {
+      return;
+    }
+    // после «Забыть» подпись снова говорит про 15 минут
+    document.querySelectorAll<HTMLElement>('[data-kept-text]').forEach((text) => (text.textContent = text.dataset.text!));
+    // через 15 минут без правок черновик стирается, даже если страница открыта
+    clearTimeout(expiry);
+    expiry = window.setTimeout(dropDraft, DRAFT_TTL);
+  }
+
+  function readDraft(): Draft | undefined {
+    try {
+      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? 'null') as Draft | null;
+      if (!draft) return;
+      if (Date.now() - draft.savedAt > DRAFT_TTL) {
+        dropDraft();
+        return;
+      }
+      return draft;
+    } catch {
+      return;
+    }
+  }
+
+  function restoreDraft() {
+    const draft = readDraft();
+    if (!draft) return;
+    const byKey = new Map(draftFields().map((el) => [fieldKey(el), el]));
+    const set = (key: string) => {
+      const el = byKey.get(key);
+      const value = draft.values[key];
+      if (!el || value === undefined) return;
+      if (el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox')) el.checked = value === true;
+      // в выпадающем списке значение ставим, только если такой вариант ещё есть (время могло пройти)
+      else if (el instanceof HTMLSelectElement) {
+        if ([...el.options].some((o) => o.value === value)) el.value = String(value);
+      } else el.value = String(value);
+    };
+    // дата раньше времени: от даты зависит список слотов
+    set('visit-date');
+    dateSelect?.dispatchEvent(new Event('change'));
+    // зона раньше столика: столики чужой зоны выключены
+    Object.keys(draft.values).filter((k) => k.startsWith('zone=')).forEach(set);
+    showZone();
+    Object.keys(draft.values)
+      .filter((k) => k !== 'visit-date' && !k.startsWith('zone='))
+      .forEach(set);
+    showPicked();
+    const door = doors.find((d) => d.dataset.door === draft.door);
+    if (door) openDoor(door);
+    clearTimeout(expiry);
+    expiry = window.setTimeout(dropDraft, Math.max(0, DRAFT_TTL - (Date.now() - draft.savedAt)));
+  }
+
+  restoreDraft();
+  const fork = document.getElementById('fork');
+  fork?.addEventListener('input', saveDraft);
+  fork?.addEventListener('change', saveDraft);
+  doors.forEach((door) => door.addEventListener('click', saveDraft));
+
+  // «Забыть мои данные»: стираем черновик и очищаем обе формы
+  document.querySelectorAll<HTMLButtonElement>('[data-forget]').forEach((button) => {
+    button.addEventListener('click', () => {
+      clearTimeout(expiry);
+      dropDraft();
+      document.querySelectorAll<HTMLFormElement>('#fork .demo-form').forEach((form) => form.reset());
+      document.querySelectorAll<HTMLInputElement>('#fork input[form="visit-form"]').forEach((input) => {
+        input.checked = input.defaultChecked;
+      });
+      dateSelect?.dispatchEvent(new Event('change'));
+      showZone();
+      document.querySelectorAll<HTMLElement>('[data-kept-text]').forEach((text) => {
+        text.textContent = button.dataset.done!;
+      });
     });
   });
 </script>
