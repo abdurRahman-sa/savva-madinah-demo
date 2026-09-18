@@ -20,6 +20,7 @@ interface Props {
 
 const { t } = Astro.props;
 const f = t.fork;
+const c = t.cart;
 const doors = [
   { id: 'takeaway', icon: 'car' },
   { id: 'order', icon: 'bag' },
@@ -135,7 +136,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       <div>
         <h3 class="panel-title">{f.order.title}</h3>
         <p class="panel-sub">{f.order.text}</p>
-        <form class="demo-form" novalidate>
+        <form class="demo-form" id="order-form" novalidate>
           <div class="fields">
             <label class="field-label" for="order-name">{f.name}<input class="field" id="order-name" name="name" type="text" autocomplete="name" required /></label>
             <label class="field-label" for="order-phone">{f.phone}<input class="field" id="order-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
@@ -144,6 +145,14 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
               <select class="field" id="order-time" name="time" data-delivery-time data-asap={f.order.asap} aria-describedby="order-time-hint"></select>
             </label>
             <p class="time-hint wide" id="order-time-hint" data-delivery-hint data-last={f.order.lastHint} data-later={f.order.laterHint}></p>
+          </div>
+          <div class="summary" data-summary data-needs={c.needItems}>
+            <p class="summary-title">{c.title}</p>
+            <ul class="summary-list" data-summary-list data-at-counter={c.atCounter}></ul>
+            <p class="summary-total" data-summary-total data-label={c.total} data-plus={c.plusCounter} hidden></p>
+            <p class="summary-empty" data-summary-empty>{c.empty}</p>
+            <a class="summary-link" href="#menu" data-summary-link data-pick={c.pick} data-edit={c.edit}>{c.pick}</a>
+            <p class="summary-error" data-summary-error role="alert" hidden></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.order.submit}</button>
@@ -155,10 +164,17 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
           </p>
         </form>
-        <div class="ok" hidden>
+        <div class="ok" hidden data-number-label={c.number}>
           <h4 tabindex="-1">{f.order.okTitle}</h4>
           <p>{f.order.okText}</p>
+          <p class="ok-number" data-ok-number></p>
+          <ul class="summary-list" data-ok-list data-at-counter={c.atCounter}></ul>
+          <p class="summary-total" data-ok-total data-label={c.total} data-plus={c.plusCounter}></p>
           <button class="btn btn-line mt-5" type="button" data-again>{f.again}</button>
+          <p class="demo-note kept">
+            <span data-kept-text data-text={f.kept}>{f.kept}</span>
+            <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
+          </p>
         </div>
       </div>
     </div>
@@ -252,6 +268,14 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           <!-- что приготовить, гость выберет в общей форме заказа; здесь только отметка -->
           <label class="check wide" for="visit-preorder"><input id="visit-preorder" type="checkbox" name="preorder" />{f.visit.preorder}</label>
           </div>
+          <div class="summary" data-summary data-needs={c.needPreorder} data-preorder-summary hidden>
+            <p class="summary-title">{c.title}</p>
+            <ul class="summary-list" data-summary-list data-at-counter={c.atCounter}></ul>
+            <p class="summary-total" data-summary-total data-label={c.total} data-plus={c.plusCounter} hidden></p>
+            <p class="summary-empty" data-summary-empty>{c.empty}</p>
+            <a class="summary-link" href="#menu" data-summary-link data-pick={c.pick} data-edit={c.edit}>{c.pick}</a>
+            <p class="summary-error" data-summary-error role="alert" hidden></p>
+          </div>
           <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.visit.submit}</button>
             <a class="btn btn-line" href="#menu">{f.visit.openMenu}</a>
@@ -262,10 +286,17 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
           </p>
         </form>
-        <div class="ok v-form" hidden>
+        <div class="ok v-form" hidden data-number-label={c.bookingNumber}>
           <h4 tabindex="-1">{f.visit.okTitle}</h4>
           <p>{f.visit.okText}</p>
+          <p class="ok-number" data-ok-number></p>
+          <ul class="summary-list" data-ok-list data-at-counter={c.atCounter}></ul>
+          <p class="summary-total" data-ok-total data-label={c.total} data-plus={c.plusCounter}></p>
           <button class="btn btn-line mt-5" type="button" data-again>{f.again}</button>
+          <p class="demo-note kept">
+            <span data-kept-text data-text={f.kept}>{f.kept}</span>
+            <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
+          </p>
         </div>
       </div>
     </div>
@@ -672,6 +703,75 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     color: var(--color-muted);
     margin-top: 12px;
   }
+  /* сводка заказа из меню: позиции, суммы, итог */
+  .summary {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--color-linen);
+  }
+  .summary[hidden] {
+    display: none;
+  }
+  .summary-title {
+    font: 400 20px/1.2 var(--font-display);
+    color: var(--color-ink);
+  }
+  .summary-list {
+    margin-top: 8px;
+  }
+  .summary-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-line);
+    font-size: 14.5px;
+  }
+  .summary-list b {
+    flex: none;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-total {
+    margin-top: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-total[hidden],
+  .summary-empty[hidden],
+  .summary-error[hidden] {
+    display: none;
+  }
+  .summary-empty {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+  .summary-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-red);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .summary-error {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-red-ink);
+  }
+  .ok-number {
+    margin-top: 14px;
+    font: 400 22px/1.2 var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .ok .summary-list {
+    max-width: 420px;
+  }
   .kept {
     margin-top: 4px;
     display: flex;
@@ -797,6 +897,8 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 </style>
 
 <script>
+  import { cartLines, cartTotals, clearCart, onCart } from '../scripts/cart';
+
   const doors = [...document.querySelectorAll<HTMLButtonElement>('[data-door]')];
 
   function openDoor(door: HTMLButtonElement) {
@@ -970,7 +1072,72 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   document.querySelectorAll('[data-zone]').forEach((input) => input.addEventListener('change', showZone));
   document.querySelectorAll('input[name="table"]').forEach((input) => input.addEventListener('change', showPicked));
 
-  // Демо-формы: проверяем поля и показываем подтверждение, ничего не отправляя
+  // Сводка заказа: то, что гость набрал в меню (src/scripts/cart.ts), видно в «Заказать»
+  // и в «Прийти» при галочке «заказ к приходу»
+  const preorder = document.querySelector<HTMLInputElement>('#visit-preorder');
+  const money = (n: number) => `${n} SAR`;
+  function renderLines(list: HTMLElement, total: HTMLElement) {
+    const lines = cartLines();
+    const { sum, unpriced } = cartTotals();
+    list.innerHTML = '';
+    lines.forEach(({ item, qty }) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = qty > 1 ? `${item.ru} × ${qty}` : item.ru;
+      const price = document.createElement('b');
+      price.textContent =
+        item.price !== undefined ? money(item.price * qty) : item.priceText ? `${item.priceText} SAR` : list.dataset.atCounter ?? '';
+      li.append(name, price);
+      list.append(li);
+    });
+    total.hidden = !lines.length;
+    total.textContent = lines.length
+      ? `${total.dataset.label} ${money(sum)}${unpriced ? ` ${total.dataset.plus}` : ''}`
+      : '';
+  }
+  function paintSummaries() {
+    const empty = cartTotals().count === 0;
+    document.querySelectorAll<HTMLElement>('[data-summary]').forEach((box) => {
+      renderLines(box.querySelector('[data-summary-list]')!, box.querySelector('[data-summary-total]')!);
+      box.querySelector<HTMLElement>('[data-summary-empty]')!.hidden = !empty;
+      const link = box.querySelector<HTMLElement>('[data-summary-link]')!;
+      link.textContent = empty ? link.dataset.pick! : link.dataset.edit!;
+      if (!empty) box.querySelector<HTMLElement>('[data-summary-error]')!.hidden = true;
+    });
+    const visitSummary = document.querySelector<HTMLElement>('[data-preorder-summary]');
+    if (visitSummary && preorder) visitSummary.hidden = !preorder.checked;
+  }
+  preorder?.addEventListener('change', paintSummaries);
+  onCart(paintSummaries);
+
+  // заказ, который уходит с формой: для доставки — всегда, для брони — только с галочкой
+  const usesCart = (form: HTMLFormElement) => form.id === 'order-form' || (form.id === 'visit-form' && !!preorder?.checked);
+
+  // Демо-формы: проверяем поля и показываем подтверждение с номером, ничего не отправляя.
+  // Отправленная форма тоже помнится 15 минут: после обновления видно то же подтверждение.
+  const submitted: Record<string, string> = {};
+  function showOk(form: HTMLFormElement, number: string) {
+    const ok = form.nextElementSibling as HTMLElement;
+    ok.querySelector('[data-ok-number]')!.textContent = `${ok.dataset.numberLabel}: ${number}`;
+    const list = ok.querySelector<HTMLElement>('[data-ok-list]')!;
+    const total = ok.querySelector<HTMLElement>('[data-ok-total]')!;
+    if (usesCart(form)) renderLines(list, total);
+    else {
+      list.innerHTML = '';
+      total.hidden = true;
+    }
+    form.hidden = true;
+    ok.hidden = false;
+    // зона и схема стоят вне формы, но относятся к ней: прячем вместе
+    document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = true));
+  }
+  function showForm(form: HTMLFormElement) {
+    const ok = form.nextElementSibling as HTMLElement;
+    document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = false));
+    form.hidden = false;
+    ok.hidden = true;
+  }
+
   document.querySelectorAll<HTMLFormElement>('.demo-form').forEach((form) => {
     const ok = form.nextElementSibling as HTMLElement;
     form.addEventListener('submit', (e) => {
@@ -979,25 +1146,35 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
         form.reportValidity();
         return;
       }
-      form.hidden = true;
-      ok.hidden = false;
-      // зона и схема стоят вне формы, но относятся к ней: прячем вместе
-      document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = true));
+      // без позиций из меню доставку (и заказ к приходу) не оформить
+      if (usesCart(form) && cartTotals().count === 0) {
+        const box = form.querySelector<HTMLElement>('[data-summary]')!;
+        const error = box.querySelector<HTMLElement>('[data-summary-error]')!;
+        error.textContent = box.dataset.needs!;
+        error.hidden = false;
+        box.querySelector<HTMLElement>('[data-summary-link]')!.focus();
+        return;
+      }
+      const number = String(1000 + Math.floor(Math.random() * 9000));
+      submitted[form.id] = number;
+      showOk(form, number);
       ok.querySelector('h4')?.focus();
+      saveDraft();
     });
     ok.querySelector('[data-again]')?.addEventListener('click', () => {
+      if (usesCart(form)) clearCart();
+      delete submitted[form.id];
       form.reset();
-      document.querySelectorAll<HTMLElement>(`[data-part-of="${form.id}"]`).forEach((el) => (el.hidden = false));
       showZone();
-      form.hidden = false;
-      ok.hidden = true;
+      showForm(form);
+      paintSummaries();
       form.querySelector<HTMLInputElement>('input:not([type="radio"])')?.focus();
       saveDraft();
     });
   });
 
-  // Черновик заказа и брони: поля, зона, столик и открытая вкладка сохраняются в этом браузере,
-  // переживают обновление страницы и живут 15 минут с последней правки. Никуда не отправляются.
+  // Черновик заказа и брони: поля, зона, столик, открытая вкладка и отправленные формы сохраняются
+  // в этом браузере, переживают обновление страницы и живут 15 минут с последней правки. Никуда не уходят.
   const DRAFT_KEY = 'savva-order-draft';
   const DRAFT_TTL = 15 * 60 * 1000;
   // поля форм и то, что относится к форме брони снаружи (зона, столик)
@@ -1009,7 +1186,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   const fieldKey = (el: HTMLInputElement | HTMLSelectElement) =>
     el instanceof HTMLInputElement && el.type === 'radio' ? `${el.name}=${el.value}` : el.id;
 
-  type Draft = { savedAt: number; door?: string; values: Record<string, string | boolean> };
+  type Draft = { savedAt: number; door?: string; submitted?: Record<string, string>; values: Record<string, string | boolean> };
   let expiry: number | undefined;
 
   function dropDraft() {
@@ -1030,7 +1207,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     });
     const door = doors.find((d) => d.getAttribute('aria-selected') === 'true')?.dataset.door;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), door, values } satisfies Draft));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), door, submitted, values } satisfies Draft));
     } catch {
       return;
     }
@@ -1081,27 +1258,41 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     showPicked();
     const door = doors.find((d) => d.dataset.door === draft.door);
     if (door) openDoor(door);
+    Object.entries(draft.submitted ?? {}).forEach(([id, number]) => {
+      const form = document.getElementById(id);
+      if (form instanceof HTMLFormElement) {
+        submitted[id] = number;
+        showOk(form, number);
+      }
+    });
     clearTimeout(expiry);
     expiry = window.setTimeout(dropDraft, Math.max(0, DRAFT_TTL - (Date.now() - draft.savedAt)));
   }
 
   restoreDraft();
+  paintSummaries();
   const fork = document.getElementById('fork');
   fork?.addEventListener('input', saveDraft);
   fork?.addEventListener('change', saveDraft);
   doors.forEach((door) => door.addEventListener('click', saveDraft));
 
-  // «Забыть мои данные»: стираем черновик и очищаем обе формы
+  // «Забыть мои данные»: стираем черновик и корзину, очищаем обе формы
   document.querySelectorAll<HTMLButtonElement>('[data-forget]').forEach((button) => {
     button.addEventListener('click', () => {
       clearTimeout(expiry);
       dropDraft();
-      document.querySelectorAll<HTMLFormElement>('#fork .demo-form').forEach((form) => form.reset());
+      clearCart();
+      Object.keys(submitted).forEach((id) => delete submitted[id]);
+      document.querySelectorAll<HTMLFormElement>('#fork .demo-form').forEach((form) => {
+        form.reset();
+        showForm(form);
+      });
       document.querySelectorAll<HTMLInputElement>('#fork input[form="visit-form"]').forEach((input) => {
         input.checked = input.defaultChecked;
       });
       dateSelect?.dispatchEvent(new Event('change'));
       showZone();
+      paintSummaries();
       document.querySelectorAll<HTMLElement>('[data-kept-text]').forEach((text) => {
         text.textContent = button.dataset.done!;
       });

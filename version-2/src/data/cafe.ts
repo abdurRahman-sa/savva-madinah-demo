@@ -21,6 +21,8 @@ export const cafe = {
 };
 
 export type MenuItem = {
+  /** Ключ позиции для корзины: группа и имя, например cold-hibiscus */
+  id?: string;
   ru: string;
   /** Арабское название — как в меню кафе */
   ar: string;
@@ -93,6 +95,15 @@ const breakfast = {
 } satisfies Record<string, MenuItem>;
 
 export const menu = { cold, hot, sweet, breakfast };
+
+// У каждой позиции свой ключ; фирменная группа ссылается на те же объекты, ключ общий
+for (const [group, items] of Object.entries(menu)) {
+  for (const [key, item] of Object.entries(items)) (item as MenuItem).id = `${group}-${key}`;
+}
+/** Все позиции меню по ключу — для корзины */
+export const menuById = new Map(
+  Object.values(menu).flatMap((items) => Object.values(items as Record<string, MenuItem>).map((item) => [item.id!, item] as const)),
+);
 
 // Внутри группы сначала позиции с фото, потом плашки
 const withPhotosFirst = (items: MenuItem[]) => [...items.filter((i) => i.photo), ...items.filter((i) => !i.photo)];

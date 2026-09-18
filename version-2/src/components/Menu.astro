@@ -11,6 +11,7 @@ interface Props {
 const { t } = Astro.props;
 const c = t.calm;
 const m = t.menu;
+const k = t.cart;
 
 // Фото позиций: общие кадры кафе и кадры, вырезанные из сторис меню
 const files = import.meta.glob<{ default: ImageMetadata }>(['../assets/photos/*.jpg', '../assets/menu/*.jpg'], { eager: true });
@@ -111,6 +112,18 @@ const groups = await Promise.all(
                   <p class="kcal">
                     {item.kcal !== undefined ? `${item.kcal} ${m.kcal}` : item.price === undefined && !item.priceText ? m.askPrice : ' '}
                   </p>
+                  <div class="qty" data-qty={item.id}>
+                    <button type="button" class="add" data-add aria-label={`${k.add}: ${item.ru}`}>{k.add}</button>
+                    <div class="stepper" data-stepper hidden>
+                      <button type="button" data-step-qty="-1" aria-label={`${k.removeOne}: ${item.ru}`}>
+                        <Icon name="minus" />
+                      </button>
+                      <output data-count aria-live="polite">0</output>
+                      <button type="button" data-step-qty="1" aria-label={`${k.addOne}: ${item.ru}`}>
+                        <Icon name="plus" />
+                      </button>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -324,6 +337,72 @@ const groups = await Promise.all(
   }
 
   /* стрелки как у галерей развилки: кремовый круг, та же стрелка */
+  /* «В заказ» и счётчик под карточкой; корзина — в src/scripts/cart.ts */
+  .qty {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    min-height: 38px;
+  }
+  .add {
+    font: 500 14px/1 var(--font-sans);
+    color: var(--color-on-dark);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px rgb(247 239 224 / 0.45);
+    padding: 11px 18px;
+    cursor: pointer;
+    transition:
+      background-color 0.2s var(--ease-out-expo),
+      box-shadow 0.2s var(--ease-out-expo);
+  }
+  .add:hover {
+    background: var(--color-red);
+    box-shadow: none;
+  }
+  .stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stepper[hidden] {
+    display: none;
+  }
+  .stepper button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-cream);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition:
+      background-color 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo);
+  }
+  .stepper button:hover {
+    background: var(--color-red);
+    color: #fff;
+  }
+  .stepper :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .stepper output {
+    min-width: 2ch;
+    text-align: center;
+    font: 600 18px/1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .add:focus-visible,
+  .stepper button:focus-visible {
+    outline: 2px solid var(--color-blush);
+    outline-offset: 3px;
+  }
+
   .arrow {
     display: grid;
     place-items: center;
@@ -417,6 +496,8 @@ const groups = await Promise.all(
 </style>
 
 <script>
+  import { changeQty, onCart, qtyOf } from '../scripts/cart';
+
   const root = document.querySelector<HTMLElement>('[data-menu]');
   if (root) {
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-group]')];
@@ -469,6 +550,34 @@ const groups = await Promise.all(
         select(next);
       });
     });
+
+    // Корзина: «В заказ» превращается в счётчик; одна позиция может стоять в двух группах — обновляем все
+    const paint = () =>
+      root.querySelectorAll<HTMLElement>('[data-qty]').forEach((box) => {
+        const qty = qtyOf(box.dataset.qty!);
+        box.querySelector<HTMLElement>('[data-add]')!.hidden = qty > 0;
+        box.querySelector<HTMLElement>('[data-stepper]')!.hidden = qty === 0;
+        box.querySelector('[data-count]')!.textContent = String(qty);
+      });
+    root.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const box = target.closest<HTMLElement>('[data-qty]');
+      if (!box) return;
+      const id = box.dataset.qty!;
+      if (target.closest('[data-add]')) {
+        changeQty(id, 1);
+        // кнопка «В заказ» пропала — фокус на «+», чтобы с клавиатуры не терялось место
+        box.querySelector<HTMLButtonElement>('[data-step-qty="1"]')?.focus();
+        return;
+      }
+      const step = target.closest<HTMLElement>('[data-step-qty]');
+      if (step) {
+        changeQty(id, Number(step.dataset.stepQty));
+        if (qtyOf(id) === 0) box.querySelector<HTMLButtonElement>('[data-add]')?.focus();
+      }
+    });
+    onCart(paint);
+    paint();
 
     root.querySelectorAll('.track').forEach((t) => t.addEventListener('scroll', sync, { passive: true }));
     addEventListener('resize', sync);
