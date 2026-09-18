@@ -62,7 +62,7 @@ const visitGalleries = [
 const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? i + 1 : 11 + i);
 ---
 
-<section class="section" id="fork">
+<section class="section fork" id="fork" data-bg="sage" data-bg-default="sage">
   <div class="wrap">
     <div class="flex flex-wrap items-end justify-between gap-5">
       <div>
@@ -139,7 +139,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           <div class="fields">
             <label class="field-label" for="order-name">{f.name}<input class="field" id="order-name" name="name" type="text" autocomplete="name" required /></label>
             <label class="field-label" for="order-phone">{f.phone}<input class="field" id="order-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
-            <label class="field-label wide" for="order-address">{f.order.address}<input class="field" id="order-address" name="address" type="text" autocomplete="street-address" required /></label>
+            <label class="field-label address" for="order-address">{f.order.address}<input class="field" id="order-address" name="address" type="text" autocomplete="street-address" required /></label>
+            <label class="field-label when" for="order-time">{f.order.time}
+              <select class="field" id="order-time" name="time" data-delivery-time data-asap={f.order.asap} aria-describedby="order-time-hint"></select>
+            </label>
+            <p class="time-hint wide" id="order-time-hint" data-delivery-hint data-last={f.order.lastHint} data-later={f.order.laterHint}></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
             <button class="btn" type="submit">{f.order.submit}</button>
@@ -264,6 +268,61 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   .doors {
     grid-template-columns: repeat(3, 1fr);
   }
+  /* Фон блока — шалфей (выбор пользователя 2026-09-19). Остальные варианты — для примерки:
+     панель твиков меняет data-bg на секции; 'none' — песочный фон страницы. */
+  .fork {
+    /* ритм развилки отдельно от остальных блоков */
+    --block-pad: var(--fork-pad);
+    --block-gap: var(--fork-gap);
+    position: relative;
+    transition: background-color calc(0.35s * var(--motion)) var(--ease);
+  }
+  /* сливочная полоса: карточки внутри становятся песочными, панель — светлее */
+  .fork[data-bg='cream'] {
+    background: var(--color-cream);
+  }
+  .fork[data-bg='cream'] .door:not([aria-selected='true']) {
+    background: var(--color-linen);
+  }
+  .fork[data-bg='cream'] .panel {
+    background: #fffaf2;
+  }
+  /* тёмные варианты: заголовок светлый, рукописное слово — нежно-розовое */
+  .fork[data-bg='shade'] {
+    background: var(--color-shade);
+  }
+  .fork[data-bg='sage'] {
+    background: var(--color-sage);
+  }
+  .fork[data-bg='shade'] .h-section,
+  .fork[data-bg='sage'] .h-section {
+    color: var(--color-on-dark);
+  }
+  .fork[data-bg='shade'] .hand,
+  .fork[data-bg='sage'] .hand {
+    color: var(--color-blush);
+  }
+  /* полоса навеса сверху и снизу, фон остаётся песочным */
+  .fork[data-bg='awning']::before,
+  .fork[data-bg='awning']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 14px;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--color-red) 0 14px,
+      var(--color-cream) 14px 28px
+    );
+  }
+  .fork[data-bg='awning']::before {
+    top: 0;
+  }
+  .fork[data-bg='awning']::after {
+    bottom: 0;
+  }
+
   .door {
     font: inherit;
     color: inherit;
@@ -402,6 +461,18 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
   .fields > * {
     grid-column: span 3;
+  }
+  /* адрес длинный, время короткое: одной строкой */
+  .fields .address {
+    grid-column: span 4;
+  }
+  .fields .when {
+    grid-column: span 2;
+  }
+  .time-hint {
+    margin-top: -6px;
+    font-size: 13px;
+    color: var(--color-muted);
   }
   .wide {
     grid-column: 1 / -1;
@@ -664,7 +735,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     }
   }
   @media (max-width: 640px) {
-    .fields > * {
+    .fields > *,
+    .fields .address,
+    .fields .when {
       grid-column: 1 / -1;
     }
     .facts li {
@@ -742,6 +815,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     return {
       iso: `${get('year')}-${get('month')}-${get('day')}`,
       minutes: Number(get('hour')) * 60 + Number(get('minute')),
+      friday: get('weekday') === 'Fri',
     };
   }
 
@@ -759,6 +833,40 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     }
     timeSelect.innerHTML = options.map((value) => `<option>${value}</option>`).join('');
     return options.length;
+  }
+
+  // Доставку заказывают до 01:00 включительно: час до закрытия уходит на дорогу, в 01:01 уже нельзя.
+  // Пока можно: «как можно скорее» и получасовые слоты от ближайшего до 01:00.
+  // Иначе — слоты следующего рабочего дня, с открытия до 01:00.
+  const deliverySelect = document.querySelector<HTMLSelectElement>('[data-delivery-time]');
+  const deliveryHint = document.querySelector<HTMLElement>('[data-delivery-hint]');
+  if (deliverySelect && deliveryHint) {
+    const DELIVERY = 60;
+    const { minutes: now, friday } = madinahNow();
+    const opens = friday ? OPEN_FRIDAY : OPEN;
+    const afterMidnight = now < CLOSE;
+    const open = afterMidnight || now >= opens;
+    const close = afterMidnight ? CLOSE : 24 * 60 + CLOSE;
+    const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    const range = (from: number, to: number) => {
+      const out: string[] = [];
+      for (let m = from; m <= to; m += 30) out.push(hhmm(m));
+      return out;
+    };
+
+    const soonest = Math.ceil(now / 30) * 30;
+    const today = open && now <= close - DELIVERY;
+    // после полуночи календарный день уже следующий, поэтому opens — открытие этого же дня
+    const slots = today ? range(soonest, close - DELIVERY) : range(opens, 24 * 60 + CLOSE - DELIVERY);
+    deliverySelect.innerHTML = [
+      today ? `<option value="asap">${deliverySelect.dataset.asap}</option>` : '',
+      ...slots.map((slot) => `<option>${slot}</option>`),
+    ].join('');
+
+    const last = hhmm(CLOSE - DELIVERY);
+    deliveryHint.textContent = today
+      ? deliveryHint.dataset.last!.replace('{last}', last)
+      : deliveryHint.dataset.later!.replace('{first}', slots[0]).replace('{last}', last);
   }
 
   if (dateSelect && timeSelect) {

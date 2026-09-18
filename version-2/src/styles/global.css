@@ -30,7 +30,20 @@
 :root {
   --wrap-max: 1280px;
   --wrap-gutter: 28px;
-  --space-section: 90px;
+  /* Две независимые ручки ритма:
+     --block-pad — высота блока: воздух внутри сверху и снизу (у цветной полосы — её толщина);
+     --block-gap — от нижнего края контента одного блока до верхнего края контента следующего.
+     Между блоками добавляется поле, если gap больше двух pad; если меньше — блоки просто стоят вплотную. */
+  --block-pad: 80px;
+  --block-gap: 160px;
+  /* свои значения у развилки: высота её полосы и расстояние от героя до неё (подобраны пользователем 2026-09-19) */
+  /* вступление героя: шрифт, начертание, масштаб и цвет обеих строк (Caveat 1,2 — выбор пользователя 2026-09-19) */
+  --lead-font: var(--font-hand);
+  --lead-weight: 500;
+  --lead-scale: 1.2;
+  --lead-color: var(--color-ink);
+  --fork-pad: 52px;
+  --fork-gap: 140px;
   --radius-block: 34px;
   --radius-tile: 14px;
   --display-scale: 0.8;
@@ -149,7 +162,10 @@
 
   /* вертикальный ритм между блоками */
   .section {
-    padding-block: var(--space-section);
+    padding-block: var(--block-pad);
+  }
+  main > section ~ section {
+    margin-top: max(0px, calc(var(--block-gap) - 2 * var(--block-pad)));
   }
 
   /* Рукописное слово над заголовком — часть мира «Навес» */

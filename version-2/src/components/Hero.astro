@@ -1,13 +1,14 @@
 ---
 import { getImage } from 'astro:assets';
+import sharp from 'sharp';
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
 
-// Все настоящие кадры Savva: Instagram и Google Maps, людей в кадре нет.
-const sources = Object.values(
+// Все настоящие кадры Savva: Instagram, Google Maps и фото кафе, лиц в кадре нет.
+const photos = Object.entries(
   import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.jpg', { eager: true }),
-).map((m) => m.default);
-const byName = (name: string) => sources.find((s) => s.src.includes(`/${name}.`))!;
+).map(([path, m]) => ({ name: path.split('/').pop()!.replace('.jpg', ''), src: m.default }));
+const byName = (name: string) => photos.find((p) => p.name === name)!.src;
 
 // Двенадцать кадров в коллаже, остальные ждут в запасе и сменяют их по одному.
 const shown = [
@@ -33,7 +34,19 @@ const tiles = await Promise.all(
   shown.map((name) => optimize(byName(name))),
 );
 // Запас для обновления: остальные кадры подгружаются по мере смены.
-const pool = await Promise.all(sources.map(optimize));
+// Одно и то же фото бывает в папке дважды (копия в цвете развилки под другим именем),
+// поэтому сравниваем сами картинки по отпечатку 16 × 16: из похожих остаётся одно.
+// Сначала — кадры стартовой сетки, потом всё остальное по алфавиту.
+const fingerprint = async (name: string) =>
+  sharp(`${process.cwd()}/src/assets/photos/${name}.jpg`).resize(16, 16, { fit: 'cover' }).greyscale().raw().toBuffer();
+const distance = (a: Buffer, b: Buffer) => a.reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0) / a.length;
+const ordered = [...shown, ...photos.map((p) => p.name).filter((n) => !shown.includes(n)).sort()];
+const unique: { name: string; print: Buffer }[] = [];
+for (const name of ordered) {
+  const print = await fingerprint(name);
+  if (!unique.some((u) => distance(u.print, print) < 15)) unique.push({ name, print });
+}
+const pool = await Promise.all(unique.map((u) => optimize(byName(u.name))));
 
 interface Props {
   t: Dict;
@@ -47,7 +60,7 @@ const h = t.hero;
   <!-- имя, строка и действия стоят над коллажем, на чистом фоне -->
   <div class="wrap band">
     <div class="brand-row">
-      <svg class="cup" viewBox="0 0 200 268" role="img" aria-label={h.cupAlt}>
+      <svg class="cup" viewBox="16 30 168 222" role="img" aria-label={h.cupAlt}>
         <defs>
           <clipPath id="cup-inside">
             <path d="M32 54 L168 54 L152 236 a14 14 0 0 1 -14 12 L62 248 a14 14 0 0 1 -14 -12 Z" />
@@ -62,7 +75,6 @@ const h = t.hero;
           fill="none"
         />
         <rect class="cup-lid" x="20" y="34" width="160" height="22" rx="8" />
-        <path class="cup-shine" d="M54 70 L48 226" fill="none" />
       </svg>
       <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
     </div>
@@ -93,6 +105,7 @@ const h = t.hero;
 
     <div class="copy">
       <p class="lead">{h.lead}</p>
+      <p class="lead-sub">{h.signature}</p>
 
       <div class="actions">
         <a class="btn" href="#fork" data-open-door="visit">{h.book}</a>
@@ -163,9 +176,10 @@ const h = t.hero;
     padding-top: max(clamp(28px, 5vh, 56px), env(safe-area-inset-top));
     padding-bottom: clamp(20px, 3.5vh, 36px);
   }
+  /* стакан стоит на базовой линии имени, крышка вровень с верхом «S» */
   .brand-row {
     display: flex;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 0.12em;
     font-size: calc(clamp(60px, 11vw, 150px) * var(--display-scale));
   }
@@ -188,9 +202,9 @@ const h = t.hero;
   /* стакан у имени: сначала наливается он, потом имя */
   .cup {
     flex: none;
-    height: 0.86em;
+    /* высота заглавной у El Messiri — 0,68 размера шрифта; viewBox обрезан по краям стакана */
+    height: 0.68em;
     width: auto;
-    margin-bottom: 0.04em;
   }
   .cup-body,
   .cup-lid {
@@ -199,12 +213,6 @@ const h = t.hero;
     stroke-width: 7;
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-  .cup-shine {
-    stroke: #fff;
-    stroke-width: 8;
-    stroke-linecap: round;
-    opacity: 0.6;
   }
   .liquid {
     fill: var(--color-melon);
@@ -235,12 +243,25 @@ const h = t.hero;
     margin-inline-start: 0.4em;
   }
 
+  /* вступление о кафе: две строки одним шрифтом и одного размера.
+     Шрифт, начертание, масштаб и цвет — ручки --lead-font, --lead-weight, --lead-scale, --lead-color (панель твиков) */
+  .lead,
+  .lead-sub {
+    max-width: 30em;
+    font-family: var(--lead-font);
+    font-size: calc(clamp(17px, 1.6vw, 22px) * var(--lead-scale));
+    font-weight: var(--lead-weight);
+    /* высота строки не растёт с масштабом: буквы крупнее, место под текст то же —
+       полоса над коллажем не меняется, первый ряд кадров стоит на месте */
+    line-height: calc(1.3 / var(--lead-scale));
+    color: var(--lead-color);
+    text-wrap: balance;
+  }
   .lead {
     margin-top: clamp(14px, 2.4vh, 24px);
-    max-width: 26ch;
-    font-size: clamp(17px, 1.6vw, 22px);
-    font-weight: 500;
-    text-wrap: balance;
+  }
+  .lead-sub {
+    margin-top: 2px;
   }
   .actions {
     display: flex;
@@ -315,7 +336,6 @@ const h = t.hero;
     }
     .lead {
       margin-top: 0;
-      max-width: 34ch;
     }
     .actions,
     .meta {
@@ -387,6 +407,7 @@ const h = t.hero;
   .liquid,
   .brand,
   .lead,
+  .lead-sub,
   .actions,
   .meta {
     animation-duration: calc(0.45s * var(--motion));
@@ -415,6 +436,7 @@ const h = t.hero;
     animation-delay: calc(var(--t-rest) + var(--step) * var(--t-window) * 0.5 / 11);
   }
   .lead,
+  .lead-sub,
   .actions,
   .meta {
     animation-name: rise;
@@ -438,6 +460,7 @@ const h = t.hero;
   .hero[data-intro='done'] .liquid,
   .hero[data-intro='done'] .brand,
   .hero[data-intro='done'] .lead,
+  .hero[data-intro='done'] .lead-sub,
   .hero[data-intro='done'] .actions,
   .hero[data-intro='done'] .meta {
     animation: none;
@@ -487,6 +510,7 @@ const h = t.hero;
     .liquid,
     .brand,
     .lead,
+    .lead-sub,
     .actions,
     .meta {
       animation: none;

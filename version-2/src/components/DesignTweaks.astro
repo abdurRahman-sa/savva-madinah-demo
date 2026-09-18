@@ -70,7 +70,10 @@ const groups: Group[] = [
     controls: [
       { kind: 'range', label: 'Ширина контента', token: '--wrap-max', min: 900, max: 1800, step: 20, unit: 'px', value: 1280 },
       { kind: 'range', label: 'Поля по бокам', token: '--wrap-gutter', min: 12, max: 64, step: 2, unit: 'px', value: 28 },
-      { kind: 'range', label: 'Отступ между блоками', token: '--space-section', min: 30, max: 180, step: 2, unit: 'px', value: 90 },
+      { kind: 'range', label: 'Развилка: высота (воздух внутри)', token: '--fork-pad', min: 16, max: 200, step: 4, unit: 'px', value: 52 },
+      { kind: 'range', label: 'Герой → развилка: расстояние', token: '--fork-gap', min: 40, max: 320, step: 4, unit: 'px', value: 140 },
+      { kind: 'range', label: 'Остальные блоки: высота (воздух внутри)', token: '--block-pad', min: 16, max: 200, step: 4, unit: 'px', value: 80 },
+      { kind: 'range', label: 'Остальные блоки: расстояние между', token: '--block-gap', min: 40, max: 320, step: 4, unit: 'px', value: 160 },
       { kind: 'range', label: 'Скругление блоков', token: '--radius-block', min: 0, max: 60, step: 1, unit: 'px', value: 34 },
       { kind: 'range', label: 'Скругление кусочков', token: '--radius-tile', min: 0, max: 40, step: 1, unit: 'px', value: 14 },
     ],
@@ -78,6 +81,30 @@ const groups: Group[] = [
   {
     title: 'Первый экран',
     controls: [
+      {
+        kind: 'select',
+        label: 'Вступление: шрифт',
+        token: '--lead-font',
+        value: 'var(--font-hand)',
+        options: [
+          { label: 'Caveat (рукописный, в коде)', value: 'var(--font-hand)' },
+          { label: 'Rubik', value: 'var(--font-sans)' },
+          { label: 'El Messiri (акцентный)', value: 'var(--font-display)' },
+        ],
+      },
+      {
+        kind: 'select',
+        label: 'Вступление: цвет',
+        token: '--lead-color',
+        value: 'var(--color-ink)',
+        options: [
+          { label: 'Шалфейный текст (как сейчас)', value: 'var(--color-ink)' },
+          { label: 'Красный (акцент)', value: 'var(--color-red)' },
+          { label: 'Кофейный', value: 'var(--color-coffee)' },
+        ],
+      },
+      { kind: 'range', label: 'Вступление: начертание', token: '--lead-weight', min: 300, max: 700, step: 50, unit: '', value: 500 },
+      { kind: 'range', label: 'Вступление: масштаб', token: '--lead-scale', min: 0.7, max: 1.6, step: 0.02, unit: '', value: 1.2 },
       { kind: 'range', label: 'Колонок', token: '--collage-cols', min: 2, max: 12, step: 1, unit: '', value: 6 },
       { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 9 },
       { kind: 'range', label: 'Рядов', token: '--collage-rows', min: 1, max: 12, step: 1, unit: '', value: 2 },
@@ -128,6 +155,16 @@ const groups: Group[] = [
       <span>Цвет фото развилки</span>
       <select data-grade data-dir={gradesDir}>
         {grades.map((grade) => <option value={grade.value}>{grade.label}</option>)}
+      </select>
+    </label>
+    <label class="grade">
+      <span>Фон развилки</span>
+      <select data-fork-bg>
+        <option value="">Шалфей (как в коде)</option>
+        <option value="none">Песочный, без фона</option>
+        <option value="cream">Сливочная полоса</option>
+        <option value="shade">Тёплая синева</option>
+        <option value="awning">Полоса навеса</option>
       </select>
     </label>
   </div>
@@ -514,6 +551,37 @@ const groups: Group[] = [
     if (gradeSelect && savedGrade) {
       gradeSelect.value = savedGrade;
       applyGrade(savedGrade);
+    }
+  } catch {
+    /* приватный режим */
+  }
+
+  // Фон развилки: ставим data-bg на секцию, стили вариантов — в Fork.astro
+  const forkBg = document.querySelector<HTMLSelectElement>('[data-fork-bg]');
+  const FORK_BG_KEY = `${STORAGE}-fork-bg`;
+  const applyForkBg = (value: string) => {
+    const fork = document.getElementById('fork');
+    if (!fork) return;
+    fork.dataset.bg = value || fork.dataset.bgDefault || '';
+  };
+  forkBg?.addEventListener('change', () => {
+    applyForkBg(forkBg.value);
+    try {
+      localStorage.setItem(FORK_BG_KEY, forkBg.value);
+    } catch {
+      /* приватный режим */
+    }
+    if (note) {
+      note.textContent = forkBg.value
+        ? `Фон развилки: ${forkBg.selectedOptions[0].textContent}. Это примерка, скажите в чате, какой оставить.`
+        : 'Фон развилки как в коде.';
+    }
+  });
+  try {
+    const savedBg = localStorage.getItem(FORK_BG_KEY) ?? '';
+    if (forkBg && savedBg) {
+      forkBg.value = savedBg;
+      applyForkBg(savedBg);
     }
   } catch {
     /* приватный режим */

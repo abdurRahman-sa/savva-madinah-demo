@@ -74,8 +74,8 @@ const m = t.menu;
     background: var(--color-shade);
     color: var(--color-on-dark);
     border-radius: calc(var(--radius-block) * 1.1);
-    margin: 0 14px;
-    padding-block: var(--space-section);
+    margin-inline: 14px;
+    padding-block: var(--block-pad);
   }
   .calm-grid {
     grid-template-columns: 0.85fr 1.15fr;
@@ -173,7 +173,7 @@ const m = t.menu;
   }
   @media (max-width: 640px) {
     .calm {
-      margin: 0 8px;
+      margin-inline: 8px;
       border-radius: 26px;
     }
   }
