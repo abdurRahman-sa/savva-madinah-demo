@@ -8,6 +8,17 @@ type Control =
 
 type Group = { title: string; controls: Control[] };
 
+// Примерка цвета фото развилки: варианты собирает `node scripts/grade-photos.mjs --preview`,
+// dev-сервер отдаёт их по адресу /@fs/… — в сборку они не попадают.
+const gradesDir = `${process.cwd()}/scripts/photo-grades`;
+const grades = [
+  { value: '', label: 'Как в коде сейчас' },
+  { value: 'original', label: 'Оригинал' },
+  { value: 'soft', label: 'Мягкий' },
+  { value: 'medium', label: 'Средний' },
+  { value: 'strong', label: 'Сильный' },
+];
+
 const fonts = [
   { label: 'El Messiri', value: '"El Messiri Variable", serif' },
   { label: 'Rubik', value: '"Rubik Variable", sans-serif' },
@@ -113,6 +124,12 @@ const groups: Group[] = [
   </header>
   <div class="replay">
     <button type="button" data-replay>Проиграть заставку</button>
+    <label class="grade">
+      <span>Цвет фото развилки</span>
+      <select data-grade data-dir={gradesDir}>
+        {grades.map((grade) => <option value={grade.value}>{grade.label}</option>)}
+      </select>
+    </label>
   </div>
   <div class="body">
     {
@@ -243,6 +260,20 @@ const groups: Group[] = [
   }
   .tweaks .replay button:hover {
     background: #f4bd62;
+  }
+  .tweaks .grade {
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+    color: #c9c6be;
+  }
+  .tweaks .grade select {
+    font: inherit;
+    color: #f4f1ea;
+    background: #2b2b33;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 8px;
   }
   .tweaks .body {
     overflow-y: auto;
@@ -438,6 +469,55 @@ const groups: Group[] = [
     scrollTo(0, 0);
     location.reload();
   });
+
+  // Цвет фото: подменяем картинки развилки на варианты из scripts/photo-grades
+  const gradeSelect = document.querySelector<HTMLSelectElement>('[data-grade]');
+  const GRADE_KEY = `${STORAGE}-grade`;
+  const GRADED = /(takeaway-[12]|order-[1-4]|hall-[12]|terrace-[12])\.jpg/;
+
+  function applyGrade(folder: string) {
+    document.querySelectorAll<HTMLImageElement>('img').forEach((img) => {
+      if (!img.dataset.gradeFile) {
+        const match = decodeURIComponent(img.currentSrc || img.src).match(GRADED);
+        if (!match) return;
+        img.dataset.gradeFile = match[1];
+        img.dataset.gradeSrc = img.getAttribute('src') ?? '';
+        img.dataset.gradeSrcset = img.getAttribute('srcset') ?? '';
+      }
+      if (!folder) {
+        img.src = img.dataset.gradeSrc!;
+        if (img.dataset.gradeSrcset) img.srcset = img.dataset.gradeSrcset;
+        return;
+      }
+      img.removeAttribute('srcset');
+      img.src = `/@fs${gradeSelect!.dataset.dir}/${folder}/${img.dataset.gradeFile}.jpg?grade=${folder}`;
+    });
+  }
+
+  gradeSelect?.addEventListener('change', () => {
+    applyGrade(gradeSelect.value);
+    try {
+      localStorage.setItem(GRADE_KEY, gradeSelect.value);
+    } catch {
+      /* приватный режим */
+    }
+    if (note) {
+      const label = gradeSelect.selectedOptions[0].textContent;
+      note.textContent = gradeSelect.value
+        ? `Фото развилки: ${label}. Это только примерка, скажите в чате, какой оставить.`
+        : 'Фото развилки как в коде.';
+    }
+  });
+
+  try {
+    const savedGrade = localStorage.getItem(GRADE_KEY) ?? '';
+    if (gradeSelect && savedGrade) {
+      gradeSelect.value = savedGrade;
+      applyGrade(savedGrade);
+    }
+  } catch {
+    /* приватный режим */
+  }
 
   function togglePanel(open: boolean) {
     if (panel) panel.hidden = !open;

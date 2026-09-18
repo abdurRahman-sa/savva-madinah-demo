@@ -1,0 +1,154 @@
+---
+// Фото с листанием: кадры лежат стопкой, стрелка показывает следующий по кругу.
+// Рамка принимает пропорции текущего кадра: горизонтальный виден целиком,
+// вертикальный — не выше 3 : 4, чтобы карточка не вытягивалась.
+// Листание — в скрипте Fork.astro ([data-next-slide]).
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+
+interface Photo {
+  src: ImageMetadata;
+  alt: string;
+  focus: string;
+  /** Пустая строка — кадр без подписи */
+  caption: string;
+}
+
+interface Props {
+  photos: readonly Photo[];
+  nextLabel: string;
+  sizes: string;
+  /** Зона «Прийти» (зал, веранда): по ней скрипт показывает нужную галерею */
+  zone?: string;
+  hidden?: boolean;
+}
+
+const { photos, nextLabel, sizes, zone, hidden } = Astro.props;
+const frameRatio = (src: ImageMetadata) => Math.max(src.width / src.height, 0.75).toFixed(3);
+---
+
+<figure class="gallery" data-visit-photo={zone} hidden={hidden}>
+  <div class="frame" style={`aspect-ratio:${frameRatio(photos[0].src)}`} data-frame>
+    {
+      photos.map((photo, i) => (
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          widths={[500, 800]}
+          sizes={sizes}
+          class="slide"
+          style={`object-position:${photo.focus}`}
+          data-slide
+          data-ratio={frameRatio(photo.src)}
+          data-caption={photo.caption}
+          aria-hidden={i === 0 ? undefined : 'true'}
+          data-active={i === 0 ? '' : undefined}
+        />
+      ))
+    }
+  </div>
+  <!-- подпись и стрелка: на широком экране поверх фото, на телефоне строкой под ним -->
+  <div class="visit-bar">
+    <figcaption data-slide-caption>{photos[0].caption}</figcaption>
+    <button class="next" type="button" aria-label={nextLabel} data-next-slide>
+      <Icon name="arrow" strokeWidth={2} />
+    </button>
+  </div>
+</figure>
+
+<style>
+  .gallery {
+    position: relative;
+    margin: 0;
+  }
+  .frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: var(--color-linen);
+  }
+  .visit-bar {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .visit-bar > * {
+    pointer-events: auto;
+  }
+  .visit-bar figcaption {
+    background: var(--color-cream);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    color: var(--color-coffee-deep);
+  }
+  .visit-bar figcaption:empty {
+    visibility: hidden;
+  }
+  .frame :global(.slide) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity calc(0.45s * var(--motion)) var(--ease);
+  }
+  .frame :global(.slide[data-active]) {
+    opacity: 1;
+  }
+  .next {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-cream);
+    color: var(--color-ink);
+    cursor: pointer;
+    box-shadow: 0 8px 20px -12px rgb(35 30 25 / 0.6);
+    transition:
+      background-color 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo);
+  }
+  .next:hover {
+    background: var(--color-red);
+    color: #fff;
+  }
+  .next :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  /* Телефон: фото целиком, подпись и стрелка строкой под ним, ничего не перекрывает кадр */
+  @media (max-width: 640px) {
+    .visit-bar {
+      position: static;
+      margin-top: 10px;
+    }
+    /* подпись в форме кнопки-пилюли с той же обводкой, что у стрелки: одной высоты, 48 px */
+    .visit-bar figcaption {
+      display: inline-flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 0 20px;
+      background: transparent;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1.5px var(--color-coffee);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-ink);
+    }
+    .next {
+      background: transparent;
+      box-shadow: inset 0 0 0 1.5px var(--color-coffee);
+    }
+  }
+</style>

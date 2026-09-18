@@ -1,11 +1,18 @@
 ---
-import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
-import driveThrough from '../assets/photos/drive-through-tray.jpg';
-import coldTrio from '../assets/photos/cold-drinks-trio.jpg';
-import terrace from '../assets/photos/terrace-day.jpg';
+import PhotoGallery from './PhotoGallery.astro';
+import takeaway1 from '../assets/photos/takeaway-1.jpg';
+import takeaway2 from '../assets/photos/takeaway-2.jpg';
+import order1 from '../assets/photos/order-1.jpg';
+import order2 from '../assets/photos/order-2.jpg';
+import order3 from '../assets/photos/order-3.jpg';
+import order4 from '../assets/photos/order-4.jpg';
+import hall1 from '../assets/photos/hall-1.jpg';
+import hall2 from '../assets/photos/hall-2.jpg';
+import terrace1 from '../assets/photos/terrace-1.jpg';
+import terrace2 from '../assets/photos/terrace-2.jpg';
 
 interface Props {
   t: Dict;
@@ -34,6 +41,24 @@ const plans = {
     [4, 2], [4, 4],
   ],
 } as const;
+const visitGalleries = [
+  {
+    zone: 'hall',
+    nextLabel: f.visit.nextHall,
+    photos: [
+      { src: hall1, alt: f.visit.hallPhotoAlt, focus: '50% 50%', caption: f.visit.hallCaption },
+      { src: hall2, alt: f.visit.hall2PhotoAlt, focus: '50% 58%', caption: '' },
+    ],
+  },
+  {
+    zone: 'terrace',
+    nextLabel: f.visit.nextTerrace,
+    photos: [
+      { src: terrace1, alt: f.visit.photoAlt, focus: '50% 60%', caption: f.visit.caption },
+      { src: terrace2, alt: f.visit.terrace2PhotoAlt, focus: '50% 62%', caption: f.visit.caption },
+    ],
+  },
+] as const;
 const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? i + 1 : 11 + i);
 ---
 
@@ -69,10 +94,14 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 
     <!-- Забрать с собой -->
     <div class="panel" role="tabpanel" id="panel-takeaway" aria-labelledby="tab-takeaway">
-      <figure class="panel-photo">
-        <Image src={driveThrough} alt={f.takeaway.photoAlt} widths={[400, 518]} sizes={photoSizes} class="size-full object-cover" />
-        <figcaption>{f.takeaway.caption}</figcaption>
-      </figure>
+      <PhotoGallery
+        photos={[
+          { src: takeaway1, alt: f.takeaway.photoAlt, focus: '50% 45%', caption: f.takeaway.caption },
+          { src: takeaway2, alt: f.takeaway.photo2Alt, focus: '50% 50%', caption: f.takeaway.caption },
+        ]}
+        nextLabel={f.takeaway.next}
+        sizes={photoSizes}
+      />
       <div>
         <h3 class="panel-title">{f.takeaway.title}</h3>
         <p class="panel-sub">{f.takeaway.text}</p>
@@ -93,9 +122,16 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 
     <!-- Заказать -->
     <div class="panel" role="tabpanel" id="panel-order" aria-labelledby="tab-order" hidden>
-      <figure class="panel-photo">
-        <Image src={coldTrio} alt={f.order.photoAlt} widths={[400, 477]} sizes={photoSizes} class="size-full object-cover" />
-      </figure>
+      <PhotoGallery
+        photos={[
+          { src: order1, alt: f.order.photo1Alt, focus: '50% 50%', caption: '' },
+          { src: order2, alt: f.order.photo2Alt, focus: '50% 50%', caption: '' },
+          { src: order3, alt: f.order.photo3Alt, focus: '50% 50%', caption: '' },
+          { src: order4, alt: f.order.photo4Alt, focus: '50% 50%', caption: '' },
+        ]}
+        nextLabel={f.order.next}
+        sizes={photoSizes}
+      />
       <div>
         <h3 class="panel-title">{f.order.title}</h3>
         <p class="panel-sub">{f.order.text}</p>
@@ -121,10 +157,18 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 
     <!-- Прийти -->
     <div class="panel" role="tabpanel" id="panel-visit" aria-labelledby="tab-visit" hidden>
-      <figure class="panel-photo">
-        <Image src={terrace} alt={f.visit.photoAlt} widths={[500, 800, 1000]} sizes={photoSizes} class="size-full object-cover object-[50%_62%]" />
-        <figcaption>{f.visit.caption}</figcaption>
-      </figure>
+      <!-- фото меняется вместе с зоной; в каждой зоне два кадра, стрелка листает -->
+      {
+        visitGalleries.map((gallery) => (
+          <PhotoGallery
+            photos={gallery.photos}
+            nextLabel={gallery.nextLabel}
+            sizes={photoSizes}
+            zone={gallery.zone}
+            hidden={gallery.zone !== 'hall'}
+          />
+        ))
+      }
       <div>
         <h3 class="panel-title">{f.visit.title}</h3>
         <p class="panel-sub">{f.visit.text}</p>
@@ -289,22 +333,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     gap: 26px;
     align-items: start;
   }
-  .panel-photo {
-    border-radius: 22px;
-    overflow: hidden;
-    aspect-ratio: 4/3;
-    background: var(--color-linen);
-    position: relative;
-  }
-  .panel-photo figcaption {
-    position: absolute;
-    left: 14px;
-    bottom: 14px;
-    background: var(--color-cream);
-    border-radius: 999px;
-    padding: 7px 14px;
-    font-size: 13px;
-    color: var(--color-coffee-deep);
+  /* в «Прийти» фото шире: зал снят горизонтально и должен читаться целиком */
+  #panel-visit {
+    grid-template-columns: 1fr 1fr;
   }
   .panel-title {
     font-family: var(--font-display);
@@ -551,13 +582,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
 
   @media (max-width: 980px) {
-    .panel {
+    .panel,
+    #panel-visit {
       grid-template-columns: 1fr;
       padding: 18px;
       gap: 18px;
-    }
-    .panel-photo {
-      aspect-ratio: 16/9;
     }
   }
   @media (max-width: 720px) {
@@ -710,6 +739,23 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     document.querySelectorAll<HTMLElement>('[data-preorder-field]').forEach((el) => (el.hidden = !preorder?.checked));
   preorder?.addEventListener('change', togglePreorder);
 
+  // Стрелка на фото зоны листает кадры по кругу
+  document.querySelectorAll<HTMLButtonElement>('[data-next-slide]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const slides = [...button.closest('figure')!.querySelectorAll<HTMLElement>('[data-slide]')];
+      const current = slides.findIndex((slide) => slide.hasAttribute('data-active'));
+      const next = (current + 1) % slides.length;
+      slides.forEach((slide, i) => {
+        slide.toggleAttribute('data-active', i === next);
+        slide.setAttribute('aria-hidden', String(i !== next));
+      });
+      const figure = button.closest('figure')!;
+      figure.querySelector<HTMLElement>('[data-frame]')!.style.aspectRatio = slides[next].dataset.ratio!;
+      const caption = figure.querySelector('[data-slide-caption]');
+      if (caption) caption.textContent = slides[next].dataset.caption ?? '';
+    });
+  });
+
   // Схема столиков: зона показывает свою схему, выбранный столик подписан рядом
   const picked = document.querySelector<HTMLElement>('[data-table-picked]');
   const plansEls = [...document.querySelectorAll<HTMLElement>('[data-plan]')];
@@ -719,6 +765,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   };
   const showZone = () => {
     const zone = document.querySelector<HTMLInputElement>('[data-zone]:checked')?.value ?? 'hall';
+    document.querySelectorAll<HTMLElement>('[data-visit-photo]').forEach((photo) => {
+      photo.hidden = photo.dataset.visitPhoto !== zone;
+    });
     plansEls.forEach((plan) => {
       const on = plan.dataset.plan === zone;
       plan.hidden = !on;
