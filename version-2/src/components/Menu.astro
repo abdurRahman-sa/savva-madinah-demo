@@ -130,7 +130,11 @@ const groups = await Promise.all(
     background: var(--color-shade);
     color: var(--color-on-dark);
     border-radius: calc(var(--radius-block) * 1.1);
-    margin-inline: 14px;
+    /* плашка шириной с контент страницы — края на одной линии с панелью развилки над ней */
+    /* --menu-widen: насколько плашка шире (плюс) или уже (минус) колонки контента с каждой стороны */
+    width: min(100%, calc(100% - 2 * var(--gutter) + 2 * var(--menu-widen)));
+    max-width: calc(var(--wrap-max) - 2 * var(--gutter) + 2 * var(--menu-widen));
+    margin-inline: auto;
     padding-block: var(--menu-pad-top) var(--block-pad);
     overflow: hidden;
   }
@@ -393,7 +397,6 @@ const groups = await Promise.all(
 
   @media (max-width: 640px) {
     .menu {
-      margin-inline: 8px;
       border-radius: 26px;
     }
     .groups {
