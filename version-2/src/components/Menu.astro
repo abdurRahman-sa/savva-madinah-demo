@@ -131,8 +131,13 @@ const groups = await Promise.all(
     color: var(--color-on-dark);
     border-radius: calc(var(--radius-block) * 1.1);
     margin-inline: 14px;
-    padding-block: var(--block-pad);
+    padding-block: var(--menu-pad-top) var(--block-pad);
     overflow: hidden;
+  }
+  /* зазор до развилки своей ручкой, а не общим ритмом блоков: между двумя цветными
+     плашками общий ритм давал случайную полосу фона */
+  :global(main) > .menu {
+    margin-top: var(--menu-gap);
   }
 
   .facts {

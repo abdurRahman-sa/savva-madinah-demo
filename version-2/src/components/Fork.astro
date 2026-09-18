@@ -25,7 +25,7 @@ const doors = [
   { id: 'order', icon: 'bag' },
   { id: 'visit', icon: 'chair' },
 ] as const;
-const photoSizes = '(max-width: 980px) 100vw, 520px';
+const photoSizes = '(max-width: 720px) 100vw, (max-width: 980px) 40vw, 520px';
 
 // Мини-схема брони: квадрат 5×5 клеток, столик стоит в клетке [ряд, колонка].
 // Расстановка условная — настоящей планировки у нас нет, на схеме это подписано.
@@ -676,16 +676,24 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     max-width: 44ch;
   }
 
+  /* Планшет: фото и текст остаются в две колонки — в одну колонку фото на всю ширину
+     выходило огромным (квадратный кадр ~900 px в высоту) */
   @media (max-width: 980px) {
     .panel {
-      grid-template-columns: 1fr;
+      grid-template-columns: 0.8fr 1.2fr;
       padding: 18px;
-      gap: 18px;
+      gap: 20px;
     }
     /* «Прийти» на планшете остаётся в две колонки: так блок вдвое ниже */
     .panel-visit {
       grid-template-columns: 1fr 1fr;
       column-gap: 20px;
+    }
+  }
+  @media (max-width: 720px) {
+    .panel {
+      grid-template-columns: 1fr;
+      gap: 18px;
     }
   }
   @media (max-width: 720px) {

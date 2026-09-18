@@ -43,6 +43,10 @@
   --lead-color: var(--color-ink);
   --fork-pad: 52px;
   --fork-gap: 140px;
+  /* синяя плашка меню: воздух над заголовком и зазор до развилки над ней
+     (зазор 36px — значение пользователя 2026-09-19) */
+  --menu-pad-top: 52px;
+  --menu-gap: 36px;
   --radius-block: 34px;
   --radius-tile: 14px;
   --display-scale: 0.8;
