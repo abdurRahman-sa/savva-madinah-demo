@@ -132,7 +132,8 @@ const groups = await Promise.all(
     border-radius: calc(var(--radius-block) * 1.1);
     /* плашка шириной с контент страницы — края на одной линии с панелью развилки над ней */
     /* --menu-widen: насколько плашка шире (плюс) или уже (минус) колонки контента с каждой стороны */
-    width: min(100%, calc(100% - 2 * var(--gutter) + 2 * var(--menu-widen)));
+    /* до края экрана всегда остаётся --menu-edge-min */
+    width: min(calc(100% - 2 * var(--menu-edge-min)), calc(100% - 2 * var(--gutter) + 2 * var(--menu-widen)));
     max-width: calc(var(--wrap-max) - 2 * var(--gutter) + 2 * var(--menu-widen));
     margin-inline: auto;
     padding-block: var(--menu-pad-top) var(--block-pad);
