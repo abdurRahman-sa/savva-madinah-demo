@@ -9,32 +9,28 @@ const sources = Object.values(
 ).map((m) => m.default);
 const byName = (name: string) => sources.find((s) => s.src.includes(`/${name}.`))!;
 
-// Кусочков столько, сколько влезает в экран: на широком мониторе их больше.
-// Крупные и широкие идут первыми, дальше мелкие заполняют дыры.
+// Двенадцать кадров в коллаже, остальные ждут в запасе и сменяют их по одному.
 const shown = [
-  { name: 'melon-drink', size: 'big' },
-  { name: 'raspberry-umbrella' },
-  { name: 'hibiscus-pour' },
-  { name: 'cheesecake-window', size: 'wide' },
-  { name: 'redvelvet-terrace' },
-  { name: 'tray-tart' },
-  { name: 'cookies-stack' },
-  { name: 'drive-through-tray' },
-  { name: 'matcha-pour' },
-  { name: 'cold-drinks-trio' },
-  { name: 'sandwich-plate' },
-  { name: 'racket-cookies' },
-  { name: 'madini-cookies' },
-  { name: 'facade-day' },
-  { name: 'duo-cups' },
-  { name: 'juice' },
-];// Два размера: мелкий для телефона, крупный для монитора
+  'melon-drink',
+  'raspberry-umbrella',
+  'hibiscus-pour',
+  'cheesecake-window',
+  'redvelvet-terrace',
+  'tray-tart',
+  'cookies-stack',
+  'drive-through-tray',
+  'matcha-pour',
+  'cold-drinks-trio',
+  'madini-cookies',
+  'facade-day',
+];
+// Два размера: мелкий для телефона, крупный для монитора
 const optimize = async (src: ImageMetadata) => ({
   small: (await getImage({ src, width: 260, format: 'webp' })).src,
   large: (await getImage({ src, width: 480, format: 'webp' })).src,
 });
 const tiles = await Promise.all(
-  shown.map(async (tile) => ({ ...tile, ...(await optimize(byName(tile.name))) })),
+  shown.map((name) => optimize(byName(name))),
 );
 // Запас для обновления: остальные кадры подгружаются по мере смены.
 const pool = await Promise.all(sources.map(optimize));
@@ -48,41 +44,9 @@ const h = t.hero;
 ---
 
 <section class="hero" data-hero>
-  <div class="collage" role="img" aria-label={h.collageAlt} data-pool={JSON.stringify(pool)}>
-    {
-      tiles.map((tile, i) => (
-        <span class:list={['tile', tile.size]} style={`--step:${i}`}>
-          <img
-            src={tile.large}
-            srcset={`${tile.small} 260w, ${tile.large} 480w`}
-            sizes="(max-width: 640px) 36vw, (max-width: 1023px) 28vw, (min-width: 1600px) 14vw, 20vw"
-            data-url={tile.large}
-            alt=""
-            loading={i < 12 ? 'eager' : 'lazy'}
-            decoding="async"
-          />
-        </span>
-      ))
-    }
-  </div>
-  <script is:inline>
-    // Порядок кусочков меняется при каждой загрузке
-    (() => {
-      const collage = document.currentScript.previousElementSibling;
-      const tiles = [...collage.children];
-      for (let i = tiles.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-      }
-      tiles.forEach((tile, i) => {
-        tile.style.setProperty('--step', i);
-        collage.appendChild(tile);
-      });
-    })();
-  </script>
-
-  <div class="wrap stage">
-    <div class="cup-wrap">
+  <!-- имя, строка и действия стоят над коллажем, на чистом фоне -->
+  <div class="wrap band">
+    <div class="brand-row">
       <svg class="cup" viewBox="0 0 200 268" role="img" aria-label={h.cupAlt}>
         <defs>
           <clipPath id="cup-inside">
@@ -103,120 +67,109 @@ const h = t.hero;
       <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
     </div>
 
-    <p class="lead">{h.lead}</p>
+    <div class="copy">
+      <p class="lead">{h.lead}</p>
 
-    <div class="actions">
-      <a class="btn" href="#fork" data-open-door="visit">{h.book}</a>
-      <a class="btn btn-dark" href="#fork" data-open-door="order">{h.order}</a>
-      <a class="btn btn-line" href="#fork" data-open-door="takeaway">{h.route}</a>
-      <a class="btn btn-line" href={cafe.phoneHref}>{h.call}</a>
-    </div>
+      <div class="actions">
+        <a class="btn" href="#fork" data-open-door="visit">{h.book}</a>
+        <a class="btn btn-dark" href="#fork" data-open-door="order">{h.order}</a>
+        <a class="btn btn-line" href="#fork" data-open-door="takeaway">{h.route}</a>
+        <a class="btn btn-line" href={cafe.phoneHref}>{h.call}</a>
+      </div>
 
-    <div class="meta">
-      <span class="pill"><b>6:30 – 02:00</b> {h.hours}</span>
-      <span class="pill"><b>{cafe.rating}</b> {h.rating}</span>
-      <span class="pill">{h.area}</span>
+      <div class="meta">
+        <span class="pill"><b>6:30 – 02:00</b> {h.hours}</span>
+        <span class="pill"><b>{cafe.rating}</b> {h.rating}</span>
+        <span class="pill">{h.area}</span>
+      </div>
     </div>
   </div>
+
+  <div class="collage" role="img" aria-label={h.collageAlt} data-pool={JSON.stringify(pool)}>
+    {
+      tiles.map((tile, i) => (
+        <span class="tile" style={`--step:${i}`}>
+          <img
+            src={tile.large}
+            srcset={`${tile.small} 260w, ${tile.large} 480w`}
+            sizes="(max-width: 640px) 34vw, (max-width: 1023px) 26vw, 17vw"
+            data-url={tile.large}
+            alt=""
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+      ))
+    }
+  </div>
+  <script is:inline>
+    // Порядок кадров меняется при каждой загрузке
+    (() => {
+      const collage = document.currentScript.previousElementSibling;
+      const tiles = [...collage.children];
+      for (let i = tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+      }
+      tiles.forEach((tile, i) => {
+        tile.style.setProperty('--step', i);
+        collage.appendChild(tile);
+      });
+    })();
+  </script>
 
   <button class="skip" type="button" data-skip-intro>{h.skip}</button>
 </section>
 
 <style>
+  /* Первый экран: сверху полоса с именем и действиями, под ней коллаж до низа экрана */
   .hero {
     position: relative;
     min-height: 100svh;
     display: grid;
-    align-content: center;
-    padding: clamp(80px, 12vh, 140px) 0 clamp(48px, 8vh, 96px);
+    grid-template-rows: auto minmax(var(--collage-min), 1fr);
     overflow: hidden;
     isolation: isolate;
   }
 
-  /* коллаж из кадров кафе */
-  .collage {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-    display: grid;
-    grid-template-columns: repeat(var(--collage-cols), 1fr);
-    grid-template-rows: repeat(var(--collage-rows), 1fr);
-    grid-auto-flow: dense;
-    gap: var(--collage-gap);
-    padding: var(--collage-gap);
-    overflow: hidden;
-  }
-  .tile {
-    overflow: hidden;
-    border-radius: var(--radius-tile);
-    background: var(--color-cream);
-  }
-  /* Места крупных кусочков заданы явно: тогда остальные ложатся без дыр */
-  .tile.big {
-    grid-column: 1 / 3;
-    grid-row: 1 / 3;
-    border-radius: calc(var(--radius-tile) * 1.5);
-  }
-  .tile.wide {
-    grid-column: 3 / 5;
-    grid-row: var(--collage-rows);
-  }
-  .tile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity calc(0.5s * var(--motion)) var(--ease);
-  }
-  /* сцена по центру */
-  .stage {
-    position: relative;
+  .band {
     display: grid;
     justify-items: center;
     text-align: center;
-    gap: 0;
-    width: min(880px, 100%);
-    margin-inline: auto;
+    padding-top: max(clamp(28px, 5vh, 56px), env(safe-area-inset-top));
+    padding-bottom: clamp(20px, 3.5vh, 36px);
   }
-  /* мягкое пятно света только под надписью и кнопками: по краям фото видно целиком */
-  .stage::before {
-    content: '';
-    position: absolute;
-    inset: -8% -12%;
-    z-index: -1;
-    background: radial-gradient(
-      closest-side,
-      rgb(233 223 203 / calc(0.94 * var(--center-glow))) 0%,
-      rgb(233 223 203 / calc(0.88 * var(--center-glow))) 48%,
-      rgb(233 223 203 / calc(0.64 * var(--center-glow))) 74%,
-      rgb(233 223 203 / 0) 100%
-    );
+  .brand-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.12em;
+    font-size: calc(clamp(60px, 11vw, 150px) * var(--display-scale));
   }
-  .cup-wrap {
-    position: relative;
+  .copy {
     display: grid;
-    place-items: center;
+    justify-items: center;
   }
+
+  /* стакан у имени: сначала наливается он, потом имя */
   .cup {
-    width: clamp(120px, var(--cup-size), 320px);
-    height: auto;
+    flex: none;
+    height: 0.86em;
+    width: auto;
+    margin-bottom: 0.04em;
   }
   .cup-body,
-  .cup-shine {
-    stroke: var(--color-coffee-deep);
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: 0.42;
-  }
-  .cup-shine {
-    stroke: #fff;
-    stroke-width: 6;
-    opacity: 0.5;
-  }
   .cup-lid {
     fill: none;
     stroke: var(--color-coffee-deep);
-    stroke-width: 3;
-    opacity: 0.42;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cup-shine {
+    stroke: #fff;
+    stroke-width: 8;
+    stroke-linecap: round;
+    opacity: 0.6;
   }
   .liquid {
     fill: var(--color-melon);
@@ -224,18 +177,14 @@ const h = t.hero;
     transform-origin: 50% 100%;
   }
 
-  /* надпись поверх стакана, как в референсе, но без тени */
   .brand {
-    position: absolute;
     font-family: var(--font-display);
     font-weight: var(--display-weight);
-    font-size: calc(clamp(72px, 15vw, 190px) * var(--display-scale));
+    font-size: 1em;
     line-height: var(--brand-leading);
     letter-spacing: var(--brand-tracking);
     color: var(--color-ink);
     white-space: nowrap;
-  }
-  .brand {
     --brand-fill: 118%;
     -webkit-mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
     mask-image: linear-gradient(to top, #000 var(--brand-fill), transparent calc(var(--brand-fill) + 14%));
@@ -244,13 +193,13 @@ const h = t.hero;
     font-style: normal;
     font-size: 0.26em;
     color: var(--color-sage);
-    margin-left: 16px;
+    margin-inline-start: 0.4em;
   }
 
   .lead {
-    margin-top: clamp(18px, 4vh, 34px);
-    max-width: 24ch;
-    font-size: clamp(18px, 1.8vw, 24px);
+    margin-top: clamp(14px, 2.4vh, 24px);
+    max-width: 26ch;
+    font-size: clamp(17px, 1.6vw, 22px);
     font-weight: 500;
     text-wrap: balance;
   }
@@ -259,33 +208,115 @@ const h = t.hero;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    margin-top: clamp(18px, 3vh, 26px);
+    margin-top: clamp(14px, 2.2vh, 22px);
   }
   .meta {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
-    margin-top: clamp(16px, 2.5vh, 24px);
+    gap: 8px;
+    margin-top: clamp(12px, 1.8vh, 18px);
   }
+
+  /* коллаж: 12 кадров ровной сеткой, все видны целиком */
+  .collage {
+    display: grid;
+    grid-template-columns: repeat(var(--collage-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--collage-rows), minmax(0, 1fr));
+    gap: var(--collage-gap);
+    padding: 0 var(--collage-gap) var(--collage-gap);
+    min-height: 0;
+  }
+  .tile {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-tile);
+    background: var(--color-cream);
+  }
+  .tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity calc(0.5s * var(--motion)) var(--ease);
+  }
+
   .skip {
     position: absolute;
     right: 20px;
     bottom: 20px;
     font: 500 14px/1 var(--font-sans);
-    color: var(--color-muted);
+    color: var(--color-ink);
     background: var(--color-cream);
     border: 0;
     border-radius: 999px;
-    padding: 10px 16px;
+    padding: 12px 18px;
     cursor: pointer;
   }
   .skip:hover {
     color: var(--color-red);
   }
 
-  /* заставка: коллаж собирается, наполняется стакан, на второй секунде
-     разом выходят надпись, строка и кнопки, а края коллажа приглушаются */
+  /* Монитор: имя слева, строка и действия справа — полоса ниже, коллажу больше места */
+  @media (min-width: 1024px) {
+    .band {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: end;
+      column-gap: clamp(28px, 3.5vw, 56px);
+      justify-items: start;
+      text-align: start;
+    }
+    .brand-row {
+      font-size: calc(clamp(96px, 9vw, 136px) * var(--display-scale));
+    }
+    .copy {
+      justify-items: start;
+      padding-bottom: 0.3em;
+    }
+    .lead {
+      margin-top: 0;
+      max-width: 34ch;
+    }
+    .actions,
+    .meta {
+      justify-content: flex-start;
+    }
+    .actions {
+      gap: 8px;
+    }
+    .actions .btn {
+      padding-inline: 22px;
+    }
+    .actions .btn-line {
+      padding-inline: 18px;
+    }
+  }
+
+  /* Телефон: кнопки двумя рядами по две, одной ширины */
+  @media (max-width: 640px) {
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 420px;
+    }
+    .actions .btn {
+      justify-content: center;
+      padding-inline: 12px;
+      font-size: 15px;
+    }
+    .meta .pill {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .skip {
+      right: 50%;
+      transform: translateX(50%);
+    }
+  }
+
+  /* заставка: кадры собираются, наливается стакан, затем имя, строка и кнопки */
   .tile,
   .liquid,
   .brand,
@@ -299,7 +330,7 @@ const h = t.hero;
   .tile {
     animation-name: tile-in;
     animation-duration: calc(0.5s * var(--motion));
-    animation-delay: calc(var(--step) * 0.06s * var(--motion));
+    animation-delay: calc(var(--step) * 0.07s * var(--motion));
   }
   .liquid {
     animation-name: pour;
@@ -320,7 +351,6 @@ const h = t.hero;
   .skip {
     animation: rise 0.3s var(--ease-out-expo) 0.4s both;
   }
-  /* после заставки кнопка пропуска не нужна */
   .hero[data-intro='done'] .skip {
     display: none;
   }
@@ -373,44 +403,11 @@ const h = t.hero;
     .brand,
     .lead,
     .actions,
-    .meta,
-    .skip {
+    .meta {
       animation: none;
     }
     .skip {
       display: none;
-    }
-  }
-
-  /* Телефон вертикально: три колонки, восемь рядов — все 16 кадров целиком */
-  @media (max-width: 640px) {
-    .collage {
-      gap: 5px;
-      padding: 5px;
-    }
-    .brand i {
-      margin-left: 10px;
-    }
-    .skip {
-      right: 50%;
-      transform: translateX(50%);
-    }
-  }
-
-
-
-
-
-  /* Увеличение кусочка под курсором — только там, где курсор есть */
-  @media (hover: none) {
-    .shot:hover img,
-    .tile:hover img {
-      transform: none;
-    }
-  }
-    .skip {
-      right: 50%;
-      transform: translateX(50%);
     }
   }
 </style>

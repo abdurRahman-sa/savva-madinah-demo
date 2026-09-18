@@ -45,30 +45,38 @@
   --hand-tilt: -3deg;
   --motion: 1;
   --ease: var(--ease-out-expo);
-  /* Коллаж героя: телефон вертикально — три колонки и восемь рядов.
-     Кусочков 16, два крупных и два широких добирают сетку ровно до 24 клеток. */
-  --collage-cols: 4;
-  --collage-rows: 5;
+  /* Коллаж героя: 12 кадров. Телефон вертикально — три колонки, четыре ряда. */
+  --collage-cols: 3;
+  --collage-rows: 4;
   --collage-gap: 6px;
-  --center-glow: 1;
+  --collage-min: 46svh;
   --intro-lead: 2s;
   --brand-reveal: 0.9s;
-  --cup-size: 24vh;
 }
 
-/* Ноутбук и монитор: кадры ложатся горизонтально */
-@media (min-width: 1024px) {
+/* Планшет: четыре колонки, три ряда */
+@media (min-width: 641px) {
   :root {
-    --collage-cols: 5;
-    --collage-rows: 4;
+    --collage-cols: 4;
+    --collage-rows: 3;
   }
 }
 
-/* Телефон лёжа: экран низкий, рядов меньше */
+/* Ноутбук и монитор: шесть кадров в ряд, два ряда */
+@media (min-width: 1024px) {
+  :root {
+    --collage-cols: 6;
+    --collage-rows: 2;
+    --collage-min: 52svh;
+  }
+}
+
+/* Телефон лёжа: экран низкий, тоже шесть в ряд */
 @media (max-height: 560px) and (orientation: landscape) {
   :root {
-    --collage-cols: 5;
-    --collage-rows: 4;
+    --collage-cols: 6;
+    --collage-rows: 2;
+    --collage-min: 70svh;
   }
 }
 
