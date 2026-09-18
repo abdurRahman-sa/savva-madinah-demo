@@ -285,6 +285,13 @@ const h = t.hero;
     overflow: hidden;
     border-radius: var(--radius-tile);
     background: var(--color-cream);
+    /* по нажатию кадр меняется: кусочек чуть проседает под пальцем */
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: scale calc(0.2s * var(--motion)) var(--ease);
+  }
+  .tile:active {
+    scale: 0.97;
   }
   .tile img {
     position: absolute;
@@ -536,15 +543,22 @@ const h = t.hero;
   const pool: { small: string; large: string }[] = JSON.parse(collage?.dataset.pool ?? '[]');
   const calm = matchMedia('(prefers-reduced-motion: reduce)');
 
-  function swapOneTile() {
+  // Фото, которые уже едут в какой-то кусочек: второй раз их не берём
+  const pending = new Set<string>();
+
+  // Меняет кадр в кусочке: в случайном (по таймеру) или в том, по которому нажали
+  function swapOneTile(target?: HTMLImageElement) {
     if (!collage) return;
     const images = [...collage.querySelectorAll<HTMLImageElement>('img')];
     const used = new Set(images.map((img) => img.dataset.url));
-    const fresh = pool.filter((photo) => !used.has(photo.large));
-    if (!fresh.length) return;
+    const fresh = pool.filter((photo) => !used.has(photo.large) && !pending.has(photo.large));
+    const free = images.filter((img) => img.dataset.busy === undefined);
+    const image = target ?? free[Math.floor(Math.random() * free.length)];
+    if (!fresh.length || !image || image.dataset.busy !== undefined) return;
 
-    const image = images[Math.floor(Math.random() * images.length)];
     const next = fresh[Math.floor(Math.random() * fresh.length)];
+    image.dataset.busy = '';
+    pending.add(next.large);
     const preload = new Image();
     preload.srcset = `${next.small} 260w, ${next.large} 480w`;
     preload.sizes = image.sizes;
@@ -554,14 +568,26 @@ const h = t.hero;
       .catch(() => {})
       .then(() => {
         image.style.opacity = '0';
-        setTimeout(() => {
-          image.srcset = preload.srcset;
-          image.src = next.large;
-          image.dataset.url = next.large;
-          image.style.opacity = '';
-        }, 500);
+        setTimeout(
+          () => {
+            image.srcset = preload.srcset;
+            image.src = next.large;
+            image.dataset.url = next.large;
+            image.style.opacity = '';
+            delete image.dataset.busy;
+            pending.delete(next.large);
+          },
+          calm.matches ? 0 : 500,
+        );
       });
   }
+
+  // Нажатие на кусочек коллажа сразу меняет в нём фото
+  collage?.addEventListener('click', (e) => {
+    const tile = (e.target as HTMLElement).closest('.tile');
+    const image = tile?.querySelector<HTMLImageElement>('img');
+    if (image) swapOneTile(image);
+  });
 
   let onScreen = true;
   function tick() {
