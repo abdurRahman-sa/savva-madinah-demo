@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import OpenStatus from './OpenStatus.astro';
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
 import driveThrough from '../assets/photos/drive-through-tray.jpg';
@@ -20,6 +19,22 @@ const doors = [
   { id: 'visit', icon: 'chair' },
 ] as const;
 const photoSizes = '(max-width: 980px) 100vw, 520px';
+
+// Мини-схема брони: квадрат 5×5 клеток, столик стоит в клетке [ряд, колонка].
+// Расстановка условная — настоящей планировки у нас нет, на схеме это подписано.
+const plans = {
+  hall: [
+    [2, 1], [2, 3], [2, 5],
+    [3, 2], [3, 4],
+    [4, 1], [4, 3], [4, 5],
+    [5, 2], [5, 4],
+  ],
+  terrace: [
+    [2, 2], [2, 4],
+    [4, 2], [4, 4],
+  ],
+} as const;
+const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? i + 1 : 11 + i);
 ---
 
 <section class="section" id="fork">
@@ -29,7 +44,6 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
         <p class="hand">{f.hand}</p>
         <h2 class="h-section">{f.title}</h2>
       </div>
-      <OpenStatus t={t} />
     </div>
 
     <div class="doors mt-[34px] grid gap-3" role="tablist" aria-label={f.tabsLabel}>
@@ -64,7 +78,6 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
         <p class="panel-sub">{f.takeaway.text}</p>
         <ul class="facts">
           <li><span>{f.takeaway.address}</span>{f.takeaway.addressValue}</li>
-          <li><span>{f.takeaway.plusCode}</span><bdi dir="ltr">{cafe.plusCode}</bdi></li>
           <li><span>{f.takeaway.hours}</span>{f.takeaway.hoursValue}</li>
         </ul>
         <div class="mt-4 flex flex-wrap gap-2">
@@ -82,7 +95,6 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     <div class="panel" role="tabpanel" id="panel-order" aria-labelledby="tab-order" hidden>
       <figure class="panel-photo">
         <Image src={coldTrio} alt={f.order.photoAlt} widths={[400, 477]} sizes={photoSizes} class="size-full object-cover" />
-        <figcaption>{f.order.caption}</figcaption>
       </figure>
       <div>
         <h3 class="panel-title">{f.order.title}</h3>
@@ -121,8 +133,49 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
             <fieldset class="field-label wide">
               <legend class="mb-1.5">{f.visit.zone}</legend>
               <div class="seg">
-                <label><input type="radio" name="zone" value="hall" checked /><span>{f.visit.hall}</span></label>
-                <label><input type="radio" name="zone" value="terrace" /><span>{f.visit.terrace}</span></label>
+                <label><input type="radio" name="zone" value="hall" checked data-zone /><span>{f.visit.hall}<small>{f.visit.hallCount}</small></span></label>
+                <label><input type="radio" name="zone" value="terrace" data-zone /><span>{f.visit.terrace}<small>{f.visit.terraceCount}</small></span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field-label wide tables">
+              <legend class="mb-1.5">{f.visit.table}</legend>
+              <div class="tables-row">
+                {
+                  (['hall', 'terrace'] as const).map((zone) => (
+                    <div
+                      class:list={['plan', `plan-${zone}`]}
+                      role="radiogroup"
+                      aria-label={zone === 'hall' ? f.visit.planHallLabel : f.visit.planTerraceLabel}
+                      data-plan={zone}
+                      hidden={zone === 'terrace'}
+                    >
+                      {zone === 'hall' ? (
+                        <>
+                          <span class="counter">{f.visit.planCounter}</span>
+                          <span class="entrance">{f.visit.planEntrance}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span class="awning" aria-hidden="true" />
+                          <span class="edge edge-top">{f.visit.planCafe}</span>
+                          <span class="edge edge-bottom">{f.visit.planWalk}</span>
+                        </>
+                      )}
+                      {plans[zone].map(([row, col], i) => (
+                        <label class="table" style={`grid-row:${row};grid-column:${col}`}>
+                          <input type="radio" name="table" value={tableNumber(zone, i)} disabled={zone === 'terrace'} />
+                          <span>{tableNumber(zone, i)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ))
+                }
+                <div class="tables-side">
+                  <p class="picked" aria-live="polite" data-table-picked data-any={f.visit.tableAny} data-picked={f.visit.tablePicked}>
+                    {f.visit.tableAny}
+                  </p>
+                  <p class="hint">{f.visit.tableHint} {f.visit.planNote}</p>
+                </div>
               </div>
             </fieldset>
             <label class="field-label" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" required /></label>
@@ -348,6 +401,127 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     outline: 2px solid var(--color-red);
     outline-offset: 2px;
   }
+  .seg small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12.5px;
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  /* мини-схема брони: квадрат средней величины, столики — круглые кнопки */
+  .tables-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 22px;
+  }
+  .plan {
+    position: relative;
+    width: min(100%, 260px);
+    aspect-ratio: 1;
+    display: grid;
+    grid-template: repeat(5, 1fr) / repeat(5, 1fr);
+    place-items: center;
+    padding: 12px;
+    border-radius: 18px;
+    background: var(--color-linen);
+    box-shadow: inset 0 0 0 2px var(--color-line);
+  }
+  .plan[hidden] {
+    display: none;
+  }
+  .counter {
+    grid-row: 1;
+    grid-column: 1 / 4;
+    align-self: start;
+    justify-self: stretch;
+    padding: 5px 0;
+    border-radius: 8px;
+    background: var(--color-coffee);
+    color: var(--color-cream);
+    font-size: 11.5px;
+    text-align: center;
+  }
+  .entrance,
+  .edge {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    padding: 0 8px;
+    font-size: 11.5px;
+    color: var(--color-muted);
+    background: var(--color-cream);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .entrance,
+  .edge-bottom {
+    bottom: -8px;
+  }
+  .edge-top {
+    top: 16px;
+  }
+  /* навес над верандой — та же полоса, что в мире сайта */
+  .awning {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 10px;
+    border-radius: 18px 18px 0 0;
+    background: repeating-linear-gradient(90deg, var(--color-red) 0 16px, var(--color-cream) 16px 32px);
+  }
+  .table {
+    position: relative;
+    cursor: pointer;
+  }
+  .table input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .table span {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--color-cream);
+    box-shadow: inset 0 0 0 1.5px var(--color-coffee);
+    font: 500 14px/1 var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    transition:
+      background-color 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo),
+      transform 0.2s var(--ease-out-expo);
+  }
+  .table:hover span {
+    transform: scale(1.08);
+  }
+  .table input:checked + span {
+    background: var(--color-red);
+    color: #fff;
+    box-shadow: none;
+  }
+  .table input:focus-visible + span {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+  }
+  .tables-side {
+    flex: 1 1 200px;
+    max-width: 34ch;
+  }
+  .picked {
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .hint {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
   .check {
     display: flex;
     align-items: center;
@@ -423,6 +597,13 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     }
     .seg span {
       padding: 11px 16px;
+    }
+    .plan {
+      width: min(100%, 240px);
+    }
+    .table span {
+      width: 36px;
+      height: 36px;
     }
   }
 </style>
@@ -529,6 +710,28 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     document.querySelectorAll<HTMLElement>('[data-preorder-field]').forEach((el) => (el.hidden = !preorder?.checked));
   preorder?.addEventListener('change', togglePreorder);
 
+  // Схема столиков: зона показывает свою схему, выбранный столик подписан рядом
+  const picked = document.querySelector<HTMLElement>('[data-table-picked]');
+  const plansEls = [...document.querySelectorAll<HTMLElement>('[data-plan]')];
+  const showPicked = () => {
+    const checked = document.querySelector<HTMLInputElement>('input[name="table"]:checked');
+    if (picked) picked.textContent = checked ? `${picked.dataset.picked} ${checked.value}` : picked.dataset.any!;
+  };
+  const showZone = () => {
+    const zone = document.querySelector<HTMLInputElement>('[data-zone]:checked')?.value ?? 'hall';
+    plansEls.forEach((plan) => {
+      const on = plan.dataset.plan === zone;
+      plan.hidden = !on;
+      plan.querySelectorAll<HTMLInputElement>('input').forEach((input) => {
+        input.disabled = !on;
+        if (!on) input.checked = false;
+      });
+    });
+    showPicked();
+  };
+  document.querySelectorAll('[data-zone]').forEach((input) => input.addEventListener('change', showZone));
+  document.querySelectorAll('input[name="table"]').forEach((input) => input.addEventListener('change', showPicked));
+
   // Демо-формы: проверяем поля и показываем подтверждение, ничего не отправляя
   document.querySelectorAll<HTMLFormElement>('.demo-form').forEach((form) => {
     const ok = form.nextElementSibling as HTMLElement;
@@ -545,6 +748,7 @@ const photoSizes = '(max-width: 980px) 100vw, 520px';
     ok.querySelector('[data-again]')?.addEventListener('click', () => {
       form.reset();
       togglePreorder();
+      showZone();
       form.hidden = false;
       ok.hidden = true;
       form.querySelector<HTMLInputElement>('input:not([type="radio"])')?.focus();

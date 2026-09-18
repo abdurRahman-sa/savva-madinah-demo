@@ -7,17 +7,19 @@ interface Props {
 }
 
 const { t } = Astro.props;
-const hhmm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 ---
 
+<!-- Статус работы плавает над страницей и едет вместе с прокруткой -->
 <p
-  class="open-status inline-flex items-center gap-2.5 rounded-full bg-cream px-[18px] py-2.5 text-[15px]"
+  class="open-status"
   aria-live="polite"
   data-open-status
   data-tz={cafe.timeZone}
   data-opens={cafe.opensAt}
   data-opens-friday={cafe.opensAtFriday}
   data-closes={cafe.closesAt}
+  data-open-text={t.status.open}
   data-closed-text={t.status.closedUntil}
   data-opens-label={hhmm(cafe.opensAt)}
   data-opens-friday-label={hhmm(cafe.opensAtFriday)}
@@ -26,22 +28,62 @@ const hhmm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, 
 </p>
 
 <style>
+  .open-status {
+    position: fixed;
+    z-index: 39;
+    left: max(16px, env(safe-area-inset-left));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 10px 14px;
+    border-radius: 999px;
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-size: 15px;
+    line-height: 1.2;
+    box-shadow: 0 10px 26px -14px rgb(35 30 25 / 0.55);
+    transition:
+      bottom calc(0.35s * var(--motion)) var(--ease),
+      opacity calc(0.35s * var(--motion)) var(--ease);
+  }
   .dot {
+    flex: none;
     width: 10px;
     height: 10px;
     border-radius: 50%;
     background: var(--color-sage);
-    box-shadow: 0 0 0 4px rgb(92 100 80 / 0.2);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-sage) 22%, transparent);
   }
   [data-state='closed'] .dot {
     background: var(--color-red);
-    box-shadow: 0 0 0 4px rgb(178 60 56 / 0.18);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-red) 20%, transparent);
+  }
+
+  /* пока идёт заставка, статус не мешает */
+  :global(body:has([data-hero]:not([data-intro='done']))) .open-status {
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* на телефоне снизу появляется полоса действий: статус встаёт над ней */
+  @media (max-width: 720px) {
+    :global(body:has([data-action-bar][data-state='shown'])) .open-status {
+      bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .open-status {
+      transition: none;
+    }
   }
 </style>
 
 <script>
-  // Статус по времени Медины: закрытие в 02:00 следующих суток, пятница открывается позже.
-  document.querySelectorAll<HTMLElement>('[data-open-status]').forEach((el) => {
+  // Статус по времени Медины: закрытие в 02:00 следующих суток, в пятницу открытие в 13:00.
+  const el = document.querySelector<HTMLElement>('[data-open-status]');
+
+  function update() {
+    if (!el) return;
     try {
       const d = el.dataset;
       const parts = new Intl.DateTimeFormat('en-US', {
@@ -56,12 +98,16 @@ const hhmm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, 
       const friday = get('weekday') === 'Fri';
       const opens = Number(friday ? d.opensFriday : d.opens);
       const open = minutes < Number(d.closes) || minutes >= opens;
-      if (!open) {
-        el.dataset.state = 'closed';
-        el.querySelector('span')!.textContent = `${d.closedText} ${friday ? d.opensFridayLabel : d.opensLabel}`;
-      }
+      el.dataset.state = open ? 'open' : 'closed';
+      el.querySelector('span')!.textContent = open
+        ? d.openText!
+        : `${d.closedText} ${friday ? d.opensFridayLabel : d.opensLabel}`;
     } catch {
       /* оставляем текст по умолчанию */
     }
-  });
+  }
+
+  update();
+  // Статус висит на экране долго: сверяем время раз в минуту
+  setInterval(update, 60_000);
 </script>

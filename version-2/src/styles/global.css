@@ -50,6 +50,8 @@
   --collage-rows: 4;
   --collage-gap: 9px;
   --collage-min: 46svh;
+  /* высота кадра коллажа на телефоне, доля от ширины */
+  --tile-ratio-phone: 1.2;
   /* подъём имени Savva вверх (отрицательное — вниз) */
   --brand-lift-tablet: 0px;
   --brand-lift-desktop: 58px;

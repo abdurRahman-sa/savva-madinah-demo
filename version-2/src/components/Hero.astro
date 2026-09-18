@@ -332,6 +332,21 @@ const h = t.hero;
     }
   }
 
+  /* Телефон: кадр выше, чем позволяет экран, — коллаж просто уходит ниже первого экрана.
+     Высота кадра задаётся долей от ширины: --tile-ratio-phone (1 — квадрат, 1,33 — как фото в Instagram) */
+  @media (max-width: 640px) {
+    .hero {
+      grid-template-rows: auto auto;
+    }
+    .collage {
+      grid-template-rows: none;
+      grid-auto-rows: auto;
+    }
+    .tile {
+      aspect-ratio: 1 / var(--tile-ratio-phone);
+    }
+  }
+
   /* Телефон: кнопки двумя рядами по две, одной ширины */
   @media (max-width: 640px) {
     .actions {
