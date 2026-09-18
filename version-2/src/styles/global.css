@@ -2,7 +2,7 @@
 
 /* Мир «Навес»: контракт — ../.impeccable/surfaces/version-2-src-pages-index-astro.md */
 @theme {
-  --color-linen: #e9dfcb;
+  --color-linen: #f2ebdc;
   --color-cream: #f7efe0;
   --color-coffee: #6f4a2e;
   --color-coffee-deep: #47301f;
@@ -10,11 +10,11 @@
   --color-on-dark: #f7efe0;
   --color-on-dark-soft: #d9cfc0;
   --color-blush: #f3b7a6;
-  --color-red: #b23c38;
+  --color-red: #ab3a36;
   --color-red-ink: #96302c;
   --color-sage: #5c6450;
-  --color-ink: #231e19;
-  --color-muted: #575042;
+  --color-ink: #40463a;
+  --color-muted: #5d634f;
   --color-line: #d3c6aa;
   /* сочный жёлтый, как мякоть дыни: напиток в стакане героя */
   --color-melon: #f0a93a;
@@ -33,9 +33,9 @@
   --space-section: 90px;
   --radius-block: 34px;
   --radius-tile: 14px;
-  --display-scale: 1;
-  --display-weight: 600;
-  --display-leading: 1.04;
+  --display-scale: 0.8;
+  --display-weight: 400;
+  --display-leading: 1.25;
   --display-tracking: -0.01em;
   --brand-leading: 0.84;
   --brand-tracking: -0.02em;
@@ -48,13 +48,16 @@
   /* Коллаж героя: 12 кадров. Телефон вертикально — три колонки, четыре ряда. */
   --collage-cols: 3;
   --collage-rows: 4;
-  --collage-gap: 6px;
+  --collage-gap: 9px;
   --collage-min: 46svh;
   /* подъём имени Savva вверх (отрицательное — вниз) */
   --brand-lift-tablet: 0px;
-  --brand-lift-desktop: 0px;
-  --intro-lead: 2s;
-  --brand-reveal: 0.9s;
+  --brand-lift-desktop: 58px;
+  /* заставка: имя наливается по центру, стоит, переезжает на место */
+  --brand-reveal: 1.5s;
+  --intro-lead: 0s;
+  --intro-move: 1s;
+  --collage-reveal: 0.5s;
 }
 
 /* Планшет: четыре колонки, три ряда */
@@ -70,7 +73,7 @@
   :root {
     --collage-cols: 6;
     --collage-rows: 2;
-    --collage-min: 52svh;
+    --collage-min: 60svh;
   }
 }
 

@@ -66,6 +66,30 @@ const h = t.hero;
       </svg>
       <h1 class="brand">Savva<i lang="ar" dir="rtl">سافا</i></h1>
     </div>
+    <script is:inline>
+      // Где имя стоит в заставке: центр экрана, чуть крупнее, но не шире 86% экрана
+      (() => {
+        const row = document.currentScript.previousElementSibling;
+        // Заставка уже была в этом визите: сразу финал, без мигания имени в центре
+        try {
+          if (sessionStorage.getItem('savva-intro-seen') === '1') row.closest('[data-hero]').dataset.intro = 'done';
+        } catch {}
+        const place = () => {
+          const style = getComputedStyle(row);
+          const was = row.style.animation;
+          row.style.animation = 'none';
+          const r = row.getBoundingClientRect();
+          row.style.animation = was;
+          const scale = Math.min(1.3, (innerWidth * 0.86) / r.width);
+          row.style.setProperty('--fx', `${innerWidth / 2 - (r.left + r.width / 2)}px`);
+          row.style.setProperty('--fy', `${innerHeight / 2 - (r.top + r.height / 2)}px`);
+          row.style.setProperty('--fs', scale.toFixed(3));
+        };
+        place();
+        // шрифт догружается и меняет ширину имени: пересчитываем
+        document.fonts?.ready.then(place);
+      })();
+    </script>
 
     <div class="copy">
       <p class="lead">{h.lead}</p>
@@ -331,7 +355,19 @@ const h = t.hero;
     }
   }
 
-  /* заставка: кадры собираются, наливается стакан, затем имя, строка и кнопки */
+  /* Заставка в три такта:
+     1) имя со стаканом по центру экрана наливается (--brand-reveal);
+     2) стоит по центру (--intro-lead) и переезжает на своё место (--intro-move);
+     3) когда имя встало, за --collage-reveal проявляются кадры, за ними строка, кнопки, плашки.
+     Смещение к центру (--fx, --fy, --fs) считает скрипт сразу после разметки. */
+  .hero {
+    --t-reveal: calc(var(--brand-reveal) * var(--motion));
+    --t-move: calc(var(--intro-move) * var(--motion));
+    --t-home: calc(var(--t-reveal) + var(--intro-lead) * var(--motion));
+    --t-rest: calc(var(--t-home) + var(--t-move));
+    --t-window: calc(var(--collage-reveal) * var(--motion));
+  }
+  .brand-row,
   .tile,
   .liquid,
   .brand,
@@ -342,26 +378,39 @@ const h = t.hero;
     animation-timing-function: var(--ease);
     animation-fill-mode: both;
   }
-  .tile {
-    animation-name: tile-in;
-    animation-duration: calc(0.5s * var(--motion));
-    animation-delay: calc(var(--step) * 0.07s * var(--motion));
+  .brand-row {
+    animation-name: brand-home;
+    animation-duration: var(--t-move);
+    animation-delay: var(--t-home);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
   }
   .liquid {
     animation-name: pour;
-    animation-duration: calc(1.5s * var(--motion));
-    animation-delay: calc(0.15s * var(--motion));
+    animation-duration: calc(var(--t-reveal) * 0.85);
   }
   .brand {
     animation-name: brand-pour;
-    animation-duration: calc(var(--brand-reveal) * var(--motion));
-    animation-delay: var(--intro-lead);
+    animation-duration: var(--t-reveal);
+    animation-delay: calc(0.2s * var(--motion));
+  }
+  /* кадры по очереди в первой половине окна, текст и кнопки — во второй */
+  .tile {
+    animation-name: tile-in;
+    animation-duration: calc(var(--t-window) * 0.5);
+    animation-delay: calc(var(--t-rest) + var(--step) * var(--t-window) * 0.5 / 11);
   }
   .lead,
   .actions,
   .meta {
     animation-name: rise;
-    animation-delay: var(--intro-lead);
+    animation-duration: calc(var(--t-window) * 0.5);
+    animation-delay: calc(var(--t-rest) + var(--t-window) * 0.4);
+  }
+  .actions {
+    animation-delay: calc(var(--t-rest) + var(--t-window) * 0.45);
+  }
+  .meta {
+    animation-delay: calc(var(--t-rest) + var(--t-window) * 0.5);
   }
   .skip {
     animation: rise 0.3s var(--ease-out-expo) 0.4s both;
@@ -369,6 +418,7 @@ const h = t.hero;
   .hero[data-intro='done'] .skip {
     display: none;
   }
+  .hero[data-intro='done'] .brand-row,
   .hero[data-intro='done'] .tile,
   .hero[data-intro='done'] .liquid,
   .hero[data-intro='done'] .brand,
@@ -378,6 +428,12 @@ const h = t.hero;
     animation: none;
   }
 
+  /* из центра экрана на своё место */
+  @keyframes brand-home {
+    from {
+      transform: translate(var(--fx, 0px), var(--fy, 0px)) scale(var(--fs, 1));
+    }
+  }
   @keyframes tile-in {
     from {
       opacity: 0;
@@ -389,11 +445,10 @@ const h = t.hero;
       transform: scaleY(0);
     }
   }
-  /* имя наливается снизу вверх и набирает вес: то же движение, что у стакана */
+  /* имя наливается снизу вверх: то же движение, что у стакана */
   @keyframes brand-pour {
     from {
       --brand-fill: 0%;
-      font-variation-settings: 'wght' 420;
       opacity: 0.35;
     }
     60% {
@@ -401,7 +456,6 @@ const h = t.hero;
     }
     to {
       --brand-fill: 118%;
-      font-variation-settings: 'wght' var(--display-weight);
       opacity: 1;
     }
   }
@@ -413,6 +467,7 @@ const h = t.hero;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .brand-row,
     .tile,
     .liquid,
     .brand,
@@ -469,7 +524,7 @@ const h = t.hero;
 
   if (collage && pool.length > collage.children.length) {
     // Смены начинаются после заставки
-    setTimeout(tick, 3000);
+    setTimeout(tick, 6000);
     new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting), { threshold: 0.15 }).observe(collage);
   }
 
@@ -486,6 +541,14 @@ const h = t.hero;
     }
   }
 
+  // Длина заставки из тех же переменных, что и в CSS (панель твиков их меняет)
+  function introLength() {
+    const css = getComputedStyle(hero ?? document.documentElement);
+    const sec = (name: string) => parseFloat(css.getPropertyValue(name)) || 0;
+    const motion = sec('--motion') || 1;
+    return (sec('--brand-reveal') + sec('--intro-lead') + sec('--intro-move') + sec('--collage-reveal')) * motion * 1000;
+  }
+
   let seen = false;
   try {
     seen = sessionStorage.getItem(KEY) === '1';
@@ -498,7 +561,7 @@ const h = t.hero;
     if (hero) hero.dataset.intro = 'done';
   } else {
     // Помечаем как просмотренную, когда сцена доиграла
-    setTimeout(finishIntro, 2600);
+    setTimeout(finishIntro, introLength() + 300);
     document.querySelector('[data-skip-intro]')?.addEventListener('click', finishIntro);
     window.addEventListener('pointerdown', finishIntro, { once: true });
     window.addEventListener('keydown', finishIntro, { once: true });

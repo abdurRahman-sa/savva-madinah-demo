@@ -21,9 +21,9 @@ const groups: Group[] = [
     title: 'Заголовки',
     controls: [
       { kind: 'select', label: 'Шрифт', token: '--font-display', value: '"El Messiri Variable", serif', options: fonts },
-      { kind: 'range', label: 'Размер', token: '--display-scale', min: 0.6, max: 1.8, step: 0.02, unit: '', value: 1 },
-      { kind: 'range', label: 'Начертание', token: '--display-weight', min: 300, max: 800, step: 10, unit: '', value: 600 },
-      { kind: 'range', label: 'Межстрочный', token: '--display-leading', min: 0.8, max: 1.8, step: 0.01, unit: '', value: 1.04 },
+      { kind: 'range', label: 'Размер', token: '--display-scale', min: 0.6, max: 1.8, step: 0.02, unit: '', value: 0.8 },
+      { kind: 'range', label: 'Начертание', token: '--display-weight', min: 400, max: 700, step: 10, unit: '', value: 400 },
+      { kind: 'range', label: 'Межстрочный', token: '--display-leading', min: 0.8, max: 1.8, step: 0.01, unit: '', value: 1.25 },
       { kind: 'range', label: 'Межбуквенный', token: '--display-tracking', min: -0.06, max: 0.08, step: 0.002, unit: 'em', value: -0.01 },
       { kind: 'range', label: 'Имя Savva, межстрочный', token: '--brand-leading', min: 0.7, max: 1.4, step: 0.01, unit: '', value: 0.84 },
       { kind: 'range', label: 'Имя Savva, межбуквенный', token: '--brand-tracking', min: -0.08, max: 0.06, step: 0.002, unit: 'em', value: -0.02 },
@@ -43,15 +43,15 @@ const groups: Group[] = [
   {
     title: 'Цвета',
     controls: [
-      { kind: 'color', label: 'Акцент, красный', token: '--color-red', value: '#b23c38' },
+      { kind: 'color', label: 'Акцент, красный', token: '--color-red', value: '#ab3a36' },
       { kind: 'color', label: 'Тёмный, синева', token: '--color-shade', value: '#3c3c4a' },
       { kind: 'color', label: 'Шалфей', token: '--color-sage', value: '#5c6450' },
       { kind: 'color', label: 'Напиток в стакане', token: '--color-melon', value: '#f0a93a' },
       { kind: 'color', label: 'Кофейный', token: '--color-coffee', value: '#6f4a2e' },
-      { kind: 'color', label: 'Фон, песок', token: '--color-linen', value: '#e9dfcb' },
+      { kind: 'color', label: 'Фон, песок', token: '--color-linen', value: '#f2ebdc' },
       { kind: 'color', label: 'Фон, сливочный', token: '--color-cream', value: '#f7efe0' },
-      { kind: 'color', label: 'Текст', token: '--color-ink', value: '#231e19' },
-      { kind: 'color', label: 'Текст приглушённый', token: '--color-muted', value: '#575042' },
+      { kind: 'color', label: 'Текст', token: '--color-ink', value: '#40463a' },
+      { kind: 'color', label: 'Текст приглушённый', token: '--color-muted', value: '#5d634f' },
     ],
   },
   {
@@ -68,19 +68,21 @@ const groups: Group[] = [
     title: 'Первый экран',
     controls: [
       { kind: 'range', label: 'Колонок', token: '--collage-cols', min: 2, max: 12, step: 1, unit: '', value: 6 },
-      { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 6 },
+      { kind: 'range', label: 'Зазор в коллаже', token: '--collage-gap', min: 0, max: 24, step: 1, unit: 'px', value: 9 },
       { kind: 'range', label: 'Рядов', token: '--collage-rows', min: 1, max: 12, step: 1, unit: '', value: 2 },
       { kind: 'range', label: 'Подъём Savva: планшет', token: '--brand-lift-tablet', min: -60, max: 120, step: 1, unit: 'px', value: 0 },
-      { kind: 'range', label: 'Подъём Savva: ноутбук', token: '--brand-lift-desktop', min: -60, max: 120, step: 1, unit: 'px', value: 0 },
-      { kind: 'range', label: 'Высота коллажа (минимум)', token: '--collage-min', min: 30, max: 80, step: 1, unit: 'svh', value: 52 },
+      { kind: 'range', label: 'Подъём Savva: ноутбук', token: '--brand-lift-desktop', min: -60, max: 120, step: 1, unit: 'px', value: 58 },
+      { kind: 'range', label: 'Высота коллажа (минимум)', token: '--collage-min', min: 30, max: 80, step: 1, unit: 'svh', value: 60 },
     ],
   },
   {
     title: 'Анимация',
     controls: [
       { kind: 'range', label: 'Скорость (1 = как сейчас)', token: '--motion', min: 0, max: 2.5, step: 0.05, unit: '', value: 1 },
-      { kind: 'range', label: 'Надпись выходит через', token: '--intro-lead', min: 0.2, max: 5, step: 0.1, unit: 's', value: 2 },
-      { kind: 'range', label: 'Надпись наливается', token: '--brand-reveal', min: 0.3, max: 2.5, step: 0.05, unit: 's', value: 0.9 },
+      { kind: 'range', label: 'Имя наливается по центру', token: '--brand-reveal', min: 0.3, max: 4, step: 0.05, unit: 's', value: 1.5 },
+      { kind: 'range', label: 'Имя стоит по центру', token: '--intro-lead', min: 0, max: 3, step: 0.1, unit: 's', value: 0 },
+      { kind: 'range', label: 'Имя переезжает на место', token: '--intro-move', min: 0.3, max: 2.5, step: 0.05, unit: 's', value: 1 },
+      { kind: 'range', label: 'Коллаж и кнопки проявляются за', token: '--collage-reveal', min: 0.2, max: 2, step: 0.05, unit: 's', value: 0.5 },
       {
         kind: 'select',
         label: 'Кривая',
@@ -108,12 +110,16 @@ const groups: Group[] = [
       <button type="button" data-close aria-label="Свернуть">×</button>
     </div>
   </header>
+  <div class="replay">
+    <button type="button" data-replay>Проиграть заставку</button>
+  </div>
   <div class="body">
     {
       groups.map((group) => (
         <details open>
           <summary>{group.title}</summary>
           {group.controls.map((control) => (
+            <div class="item">
             <label class="row">
               <span class="name">{control.label}</span>
               {control.kind === 'range' && (
@@ -152,6 +158,10 @@ const groups: Group[] = [
                 </span>
               )}
             </label>
+            <button type="button" class="return" data-return={control.token} disabled>
+              Вернуть {control.kind === 'range' ? `${control.value}${control.unit}` : 'как было'}
+            </button>
+            </div>
           ))}
         </details>
       ))
@@ -220,6 +230,19 @@ const groups: Group[] = [
   .tweaks button:hover {
     background: #3a3a45;
   }
+  .tweaks .replay {
+    padding: 10px 12px 0;
+  }
+  .tweaks .replay button {
+    width: 100%;
+    padding: 9px 10px;
+    color: #1d1d22;
+    background: #f0a93a;
+    font-weight: 600;
+  }
+  .tweaks .replay button:hover {
+    background: #f4bd62;
+  }
   .tweaks .body {
     overflow-y: auto;
     padding: 6px 12px 12px;
@@ -277,6 +300,27 @@ const groups: Group[] = [
   .row.changed .name {
     color: #f0a93a;
   }
+  /* «Вернуть» под каждой ручкой: активна, только когда значение сдвинуто */
+  .tweaks .return {
+    display: block;
+    margin: 0 0 6px auto;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    color: #f0a93a;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px #4a4038;
+  }
+  .tweaks .return:hover {
+    background: #2b2b33;
+  }
+  .tweaks .return:disabled {
+    color: #5b5953;
+    box-shadow: inset 0 0 0 1px #2b2b33;
+    cursor: default;
+  }
+  .tweaks .return:disabled:hover {
+    background: transparent;
+  }
   .note {
     padding: 10px 12px;
     border-top: 1px solid #33333c;
@@ -309,9 +353,14 @@ const groups: Group[] = [
       changed.set(token, value);
     }
     input.closest('.row')?.classList.toggle('changed', !isDefault);
+    returnFor(input)?.toggleAttribute('disabled', isDefault);
     const out = input.parentElement?.querySelector('output');
     if (out) out.textContent = input.type === 'color' ? input.value : value;
     if (remember) save();
+  }
+
+  function returnFor(input: HTMLInputElement | HTMLSelectElement) {
+    return input.closest('.item')?.querySelector<HTMLButtonElement>('[data-return]');
   }
 
   function save() {
@@ -342,6 +391,11 @@ const groups: Group[] = [
 
   inputs.forEach((input) => {
     input.addEventListener('input', () => apply(input));
+    // «Вернуть» ставит ручку на значение сайта
+    returnFor(input)?.addEventListener('click', () => {
+      input.value = input.dataset.default!;
+      apply(input);
+    });
   });
 
   document.querySelector('[data-copy]')?.addEventListener('click', async () => {
@@ -363,12 +417,25 @@ const groups: Group[] = [
       input.value = input.dataset.default!;
       document.documentElement.style.removeProperty(input.dataset.token!);
       input.closest('.row')?.classList.remove('changed');
+      returnFor(input)?.setAttribute('disabled', '');
       const out = input.parentElement?.querySelector('output');
       if (out) out.textContent = input.type === 'color' ? input.value : valueOf(input);
     });
     changed.clear();
     save();
     if (note) note.textContent = 'Всё сброшено к значениям сайта.';
+  });
+
+  // Заставка идёт раз за визит: забываем, что её видели, и начинаем страницу сначала
+  document.querySelector('[data-replay]')?.addEventListener('click', () => {
+    try {
+      sessionStorage.removeItem('savva-intro-seen');
+    } catch {
+      /* хранилище недоступно: заставка и так покажется */
+    }
+    history.scrollRestoration = 'manual';
+    scrollTo(0, 0);
+    location.reload();
   });
 
   function togglePanel(open: boolean) {
