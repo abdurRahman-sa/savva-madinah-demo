@@ -138,9 +138,12 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
         <p class="panel-sub">{f.order.text}</p>
         <form class="demo-form" id="order-form" novalidate>
           <div class="fields">
-            <label class="field-label" for="order-name">{f.name}<input class="field" id="order-name" name="name" type="text" autocomplete="name" required /></label>
-            <label class="field-label" for="order-phone">{f.phone}<input class="field" id="order-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
-            <label class="field-label address" for="order-address">{f.order.address}<input class="field" id="order-address" name="address" type="text" autocomplete="street-address" required /></label>
+            <label class="field-label" for="order-name">{f.name}<input class="field" id="order-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="60" aria-describedby="order-name-error" data-name data-invalid={f.nameInvalid} required /><small class="field-error" id="order-name-error" role="alert" hidden>{f.nameInvalid}</small></label>
+            <label class="field-label" for="order-phone">{f.phone}
+              <span class="phone-field"><span class="phone-prefix" aria-hidden="true">+966</span><input class="field" id="order-phone" name="phone" type="tel" dir="ltr" autocomplete="tel-national" inputmode="numeric" pattern="5[0-9]{8}" minlength="9" maxlength="9" placeholder="5XXXXXXXX" aria-describedby="order-phone-hint" data-phone data-invalid={f.phoneInvalid} required /></span>
+              <small class="field-hint" id="order-phone-hint">{f.phoneHint}</small>
+            </label>
+            <label class="field-label address" for="order-address">{f.order.address}<input class="field" id="order-address" name="address" type="text" autocomplete="street-address" minlength="5" maxlength="120" aria-describedby="order-address-error" data-address data-invalid={f.addressInvalid} required /><small class="field-error" id="order-address-error" role="alert" hidden>{f.addressInvalid}</small></label>
             <label class="field-label when" for="order-time">{f.order.time}
               <select class="field" id="order-time" name="time" data-delivery-time data-asap={f.order.asap} aria-describedby="order-time-hint"></select>
             </label>
@@ -155,7 +158,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <p class="summary-error" data-summary-error role="alert" hidden></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn" type="submit">{f.order.submit}</button>
+            <button class="btn submit-action" type="submit" data-submit data-success={c.orderPlaced}><span data-submit-label>{f.order.submit}</span><Icon name="check" class="submit-check" /></button>
             <a class="btn btn-line" href="#menu">{f.order.openMenu}</a>
           </div>
           <p class="demo-note">{f.order.note}</p>
@@ -165,7 +168,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           </p>
         </form>
         <div class="ok" hidden data-number-label={c.number}>
-          <h4 tabindex="-1">{f.order.okTitle}</h4>
+          <div class="ok-head"><span class="ok-mark"><Icon name="check" /></span><h4 tabindex="-1">{f.order.okTitle}</h4></div>
           <p>{f.order.okText}</p>
           <p class="ok-number" data-ok-number></p>
           <ul class="summary-list" data-ok-list data-at-counter={c.atCounter}></ul>
@@ -251,8 +254,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
         </fieldset>
         <form class="demo-form v-form" id="visit-form" novalidate>
           <div class="fields">
-          <label class="field-label wide" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" required /></label>
-          <label class="field-label wide" for="visit-phone">{f.phone}<input class="field" id="visit-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" placeholder="+966 5X XXX XXXX" required /></label>
+          <label class="field-label wide" for="visit-name">{f.name}<input class="field" id="visit-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="60" aria-describedby="visit-name-error" data-name data-invalid={f.nameInvalid} required /><small class="field-error" id="visit-name-error" role="alert" hidden>{f.nameInvalid}</small></label>
+          <label class="field-label wide" for="visit-phone">{f.phone}
+            <span class="phone-field"><span class="phone-prefix" aria-hidden="true">+966</span><input class="field" id="visit-phone" name="phone" type="tel" dir="ltr" autocomplete="tel-national" inputmode="numeric" pattern="5[0-9]{8}" minlength="9" maxlength="9" placeholder="5XXXXXXXX" aria-describedby="visit-phone-hint" data-phone data-invalid={f.phoneInvalid} required /></span>
+            <small class="field-hint" id="visit-phone-hint">{f.phoneHint}</small>
+          </label>
           <!-- поля столбиком: колонка формы выравнивается по высоте с фото и схемой -->
           <label class="field-label wide" for="visit-date">{f.visit.date}
             <select class="field" id="visit-date" name="date" data-visit-date></select>
@@ -277,7 +283,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <p class="summary-error" data-summary-error role="alert" hidden></p>
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn" type="submit">{f.visit.submit}</button>
+            <button class="btn submit-action" type="submit" data-submit data-success={c.bookingPlaced}><span data-submit-label>{f.visit.submit}</span><Icon name="check" class="submit-check" /></button>
             <a class="btn btn-line" href="#menu">{f.visit.openMenu}</a>
           </div>
           <p class="demo-note">{f.visit.note}</p>
@@ -287,7 +293,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           </p>
         </form>
         <div class="ok v-form" hidden data-number-label={c.bookingNumber}>
-          <h4 tabindex="-1">{f.visit.okTitle}</h4>
+          <div class="ok-head"><span class="ok-mark"><Icon name="check" /></span><h4 tabindex="-1">{f.visit.okTitle}</h4></div>
           <p>{f.visit.okText}</p>
           <p class="ok-number" data-ok-number></p>
           <ul class="summary-list" data-ok-list data-at-counter={c.atCounter}></ul>
@@ -500,6 +506,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
   .fields > * {
     grid-column: span 3;
+    align-content: start;
   }
   /* адрес длинный, время короткое: одной строкой */
   .fields .address {
@@ -512,6 +519,76 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     margin-top: -6px;
     font-size: 13px;
     color: var(--color-muted);
+  }
+  .phone-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    overflow: hidden;
+    border: 1.5px solid var(--color-line);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .phone-field:focus-within {
+    outline: 2px solid var(--color-red);
+    outline-offset: 1px;
+    border-color: var(--color-red);
+  }
+  .phone-field:has(.field:user-invalid) {
+    border-color: var(--color-red);
+  }
+  .phone-prefix {
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    padding-inline: 15px 12px;
+    border-inline-end: 1px solid var(--color-line);
+    color: var(--color-ink);
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .phone-field .field {
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .phone-field .field:focus,
+  .phone-field .field:user-invalid {
+    border-color: transparent;
+    outline: 0;
+  }
+  .field-hint {
+    color: var(--color-muted);
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .field-error {
+    color: var(--color-red-ink);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .field-error[hidden] {
+    display: none;
+  }
+  .field-label[data-error='true'] {
+    color: var(--color-red-ink);
+  }
+  .field-label[data-error='true'] > .field {
+    border-color: var(--color-red);
+    background: color-mix(in srgb, var(--color-red) 6%, #fff);
+    outline: 2px solid color-mix(in srgb, var(--color-red) 18%, transparent);
+  }
+  .field-label[data-shake='true'] {
+    animation: field-nudge 0.32s ease-out;
+  }
+  @keyframes field-nudge {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-5px); }
+    60% { transform: translateX(4px); }
   }
   .wide {
     grid-column: 1 / -1;
@@ -706,9 +783,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   /* сводка заказа из меню: позиции, суммы, итог */
   .summary {
     margin-top: 16px;
-    padding: 14px 16px;
+    padding: 16px 18px;
     border-radius: 16px;
-    background: var(--color-linen);
+    border: 1px solid color-mix(in srgb, var(--color-sage) 24%, transparent);
+    background: color-mix(in srgb, var(--color-sage) 7%, var(--color-linen));
   }
   .summary[hidden] {
     display: none;
@@ -718,26 +796,66 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     color: var(--color-ink);
   }
   .summary-list {
-    margin-top: 8px;
+    margin-top: 10px;
   }
   .summary-list li {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 6px 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
     border-bottom: 1px solid var(--color-line);
     font-size: 14.5px;
   }
-  .summary-list b {
-    flex: none;
+  .summary-list :global(.line-main) {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .summary-list :global(.line-name) {
+    min-width: 0;
     font-weight: 500;
+    line-height: 1.3;
+  }
+  .summary-list :global(.line-qty) {
+    flex: none;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: var(--color-sage);
+    background: color-mix(in srgb, var(--color-sage) 12%, transparent);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .summary-list :global(.line-price) {
+    color: var(--color-red-ink);
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .summary-total {
-    margin-top: 8px;
-    font-weight: 600;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 2px;
     font-size: 15px;
     font-variant-numeric: tabular-nums;
+  }
+  .summary-total :global(.total-label) {
+    font-weight: 600;
+  }
+  .summary-total :global(.total-value) {
+    color: var(--color-red-ink);
+    font: 600 20px/1 var(--font-display);
+    white-space: nowrap;
+  }
+  .summary-total :global(.total-note) {
+    flex-basis: 100%;
+    color: var(--color-muted);
+    font-size: 12px;
   }
   .summary-total[hidden],
   .summary-empty[hidden],
@@ -764,9 +882,40 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     font-weight: 500;
     color: var(--color-red-ink);
   }
+  .submit-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 174px;
+  }
+  .submit-action :global(.submit-check) {
+    display: none;
+    width: 20px;
+    height: 20px;
+  }
+  .submit-action[data-state='success'] {
+    border-color: var(--color-sage);
+    background: var(--color-sage);
+    color: var(--color-on-dark);
+    animation: success-stamp 0.42s var(--ease-out-expo);
+  }
+  .submit-action[data-state='success'] :global(.submit-check) {
+    display: block;
+  }
+  @keyframes success-stamp {
+    0% { transform: scale(1); }
+    55% { transform: scale(1.045) rotate(-1deg); }
+    100% { transform: scale(1); }
+  }
   .ok-number {
-    margin-top: 14px;
-    font: 400 22px/1.2 var(--font-display);
+    width: max-content;
+    margin-top: 18px;
+    padding: 8px 13px 7px;
+    border-radius: 999px;
+    color: var(--color-on-dark) !important;
+    background: var(--color-red);
+    font: 600 17px/1.2 var(--font-sans);
     font-variant-numeric: tabular-nums;
   }
   .ok .summary-list {
@@ -791,6 +940,33 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
   .forget:hover {
     color: var(--color-red-ink);
+  }
+  .ok {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    border: 1px solid color-mix(in srgb, var(--color-sage) 30%, transparent);
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--color-sage) 9%, #fffaf2);
+  }
+  .ok-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ok-mark {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: var(--color-on-dark);
+    background: var(--color-sage);
+  }
+  .ok-mark :global(svg) {
+    width: 24px;
+    height: 24px;
   }
   .ok h4 {
     font-family: var(--font-display);
@@ -886,6 +1062,17 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     .seg span {
       padding: 11px 16px;
     }
+    .summary {
+      padding-inline: 14px;
+    }
+    .summary-list li {
+      gap: 10px;
+    }
+    .summary-list :global(.line-main) {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 4px;
+    }
     .plan {
       width: min(100%, 240px);
     }
@@ -894,12 +1081,71 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       height: 36px;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .field-label[data-shake='true'],
+    .submit-action[data-state='success'] {
+      animation: none;
+    }
+  }
 </style>
 
 <script>
   import { cartLines, cartTotals, clearCart, onCart } from '../scripts/cart';
 
   const doors = [...document.querySelectorAll<HTMLButtonElement>('[data-door]')];
+
+  // Саудовский мобильный номер: +966 показан отдельно, в поле остаётся ровно 9 цифр с первой 5.
+  const phoneInputs = [...document.querySelectorAll<HTMLInputElement>('[data-phone]')];
+  const phoneDigits = (value: string) => {
+    let digits = value.replace(/\D/g, '');
+    if (digits.startsWith('966')) digits = digits.slice(3);
+    if (digits.startsWith('0')) digits = digits.slice(1);
+    return digits.slice(0, 9);
+  };
+  const validatePhone = (input: HTMLInputElement) => {
+    input.setCustomValidity(input.value === '' || /^5\d{8}$/.test(input.value) ? '' : input.dataset.invalid!);
+  };
+  phoneInputs.forEach((input) => {
+    input.addEventListener('input', () => {
+      const clean = phoneDigits(input.value);
+      if (input.value !== clean) input.value = clean;
+      validatePhone(input);
+    });
+    input.addEventListener('blur', () => validatePhone(input));
+  });
+
+  // Ошибка привязана к конкретному полю: пояснение остаётся рядом, а короткий сдвиг
+  // помогает заметить проблему без всплывающих окон и без потери введённых данных.
+  const namedFields = [
+    ...document.querySelectorAll<HTMLInputElement>('[data-name], [data-address]'),
+  ];
+  const isNamedFieldValid = (input: HTMLInputElement) => {
+    const value = input.value.trim();
+    if (input.hasAttribute('data-name')) return /^[\p{L}\p{M}][\p{L}\p{M}\s'’\-]{1,59}$/u.test(value);
+    return value.length >= 5 && /\p{L}/u.test(value);
+  };
+  const paintFieldError = (input: HTMLInputElement, nudge = false) => {
+    const invalid = !isNamedFieldValid(input) && (input.value !== '' || nudge);
+    input.setCustomValidity(invalid ? input.dataset.invalid! : '');
+    const label = input.closest<HTMLElement>('.field-label')!;
+    const error = label.querySelector<HTMLElement>('.field-error');
+    label.dataset.error = String(invalid);
+    if (error) error.hidden = !invalid;
+    if (nudge && invalid) {
+      label.removeAttribute('data-shake');
+      void label.offsetWidth;
+      label.dataset.shake = 'true';
+      window.setTimeout(() => label.removeAttribute('data-shake'), 360);
+    }
+    return !invalid;
+  };
+  namedFields.forEach((input) => {
+    input.addEventListener('blur', () => paintFieldError(input));
+    input.addEventListener('input', () => {
+      if (input.closest<HTMLElement>('.field-label')?.dataset.error === 'true') paintFieldError(input);
+    });
+  });
 
   function openDoor(door: HTMLButtonElement) {
     doors.forEach((d) => {
@@ -1082,18 +1328,39 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     list.innerHTML = '';
     lines.forEach(({ item, qty }) => {
       const li = document.createElement('li');
-      const name = document.createElement('span');
-      name.textContent = qty > 1 ? `${item.ru} × ${qty}` : item.ru;
+      const main = document.createElement('span');
+      main.className = 'line-main';
+      const name = document.createElement('strong');
+      name.className = 'line-name';
+      name.textContent = item.ru;
+      const quantity = document.createElement('small');
+      quantity.className = 'line-qty';
+      quantity.textContent = `× ${qty}`;
       const price = document.createElement('b');
+      price.className = 'line-price';
       price.textContent =
         item.price !== undefined ? money(item.price * qty) : item.priceText ? `${item.priceText} SAR` : list.dataset.atCounter ?? '';
-      li.append(name, price);
+      main.append(name, quantity);
+      li.append(main, price);
       list.append(li);
     });
     total.hidden = !lines.length;
-    total.textContent = lines.length
-      ? `${total.dataset.label} ${money(sum)}${unpriced ? ` ${total.dataset.plus}` : ''}`
-      : '';
+    total.innerHTML = '';
+    if (lines.length) {
+      const label = document.createElement('span');
+      label.className = 'total-label';
+      label.textContent = total.dataset.label!;
+      const value = document.createElement('strong');
+      value.className = 'total-value';
+      value.textContent = money(sum);
+      total.append(label, value);
+      if (unpriced) {
+        const note = document.createElement('small');
+        note.className = 'total-note';
+        note.textContent = total.dataset.plus!;
+        total.append(note);
+      }
+    }
   }
   function paintSummaries() {
     const empty = cartTotals().count === 0;
@@ -1142,8 +1409,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     const ok = form.nextElementSibling as HTMLElement;
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      const invalidNamed = namedFields.filter((input) => input.form === form && !paintFieldError(input, true));
+      phoneInputs.filter((input) => input.form === form).forEach(validatePhone);
       if (!form.checkValidity()) {
-        form.reportValidity();
+        if (invalidNamed.length) invalidNamed[0].focus();
+        else form.reportValidity();
         return;
       }
       // без позиций из меню доставку (и заказ к приходу) не оформить
@@ -1157,9 +1427,21 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       }
       const number = String(1000 + Math.floor(Math.random() * 9000));
       submitted[form.id] = number;
-      showOk(form, number);
-      ok.querySelector('h4')?.focus();
-      saveDraft();
+      const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+      const submitLabel = submit.querySelector<HTMLElement>('[data-submit-label]')!;
+      const originalLabel = submitLabel.textContent!;
+      submit.disabled = true;
+      submit.dataset.state = 'success';
+      submitLabel.textContent = submit.dataset.success!;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.setTimeout(() => {
+        showOk(form, number);
+        submit.disabled = false;
+        submit.removeAttribute('data-state');
+        submitLabel.textContent = originalLabel;
+        ok.querySelector('h4')?.focus();
+        saveDraft();
+      }, reducedMotion ? 0 : 520);
     });
     ok.querySelector('[data-again]')?.addEventListener('click', () => {
       if (usesCart(form)) clearCart();
@@ -1244,7 +1526,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       // в выпадающем списке значение ставим, только если такой вариант ещё есть (время могло пройти)
       else if (el instanceof HTMLSelectElement) {
         if ([...el.options].some((o) => o.value === value)) el.value = String(value);
-      } else el.value = String(value);
+      } else {
+        el.value = el.matches('[data-phone]') ? phoneDigits(String(value)) : String(value);
+        if (el instanceof HTMLInputElement && el.matches('[data-phone]')) validatePhone(el);
+      }
     };
     // дата раньше времени: от даты зависит список слотов
     set('visit-date');

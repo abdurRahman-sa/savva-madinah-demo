@@ -12,7 +12,8 @@ export const cafe = {
   rating: '4.7',
   reviewCount: 730,
   // Темы отзывов в Google Maps: сколько отзывов упоминают тему.
-  reviewTopics: { quietness: 51, cheesecake: 36, madiniCookies: 15, outdoorSeating: 12 },
+  // «Атмосфера» объединяет 51 упоминание тишины и 12 упоминаний веранды.
+  reviewTopics: { atmosphere: 63, cheesecake: 36, madiniCookies: 15 },
   timeZone: 'Asia/Riyadh',
   // Открытие в минутах от полуночи; пятница с 13:00, остальные дни с 6:30. Закрытие всегда в 02:00.
   opensAt: 390,
