@@ -1,6 +1,7 @@
 ---
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
+import wordmark from '../assets/brand/savva-wordmark.svg?raw';
 
 interface Props {
   t: Dict;
@@ -34,7 +35,11 @@ const f = t.footer;
         <p><a class="no-underline hover:text-red" href={cafe.tiktokUrl} target="_blank" rel="noopener" dir="ltr">{cafe.tiktokHandle}</a></p>
       </div>
     </div>
-    <p class="foot-brand mt-11 font-display font-semibold">Savva<i lang="ar" dir="rtl">سافا</i></p>
+    <p class="foot-brand mt-11">
+      <span class="sr-only">Savva</span>
+      <span class="foot-wordmark" aria-hidden="true" set:html={wordmark} />
+      <i lang="ar" dir="rtl">سافا</i>
+    </p>
   </div>
 </footer>
 
@@ -48,14 +53,26 @@ const f = t.footer;
     }
   }
   .foot-brand {
-    font-size: clamp(46px, 8vw, 96px);
-    line-height: 0.9;
-    letter-spacing: -0.02em;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    line-height: 1;
+  }
+  .foot-wordmark {
+    display: inline-flex;
+    width: clamp(220px, 38vw, 440px);
+    color: var(--color-ink);
+    line-height: 0;
+  }
+  .foot-wordmark :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
   }
   .foot-brand i {
     font-style: normal;
-    font-size: 0.28em;
+    font-size: clamp(22px, 2.2vw, 32px);
     color: var(--color-sage);
-    margin-left: 12px;
+    margin-bottom: 0.08em;
   }
 </style>

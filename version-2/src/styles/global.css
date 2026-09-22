@@ -52,13 +52,13 @@
   /* самое малое поле от плашки меню до края экрана */
   --menu-edge-min: 14px;
   /* отзывы: независимые ручки воздуха и типографики */
-  --reviews-pad: 64px;
-  --reviews-title-gap: 34px;
-  --reviews-card-gap: 14px;
+  --reviews-pad: 24px;
+  --reviews-title-gap: 24px;
+  --reviews-card-gap: 18px;
   --reviews-card-pad: 34px;
   --reviews-heading-scale: 1;
   --reviews-quote-size: 19px;
-  --reviews-rating-size: 116px;
+  --reviews-rating-size: 64px;
   --radius-block: 34px;
   --radius-tile: 14px;
   --display-scale: 0.8;
@@ -157,6 +157,14 @@
 
   section[id] {
     scroll-margin-top: 1.5rem;
+  }
+
+  /* На широком экране панель действий закреплена сверху. Якорь оставляет под ней
+     место, а внутренний отступ секции сохраняет полностью видимым первый текст. */
+  @media (min-width: 721px) {
+    section[id] {
+      scroll-margin-top: 4rem;
+    }
   }
 
   ::selection {

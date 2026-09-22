@@ -13,6 +13,7 @@ import hall1 from '../assets/photos/hall-1.jpg';
 import hall2 from '../assets/photos/hall-2.jpg';
 import terrace1 from '../assets/photos/terrace-1.jpg';
 import terrace2 from '../assets/photos/terrace-2.jpg';
+import wordmark from '../assets/brand/savva-wordmark.svg?raw';
 
 interface Props {
   t: Dict;
@@ -150,7 +151,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           <p class="demo-note">{f.takeaway.note}</p>
           <p class="demo-note kept"><span data-kept-text data-text={f.kept}>{f.kept}</span><button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button></p>
         </form>
-        <div class="ok" hidden data-number-label={c.pickupNumber}>
+        <div class="ok ok-purchase" hidden data-number-label={c.pickupNumber}>
           <div class="ok-head"><span class="ok-mark"><Icon name="check" /></span><h4 tabindex="-1">{f.takeaway.okTitle}</h4></div>
           <p>{f.takeaway.okText}</p>
           <p class="ok-number" data-ok-number></p>
@@ -175,7 +176,11 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
         sizes={photoSizes}
       />
       <div>
-        <h3 class="panel-title">{f.order.title}</h3>
+        <h3 class="panel-title brand-title">
+          <span class="sr-only">Savva </span>
+          <span class="inline-wordmark" aria-hidden="true" set:html={wordmark} />
+          <span>{f.order.title}</span>
+        </h3>
         <p class="panel-sub">{f.order.text}</p>
         <form class="demo-form" id="order-form" novalidate>
           <div class="fields">
@@ -208,7 +213,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
             <button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button>
           </p>
         </form>
-        <div class="ok" hidden data-number-label={c.number}>
+        <div class="ok ok-purchase" hidden data-number-label={c.number}>
           <div class="ok-head"><span class="ok-mark"><Icon name="check" /></span><h4 tabindex="-1">{f.order.okTitle}</h4></div>
           <p>{f.order.okText}</p>
           <p class="ok-number" data-ok-number></p>
@@ -513,6 +518,24 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     font-size: clamp(24px, 2.6vw, 34px);
     line-height: 1.05;
     text-wrap: balance;
+  }
+  .brand-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.24em;
+  }
+  .inline-wordmark {
+    display: inline-flex;
+    flex: none;
+    width: 3.05em;
+    color: var(--color-ink);
+    line-height: 0;
+  }
+  .inline-wordmark :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
   }
   .panel-sub {
     color: var(--color-muted);
@@ -886,20 +909,26 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   .summary-total {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: baseline;
-    gap: 16px;
+    width: fit-content;
+    max-width: 100%;
+    gap: 6px 20px;
     margin-top: 12px;
-    padding-top: 2px;
-    font-size: 15px;
+    border: 1px solid color-mix(in srgb, var(--color-red) 16%, var(--color-line));
+    border-radius: 12px;
+    padding: 9px 12px 8px;
+    background: color-mix(in srgb, var(--color-red) 5%, transparent);
+    font-size: 16px;
     font-variant-numeric: tabular-nums;
   }
   .summary-total :global(.total-label) {
-    font-weight: 600;
+    color: var(--color-ink);
+    font-weight: 700;
   }
   .summary-total :global(.total-value) {
     color: var(--color-red-ink);
-    font: 600 20px/1 var(--font-display);
+    font: 600 22px/1 var(--font-display);
     white-space: nowrap;
   }
   .summary-total :global(.total-note) {
@@ -971,7 +1000,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     overflow-wrap: anywhere;
   }
   .ok .summary-list {
-    max-width: 420px;
+    width: min(100%, 420px);
   }
   .kept {
     margin-top: 4px;
@@ -995,11 +1024,17 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   }
   .ok {
     position: relative;
+    justify-self: start;
+    width: min(100%, 680px);
     overflow: hidden;
     padding: 22px;
     border: 1px solid color-mix(in srgb, var(--color-sage) 30%, transparent);
     border-radius: 22px;
     background: color-mix(in srgb, var(--color-sage) 9%, #fffaf2);
+  }
+  .ok-purchase {
+    border-color: color-mix(in srgb, #8fb6c4 22%, var(--color-line));
+    background: color-mix(in srgb, #dcecf0 14%, #fffaf2);
   }
   .ok-head {
     display: flex;
@@ -1015,6 +1050,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     border-radius: 50%;
     color: var(--color-on-dark);
     background: var(--color-sage);
+  }
+  .ok-purchase .ok-mark {
+    color: var(--color-sage);
+    background: color-mix(in srgb, var(--color-sage) 14%, transparent);
   }
   .ok-mark :global(svg) {
     width: 24px;
