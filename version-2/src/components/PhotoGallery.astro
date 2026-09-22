@@ -62,10 +62,16 @@ const frameRatio = (src: ImageMetadata) => Math.max(src.width / src.height, 0.75
   .gallery {
     position: relative;
     margin: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     container-type: inline-size;
   }
   .frame {
     position: relative;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     overflow: hidden;
     /* кадр не выше трёх четвертей экрана, лишнее срезается по краям */
     max-height: 75svh;

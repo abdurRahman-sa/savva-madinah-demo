@@ -41,7 +41,9 @@ const groups = await Promise.all(
       <p class="hand text-blush!">{c.hand}</p>
       <h2 class="h-section text-on-dark">{c.title}</h2>
       <div class="facts">
-        <span class="fact"><b>{cafe.reviewTopics.atmosphere}</b> {c.atmosphere}</span>
+        <a class="fact" href="#reviews" aria-label={`${cafe.reviewTopics.atmosphere} ${c.atmosphere}. Перейти к отзывам`}>
+          <b>{cafe.reviewTopics.atmosphere}</b> {c.atmosphere}
+        </a>
       </div>
     </div>
 
@@ -164,11 +166,22 @@ const groups = await Promise.all(
     margin-top: 22px;
   }
   .fact {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     border: 1.5px solid rgb(247 239 224 / 0.4);
     border-radius: 999px;
     padding: 9px 16px;
     font-size: 14.5px;
     color: var(--color-on-dark-soft);
+    text-decoration: none;
+    transition:
+      border-color 0.2s var(--ease-out-expo),
+      background-color 0.2s var(--ease-out-expo);
+  }
+  .fact:hover {
+    border-color: var(--color-on-dark);
+    background: rgb(247 239 224 / 0.08);
   }
   .fact b {
     color: var(--color-on-dark);

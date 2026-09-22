@@ -12,7 +12,7 @@ const f = t.footer;
 
 <footer class="section">
   <div class="wrap">
-    <div class="grid grid-cols-2 gap-6 lg:grid-cols-4">
+    <div class="footer-grid grid grid-cols-2 gap-6">
       <div>
         <h4 class="mb-1.5 text-[13px] text-muted">{f.address}</h4>
         <p>{f.addressValue[0]}<br />{f.addressValue[1]}</p>
@@ -29,12 +29,24 @@ const f = t.footer;
         <h4 class="mb-1.5 text-[13px] text-muted">{f.instagram}</h4>
         <p><a class="no-underline hover:text-red" href={cafe.instagramUrl} target="_blank" rel="noopener" dir="ltr">{cafe.instagramHandle}</a></p>
       </div>
+      <div>
+        <h4 class="mb-1.5 text-[13px] text-muted">{f.tiktok}</h4>
+        <p><a class="no-underline hover:text-red" href={cafe.tiktokUrl} target="_blank" rel="noopener" dir="ltr">{cafe.tiktokHandle}</a></p>
+      </div>
     </div>
     <p class="foot-brand mt-11 font-display font-semibold">Savva<i lang="ar" dir="rtl">سافا</i></p>
   </div>
 </footer>
 
 <style>
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: 1.35fr 1.2fr repeat(3, minmax(0, 1fr));
+    }
+  }
   .foot-brand {
     font-size: clamp(46px, 8vw, 96px);
     line-height: 0.9;

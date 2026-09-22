@@ -5,6 +5,9 @@ export const cafe = {
   phoneHref: 'tel:+966564370303',
   instagramUrl: 'https://www.instagram.com/savva_cafe/',
   instagramHandle: '@savva_cafe',
+  tiktokUrl:
+    'https://www.tiktok.com/@savva_cafe?_t=8eScuanBsSg&_r=1&fbclid=PAcGRvZgRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwyNTYyODEwNDA1NTgAAadMhStWGKb7J7tdMGkXLqyh9Cq67dbV0DVc0CzLYlJVvNNZ5ERvG16dEMXzUw_aem_wRYA1x3U1YVLRYhWfaWxCw',
+  tiktokHandle: '@savva_cafe',
   plusCode: 'FHVJ+3W Madinah',
   routeUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4926931,39.5823565',
   mapsUrl:

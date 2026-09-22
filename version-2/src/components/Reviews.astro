@@ -1,6 +1,7 @@
 ---
 import { cafe, reviews } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
+import Icon from './Icon.astro';
 
 interface Props {
   t: Dict;
@@ -12,15 +13,21 @@ const topics = Object.entries(cafe.reviewTopics) as [keyof typeof cafe.reviewTop
 const maxTopic = Math.max(...topics.map(([, n]) => n));
 ---
 
-<section class="section" id="reviews">
+<section class="section reviews" id="reviews">
   <div class="wrap">
     <p class="hand">{r.hand}</p>
     <h2 class="h-section">{r.title}</h2>
-    <div class="tape mt-8 grid gap-3.5">
+    <div class="tape">
       <div class="score">
-        <b>{cafe.rating}</b>
+        <div class="score-main">
+          <b>{cafe.rating}</b>
+          <span>Google Maps</span>
+        </div>
         <p>{r.scoreText}</p>
-        <a href={cafe.mapsUrl} target="_blank" rel="noopener">{r.readAll}</a>
+        <a href={cafe.mapsUrl} target="_blank" rel="noopener">
+          {r.readAll}
+          <Icon name="arrow" />
+        </a>
       </div>
       {
         reviews.map((review, i) => (
@@ -46,7 +53,7 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
             topics.map(([key, n]) => (
               <li>
                 {r.topics[key]} <b>{n}</b>
-                <i style={`--w:${((n / maxTopic) * 100).toFixed(1)}%`} />
+                <span class="topic-bar" aria-hidden="true"><i style={`--w:${((n / maxTopic) * 100).toFixed(1)}%`} /></span>
               </li>
             ))
           }
@@ -57,57 +64,176 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
 </section>
 
 <style>
+  .reviews {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--reviews-pad);
+  }
+  .reviews .h-section {
+    font-size: calc(clamp(36px, 5.4vw, 68px) * var(--display-scale) * var(--reviews-heading-scale));
+  }
   .tape {
+    display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(290px, 1fr);
+    grid-auto-columns: minmax(310px, 38vw);
+    gap: var(--reviews-card-gap);
+    margin-top: var(--reviews-title-gap);
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    padding-bottom: 12px;
+    scroll-padding-inline: 1px;
+    padding: 0 0 18px;
+    scrollbar-color: var(--color-coffee) color-mix(in srgb, var(--color-line) 55%, transparent);
+    scrollbar-width: thin;
   }
   .tape > * {
     scroll-snap-align: start;
+    min-width: 0;
+    min-height: 410px;
     border-radius: calc(var(--radius-block) * 0.82);
-    padding: 28px;
+    padding: var(--reviews-card-pad);
   }
   .score {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     background: var(--color-red);
     color: #fff;
     display: grid;
     align-content: space-between;
     gap: 18px;
   }
-  .score b {
+  .score::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: auto -22px -28px auto;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgb(247 239 224 / 0.2) 0 14px,
+      transparent 14px 28px
+    );
+    rotate: 8deg;
+  }
+  .score-main {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+  }
+  .score-main b {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 96px;
-    line-height: 0.8;
+    font-size: clamp(64px, 9vw, var(--reviews-rating-size));
+    line-height: 0.72;
+    letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
+  }
+  .score-main span {
+    width: max-content;
+    border: 1.5px solid rgb(255 255 255 / 0.42);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 500;
   }
   .score p {
     color: #fbe3dc;
+    max-width: 25ch;
+    font-size: 15px;
   }
   .score a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    min-height: 48px;
+    border-top: 1px solid rgb(255 255 255 / 0.35);
+    padding-top: 16px;
     color: #fff;
     font-weight: 500;
+    text-decoration: none;
+  }
+  .score a :global(svg) {
+    width: 22px;
+    height: 22px;
+    transition: transform 0.25s var(--ease-out-expo);
+  }
+  .score a:hover :global(svg) {
+    transform: translateX(5px);
   }
   .voice {
-    background: var(--color-cream);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1.5px solid color-mix(in srgb, var(--color-red) 28%, var(--color-line));
+    background: color-mix(in srgb, var(--color-cream) 88%, #fff);
     display: grid;
     align-content: space-between;
     gap: 18px;
   }
+  .voice::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: var(--reviews-card-pad);
+    width: 64px;
+    height: 5px;
+    border-radius: 0 0 999px 999px;
+    background: var(--color-red);
+  }
+  .voice::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -38px;
+    right: -30px;
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    background: repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--color-red) 18%, transparent) 0 14px,
+      transparent 14px 28px
+    );
+  }
+  .voice:nth-child(3)::after {
+    inset: auto auto -42px -30px;
+    rotate: 12deg;
+  }
+  .voice blockquote {
+    position: relative;
+    padding-top: 46px;
+  }
+  .voice blockquote::before {
+    content: '“';
+    position: absolute;
+    top: -8px;
+    left: -2px;
+    color: var(--color-red);
+    font: 600 72px/1 var(--font-display);
+  }
   .voice blockquote p {
-    font-size: 17px;
+    max-width: 36ch;
+    font-size: var(--reviews-quote-size);
+    line-height: 1.58;
   }
   .voice details {
     font-size: 13.5px;
     color: var(--color-muted);
+    border-top: 1px solid var(--color-line);
+    padding-top: 13px;
   }
   .voice summary {
     cursor: pointer;
     color: var(--color-coffee);
     font-weight: 500;
     width: max-content;
+    max-width: 100%;
   }
   .voice details p {
     margin-top: 8px;
@@ -118,7 +244,7 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
     gap: 12px;
     font-size: 14px;
     color: var(--color-muted);
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid color-mix(in srgb, var(--color-red) 20%, var(--color-line));
     padding-top: 14px;
   }
   .voice footer b {
@@ -126,7 +252,27 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
     font-weight: 500;
   }
   .topics {
-    box-shadow: inset 0 0 0 1.5px var(--color-line);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    align-content: space-between;
+    background: var(--color-shade);
+    color: var(--color-on-dark);
+  }
+  .topics::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: auto -30px -44px auto;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: repeating-linear-gradient(
+      45deg,
+      rgb(243 183 166 / 0.24) 0 14px,
+      transparent 14px 28px
+    );
   }
   .topics h3 {
     font-family: var(--font-display);
@@ -136,8 +282,8 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
   }
   .topics ul {
     display: grid;
-    gap: 10px;
-    margin-top: 18px;
+    gap: 18px;
+    margin-top: 34px;
   }
   .topics li {
     display: grid;
@@ -150,28 +296,49 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 22px;
-    color: var(--color-red-ink);
+    color: var(--color-blush);
     font-variant-numeric: tabular-nums;
   }
-  .topics li i {
+  .topic-bar {
     grid-column: 1 / -1;
     height: 6px;
     border-radius: 3px;
-    background: var(--color-linen);
+    background: rgb(247 239 224 / 0.16);
     position: relative;
     overflow: hidden;
   }
-  .topics li i::after {
-    content: '';
+  .topic-bar i {
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--w);
-    background: var(--color-coffee);
+    background: var(--color-blush);
     border-radius: 3px;
   }
+
+  @media (min-width: 1180px) {
+    .tape {
+      grid-auto-flow: initial;
+      grid-template-columns: minmax(220px, 0.78fr) repeat(2, minmax(300px, 1.2fr)) minmax(230px, 0.86fr);
+      overflow: visible;
+      padding-bottom: 0;
+    }
+  }
+
   @media (max-width: 640px) {
-    .score b {
-      font-size: 80px;
+    .tape {
+      grid-auto-columns: min(86vw, 360px);
+      margin-inline: -20px;
+      padding-inline: 20px;
+      scroll-padding-inline: 20px;
+    }
+    .tape > * {
+      min-height: 390px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .score a :global(svg) {
+      transition: none;
     }
   }
 </style>

@@ -110,13 +110,54 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
           <li><span>{f.takeaway.address}</span>{f.takeaway.addressValue}</li>
           <li><span>{f.takeaway.hours}</span>{f.takeaway.hoursValue}</li>
         </ul>
-        <div class="mt-4 flex flex-wrap gap-2">
+        <div class="panel-actions mt-4 flex flex-wrap gap-2">
           <a class="btn" href={cafe.routeUrl} target="_blank" rel="noopener">
             <Icon name="pin" />
             {f.takeaway.route}
           </a>
           <a class="btn btn-line" href={cafe.phoneHref}>{f.takeaway.call}</a>
           <a class="btn btn-line" href="#menu">{f.takeaway.openMenu}</a>
+        </div>
+        <form class="demo-form" id="takeaway-form" novalidate>
+          <div class="fields">
+            <label class="field-label" for="takeaway-name">{f.name}<input class="field" id="takeaway-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="60" aria-describedby="takeaway-name-error" data-name data-invalid={f.nameInvalid} required /><small class="field-error" id="takeaway-name-error" role="alert" hidden>{f.nameInvalid}</small></label>
+            <label class="field-label" for="takeaway-phone">{f.phone}
+              <span class="phone-field"><span class="phone-prefix" aria-hidden="true">+966</span><input class="field" id="takeaway-phone" name="phone" type="tel" dir="ltr" autocomplete="tel-national" inputmode="numeric" pattern="5[0-9]{8}" minlength="9" maxlength="9" placeholder="5XXXXXXXX" aria-describedby="takeaway-phone-hint" data-phone data-invalid={f.phoneInvalid} required /></span>
+              <small class="field-hint" id="takeaway-phone-hint">{f.phoneHint}</small>
+            </label>
+            <label class="field-label wide" for="takeaway-time">{f.takeaway.pickupTime}<select class="field" id="takeaway-time" name="time" data-pickup-time></select></label>
+            <fieldset class="field-label wide pickup-method">
+              <legend>{f.takeaway.pickupMethod}</legend>
+              <div class="seg">
+                <label><input type="radio" name="pickup-method" value="window" data-pickup-method checked /><span>{f.takeaway.atWindow}</span></label>
+                <label><input type="radio" name="pickup-method" value="car" data-pickup-method /><span>{f.takeaway.toCar}</span></label>
+              </div>
+            </fieldset>
+            <label class="field-label wide" for="takeaway-car" data-car-field hidden>{f.takeaway.car}<input class="field" id="takeaway-car" name="car" type="text" minlength="3" maxlength="80" placeholder={f.takeaway.carPlaceholder} data-car /><small class="field-hint">{f.takeaway.carHint}</small></label>
+          </div>
+          <div class="summary" data-summary data-needs={c.needItems}>
+            <p class="summary-title">{c.title}</p>
+            <ul class="summary-list" data-summary-list data-at-counter={c.atCounter}></ul>
+            <p class="summary-total" data-summary-total data-label={c.total} data-plus={c.plusCounter} hidden></p>
+            <p class="summary-empty" data-summary-empty>{c.empty}</p>
+            <a class="summary-link" href="#menu" data-summary-link data-pick={c.pick} data-edit={c.edit}>{c.pick}</a>
+            <p class="summary-error" data-summary-error role="alert" hidden></p>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button class="btn submit-action" type="submit" data-submit data-success={c.pickupPlaced}><span data-submit-label>{f.takeaway.submit}</span><Icon name="check" class="submit-check" /></button>
+            <a class="btn btn-line" href="#menu">{f.takeaway.openMenu}</a>
+          </div>
+          <p class="demo-note">{f.takeaway.note}</p>
+          <p class="demo-note kept"><span data-kept-text data-text={f.kept}>{f.kept}</span><button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button></p>
+        </form>
+        <div class="ok" hidden data-number-label={c.pickupNumber}>
+          <div class="ok-head"><span class="ok-mark"><Icon name="check" /></span><h4 tabindex="-1">{f.takeaway.okTitle}</h4></div>
+          <p>{f.takeaway.okText}</p>
+          <p class="ok-number" data-ok-number></p>
+          <ul class="summary-list" data-ok-list data-at-counter={c.atCounter}></ul>
+          <p class="summary-total" data-ok-total data-label={c.total} data-plus={c.plusCounter}></p>
+          <button class="btn btn-line mt-5" type="button" data-again>{f.again}</button>
+          <p class="demo-note kept"><span data-kept-text data-text={f.kept}>{f.kept}</span><button type="button" class="forget" data-forget data-done={f.forgotten}>{f.forget}</button></p>
         </div>
       </div>
     </div>
@@ -442,6 +483,12 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     gap: 26px;
     align-items: start;
   }
+  /* Grid-дети с изображениями и формами не должны сохранять внутреннюю
+     минимальную ширину и выталкивать содержимое за край панели на телефоне. */
+  .panel > * {
+    min-width: 0;
+    max-width: 100%;
+  }
   /* «Прийти»: слева фото и схема столиков, справа заголовок, зона и форма столбиком —
      колонки близки по высоте, пустот нет */
   .panel-visit {
@@ -472,6 +519,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     margin-top: 8px;
     max-width: 52ch;
     font-size: 15px;
+  }
+  .panel-actions {
+    margin-bottom: 24px;
   }
   .facts {
     margin-top: 16px;
@@ -909,7 +959,8 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     100% { transform: scale(1); }
   }
   .ok-number {
-    width: max-content;
+    width: fit-content;
+    max-width: 100%;
     margin-top: 18px;
     padding: 8px 13px 7px;
     border-radius: 999px;
@@ -917,6 +968,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     background: var(--color-red);
     font: 600 17px/1.2 var(--font-sans);
     font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
   }
   .ok .summary-list {
     max-width: 420px;
@@ -1047,6 +1099,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     }
   }
   @media (max-width: 640px) {
+    .fork .wrap {
+      min-width: 0;
+    }
     .fields > *,
     .fields .address,
     .fields .when {
@@ -1056,8 +1111,26 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       grid-template-columns: 110px 1fr;
     }
     .panel {
+      width: 100%;
+      min-width: 0;
       border-radius: 26px;
       padding: 20px;
+      overflow: hidden;
+    }
+    .ok-number {
+      width: 100%;
+      padding: 10px 12px 9px;
+      font-size: 15px;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .panel :global(.gallery),
+    .panel :global(.frame),
+    .panel .demo-form,
+    .panel .fields,
+    .panel .summary {
+      min-width: 0;
+      max-width: 100%;
     }
     .seg span {
       padding: 11px 16px;
@@ -1253,6 +1326,38 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       : deliveryHint.dataset.later!.replace('{first}', slots[0]).replace('{last}', last);
   }
 
+  // Самовывоз: ближайшие получасовые отметки до закрытия. Гость выбирает время,
+  // а не получает непроверенное обещание о фиксированном сроке приготовления.
+  const pickupSelect = document.querySelector<HTMLSelectElement>('[data-pickup-time]');
+  if (pickupSelect) {
+    const { minutes: now, friday } = madinahNow();
+    const opens = friday ? OPEN_FRIDAY : OPEN;
+    const afterMidnight = now < CLOSE;
+    const open = afterMidnight || now >= opens;
+    const close = afterMidnight ? CLOSE : 24 * 60 + CLOSE;
+    const start = open ? Math.ceil((now + 15) / 30) * 30 : opens;
+    const end = open ? close : 24 * 60 + CLOSE;
+    const slots: string[] = [];
+    for (let m = start; m <= end; m += 30) {
+      slots.push(`${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    }
+    pickupSelect.innerHTML = slots.map((slot) => `<option>${slot}</option>`).join('');
+  }
+
+  const pickupMethods = [...document.querySelectorAll<HTMLInputElement>('[data-pickup-method]')];
+  const carField = document.querySelector<HTMLElement>('[data-car-field]');
+  const carInput = document.querySelector<HTMLInputElement>('[data-car]');
+  function showPickupMethod() {
+    const toCar = pickupMethods.find((input) => input.checked)?.value === 'car';
+    if (carField) carField.hidden = !toCar;
+    if (carInput) {
+      carInput.disabled = !toCar;
+      carInput.required = toCar;
+    }
+  }
+  pickupMethods.forEach((input) => input.addEventListener('change', showPickupMethod));
+  showPickupMethod();
+
   if (dateSelect && timeSelect) {
     const today = madinahNow();
     const labels = ['сегодня', 'завтра', 'послезавтра'];
@@ -1377,8 +1482,10 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   preorder?.addEventListener('change', paintSummaries);
   onCart(paintSummaries);
 
-  // заказ, который уходит с формой: для доставки — всегда, для брони — только с галочкой
-  const usesCart = (form: HTMLFormElement) => form.id === 'order-form' || (form.id === 'visit-form' && !!preorder?.checked);
+  // заказ, который уходит с формой: для самовывоза и доставки — всегда,
+  // для брони — только с галочкой «подать к приходу»
+  const usesCart = (form: HTMLFormElement) =>
+    form.id === 'takeaway-form' || form.id === 'order-form' || (form.id === 'visit-form' && !!preorder?.checked);
 
   // Демо-формы: проверяем поля и показываем подтверждение с номером, ничего не отправляя.
   // Отправленная форма тоже помнится 15 минут: после обновления видно то же подтверждение.
@@ -1447,6 +1554,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       if (usesCart(form)) clearCart();
       delete submitted[form.id];
       form.reset();
+      showPickupMethod();
       showZone();
       showForm(form);
       paintSummaries();
@@ -1541,6 +1649,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       .filter((k) => k !== 'visit-date' && !k.startsWith('zone='))
       .forEach(set);
     showPicked();
+    showPickupMethod();
     const door = doors.find((d) => d.dataset.door === draft.door);
     if (door) openDoor(door);
     Object.entries(draft.submitted ?? {}).forEach(([id, number]) => {
@@ -1576,6 +1685,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
         input.checked = input.defaultChecked;
       });
       dateSelect?.dispatchEvent(new Event('change'));
+      showPickupMethod();
       showZone();
       paintSummaries();
       document.querySelectorAll<HTMLElement>('[data-kept-text]').forEach((text) => {

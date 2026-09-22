@@ -117,6 +117,18 @@ const groups: Group[] = [
     ],
   },
   {
+    title: 'Отзывы',
+    controls: [
+      { kind: 'range', label: 'Воздух блока сверху/снизу', token: '--reviews-pad', min: 24, max: 180, step: 2, unit: 'px', value: 64 },
+      { kind: 'range', label: 'Заголовок → карточки', token: '--reviews-title-gap', min: 12, max: 100, step: 2, unit: 'px', value: 34 },
+      { kind: 'range', label: 'Между карточками', token: '--reviews-card-gap', min: 4, max: 48, step: 1, unit: 'px', value: 14 },
+      { kind: 'range', label: 'Воздух внутри карточек', token: '--reviews-card-pad', min: 16, max: 64, step: 1, unit: 'px', value: 34 },
+      { kind: 'range', label: 'Размер заголовка', token: '--reviews-heading-scale', min: 0.7, max: 1.5, step: 0.02, unit: '', value: 1 },
+      { kind: 'range', label: 'Размер текста отзывов', token: '--reviews-quote-size', min: 14, max: 28, step: 0.5, unit: 'px', value: 19 },
+      { kind: 'range', label: 'Размер оценки 4.7', token: '--reviews-rating-size', min: 64, max: 150, step: 2, unit: 'px', value: 116 },
+    ],
+  },
+  {
     title: 'Анимация',
     controls: [
       { kind: 'range', label: 'Скорость (1 = как сейчас)', token: '--motion', min: 0, max: 2.5, step: 0.05, unit: '', value: 1 },
@@ -133,7 +145,7 @@ const groups: Group[] = [
           { label: 'Мягкое торможение', value: 'cubic-bezier(0.16, 1, 0.3, 1)' },
           { label: 'Плавная', value: 'ease-in-out' },
           { label: 'Ровная', value: 'linear' },
-          { label: 'С отскоком', value: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+          { label: 'Энергичное торможение', value: 'cubic-bezier(0.22, 1, 0.36, 1)' },
           { label: 'Резкая', value: 'cubic-bezier(0.4, 0, 0.2, 1)' },
         ],
       },
