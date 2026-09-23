@@ -252,7 +252,9 @@ const groups = await Promise.all(
     color: var(--color-on-dark-soft);
   }
 
-  /* лента: карточки в ряд, листается пальцем, колесом и стрелками */
+  /* Лента: карточки в ряд, листается пальцем, трекпадом и стрелками.
+     Тонкий индикатор повторяет поведение ленты отзывов: мышью видно, что
+     полка продолжается, а на сенсорных экранах остаётся привычный свайп. */
   .track {
     display: grid;
     grid-auto-flow: column;
@@ -261,13 +263,48 @@ const groups = await Promise.all(
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+    padding-bottom: 18px;
+    scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
+    scrollbar-width: thin;
   }
   .track[hidden] {
     display: none;
   }
   .track::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+  .track::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: rgb(247 239 224 / 0.16);
+  }
+  .track::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--color-blush);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .track {
+      scrollbar-color: transparent transparent;
+    }
+    .track:hover,
+    .track:focus-visible,
+    .track:focus-within {
+      scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
+    }
+    .track::-webkit-scrollbar-track,
+    .track::-webkit-scrollbar-thumb {
+      background: transparent;
+      transition: background-color 0.2s var(--ease-out-expo);
+    }
+    .track:hover::-webkit-scrollbar-track,
+    .track:focus-visible::-webkit-scrollbar-track,
+    .track:focus-within::-webkit-scrollbar-track {
+      background: rgb(247 239 224 / 0.16);
+    }
+    .track:hover::-webkit-scrollbar-thumb,
+    .track:focus-visible::-webkit-scrollbar-thumb,
+    .track:focus-within::-webkit-scrollbar-thumb {
+      background: var(--color-blush);
+    }
   }
   .track:focus-visible {
     outline: 2px solid var(--color-blush);
@@ -488,22 +525,39 @@ const groups = await Promise.all(
     }
   }
 
-  @media (max-width: 640px) {
-    .menu {
-      border-radius: 26px;
-    }
+  /* Телефон и планшет: категории остаются одной свайпаемой строкой и явно
+     показывают горизонтальный скроллбар, как лента отзывов. */
+  @media (max-width: 1023px) {
     .groups {
       flex-wrap: nowrap;
       overflow-x: auto;
-      scrollbar-width: none;
       margin-inline: calc(-1 * var(--gutter));
-      padding-inline: var(--gutter);
+      padding: 0 var(--gutter) 14px;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
+      scrollbar-width: thin;
     }
     .groups::-webkit-scrollbar {
-      display: none;
+      height: 6px;
+    }
+    .groups::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: rgb(247 239 224 / 0.16);
+    }
+    .groups::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: var(--color-blush);
     }
     .groups button {
       flex: none;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .menu {
+      border-radius: 26px;
     }
   }
 </style>
