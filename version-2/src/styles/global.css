@@ -53,7 +53,7 @@
   --menu-edge-min: 14px;
   /* отзывы: независимые ручки воздуха и типографики */
   /* Отзывам нужен заметный отступ от соседних блоков на любом экране. */
-  --reviews-pad: clamp(40px, 5vw, 64px);
+  --reviews-pad: 38px;
   --reviews-title-gap: 24px;
   --reviews-card-gap: 18px;
   --reviews-card-pad: 34px;

@@ -3,76 +3,90 @@ import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
 import wordmark from '../assets/brand/savva-wordmark.svg?raw';
 
-interface Props {
-  t: Dict;
-}
+interface Props { t: Dict; }
 
 const { t } = Astro.props;
 const f = t.footer;
 ---
 
-<footer class="section">
+<footer class="footer" id="footer" data-footer>
   <div class="wrap">
-    <div class="footer-grid grid grid-cols-2 gap-6">
-      <div>
-        <h4 class="mb-1.5 text-[13px] text-muted">{f.address}</h4>
-        <p>{f.addressValue[0]}<br />{f.addressValue[1]}</p>
+    <div class="footer-brand" aria-label="Savva Coffee">
+      <span class="wordmark" aria-hidden="true" set:html={wordmark} />
+      <i lang="ar" dir="rtl">سافا</i>
+    </div>
+
+    <div class="footer-grid">
+      <nav aria-label="Навигация в футере">
+        <h2>На сайте</h2>
+        <a href="#menu">Меню</a>
+        <a href="#reviews">Отзывы</a>
+        <a href="#fork">О месте</a>
+      </nav>
+
+      <div class="contacts">
+        <h2>Связаться</h2>
+        <a href={cafe.phoneHref} dir="ltr">{cafe.phone}</a>
+        <a href={cafe.instagramUrl} target="_blank" rel="noopener">Instagram</a>
+        <a href={cafe.tiktokUrl} target="_blank" rel="noopener">TikTok</a>
       </div>
-      <div>
-        <h4 class="mb-1.5 text-[13px] text-muted">{f.hours}</h4>
+
+      <div class="visit">
+        <h2>{f.address}</h2>
+        <a href={cafe.routeUrl} target="_blank" rel="noopener">{f.addressValue[0]}<br />{f.addressValue[1]}</a>
         <p>{f.hoursValue[0]}<br />{f.hoursValue[1]}</p>
       </div>
-      <div>
-        <h4 class="mb-1.5 text-[13px] text-muted">{f.phone}</h4>
-        <p><a class="no-underline hover:text-red" href={cafe.phoneHref} dir="ltr">{cafe.phone}</a></p>
-      </div>
-      <div>
-        <h4 class="mb-1.5 text-[13px] text-muted">{f.instagram}</h4>
-        <p><a class="no-underline hover:text-red" href={cafe.instagramUrl} target="_blank" rel="noopener" dir="ltr">{cafe.instagramHandle}</a></p>
-      </div>
-      <div>
-        <h4 class="mb-1.5 text-[13px] text-muted">{f.tiktok}</h4>
-        <p><a class="no-underline hover:text-red" href={cafe.tiktokUrl} target="_blank" rel="noopener" dir="ltr">{cafe.tiktokHandle}</a></p>
-      </div>
     </div>
-    <p class="foot-brand mt-11">
-      <span class="sr-only">Savva</span>
-      <span class="foot-wordmark" aria-hidden="true" set:html={wordmark} />
-      <i lang="ar" dir="rtl">سافا</i>
-    </p>
+
   </div>
 </footer>
 
 <style>
-  .footer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .footer {
+    --footer-bg: #3d3d4c;
+    --footer-ink: #f4ead8;
+    --footer-muted: #c9c0b2;
+    --footer-rule: rgba(244, 234, 216, 0.22);
+    background: var(--footer-bg);
+    color: var(--footer-ink);
+    padding: clamp(54px, 7vw, 88px) 0 clamp(48px, 6vw, 72px);
+    overflow: hidden;
   }
-  @media (min-width: 1024px) {
-    .footer-grid {
-      grid-template-columns: 1.35fr 1.2fr repeat(3, minmax(0, 1fr));
+  .footer-brand { display: flex; align-items: flex-end; gap: 12px; }
+  .wordmark { display: inline-flex; width: clamp(160px, 20vw, 250px); line-height: 0; }
+  .wordmark :global(svg) { display: block; width: 100%; height: auto; }
+  .footer-brand i { margin-bottom: .06em; color: var(--footer-muted); font-size: clamp(20px, 2vw, 28px); font-style: normal; }
+  .footer-grid { display: grid; grid-template-columns: .8fr 1fr 1.4fr; gap: clamp(40px, 8vw, 120px); margin-top: 50px; padding-top: 46px; border-top: 1px solid var(--footer-rule); }
+  .footer-grid h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .footer-grid h2 { margin-bottom: 21px; color: var(--footer-muted); }
+  .footer-grid a, .footer-grid p { display: block; margin: 0 0 13px; color: inherit; font-size: 16px; line-height: 1.55; text-decoration: none; }
+  .footer-grid a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+  .footer a:focus-visible { outline: 2px solid var(--footer-ink); outline-offset: 4px; }
+  .visit p { color: var(--footer-muted); }
+  .footer ::selection { background: var(--footer-ink); color: var(--footer-bg); }
+
+  @media (min-width: 721px) and (max-width: 1099px) {
+    .footer { padding-top: 62px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 44px 72px; }
+    .visit { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 72px; }
+    .visit h2 { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 720px) {
+    .footer {
+      padding-top: 44px;
+      padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px));
     }
+    .wordmark { width: clamp(150px, 48vw, 210px); }
+    .footer-brand i { font-size: 21px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 38px 28px; margin-top: 42px; padding-top: 42px; }
+    .footer-grid h2 { font-size: 16px; }
+    .footer-grid a, .footer-grid p { font-size: 16px; }
+    .visit { grid-column: 1 / -1; }
   }
-  .foot-brand {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    line-height: 1;
-  }
-  .foot-wordmark {
-    display: inline-flex;
-    width: clamp(220px, 38vw, 440px);
-    color: var(--color-ink);
-    line-height: 0;
-  }
-  .foot-wordmark :global(svg) {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .foot-brand i {
-    font-style: normal;
-    font-size: clamp(22px, 2.2vw, 32px);
-    color: var(--color-sage);
-    margin-bottom: 0.08em;
+
+  @media (max-width: 420px) {
+    .footer-grid { gap: 34px 18px; }
+    .contacts a { overflow-wrap: anywhere; }
   }
 </style>
