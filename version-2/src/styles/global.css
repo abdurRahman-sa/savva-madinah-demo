@@ -60,6 +60,10 @@
   --reviews-heading-scale: 1;
   --reviews-quote-size: 19px;
   --reviews-rating-size: 64px;
+  /* футер: вертикальный ритм ссылок, контактов и строк адреса */
+  --footer-row-gap: 13px;
+  /* единая длина бегунка горизонтальных лент: меню, отзывы и футер */
+  --horizontal-scroll-thumb-size: 68px;
   --radius-block: 34px;
   --radius-tile: 14px;
   --display-scale: 0.8;
@@ -90,6 +94,70 @@
   --intro-lead: 0s;
   --intro-move: 1s;
   --collage-reveal: 0.5s;
+}
+
+@media (min-width: 641px) {
+  :root {
+    --horizontal-scroll-thumb-size: 84px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --horizontal-scroll-thumb-size: 100px;
+  }
+}
+
+.horizontal-scrollbar {
+  position: relative;
+  height: 24px;
+  margin-top: 3px;
+  cursor: pointer;
+  opacity: 0.78;
+  touch-action: none;
+  transition: opacity 0.2s var(--ease-out-expo);
+}
+
+.horizontal-scrollbar::before {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 3px;
+  background: var(--horizontal-scroll-track, rgb(64 70 58 / 0.2));
+  content: '';
+  transform: translateY(-50%);
+}
+
+.horizontal-scroll-thumb {
+  --horizontal-scroll-x: 0px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--horizontal-scroll-thumb-size);
+  height: 6px;
+  background: var(--horizontal-scroll-thumb, var(--color-coffee));
+  cursor: grab;
+  transform: translate3d(var(--horizontal-scroll-x), -50%, 0);
+  will-change: transform;
+}
+
+.horizontal-scroll-thumb:active {
+  cursor: grabbing;
+}
+
+.horizontal-scrollbar:hover,
+.horizontal-scrollbar:focus-visible {
+  opacity: 1;
+}
+
+.horizontal-scrollbar:focus-visible {
+  outline: 2px solid var(--horizontal-scroll-focus, var(--horizontal-scroll-thumb, var(--color-coffee)));
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .horizontal-scrollbar {
+    opacity: 1;
+  }
 }
 
 /* Планшет: четыре колонки, три ряда */

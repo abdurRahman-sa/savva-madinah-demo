@@ -134,7 +134,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
                 <label><input type="radio" name="pickup-method" value="car" data-pickup-method /><span>{f.takeaway.toCar}</span></label>
               </div>
             </fieldset>
-            <label class="field-label wide" for="takeaway-car" data-car-field hidden>{f.takeaway.car}<input class="field" id="takeaway-car" name="car" type="text" minlength="3" maxlength="80" placeholder={f.takeaway.carPlaceholder} data-car /><small class="field-hint">{f.takeaway.carHint}</small></label>
+            <label class="field-label wide" for="takeaway-car" data-car-field hidden>{f.takeaway.car}<input class="field" id="takeaway-car" name="car" type="text" minlength="3" maxlength="80" data-car /><small class="field-hint">{f.takeaway.carHint}</small></label>
           </div>
           <div class="summary" data-summary data-needs={c.needItems}>
             <p class="summary-title">{c.title}</p>
@@ -573,12 +573,13 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 
   .fields {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 12px;
     margin-top: 16px;
   }
   .fields > * {
     grid-column: span 3;
+    min-width: 0;
     align-content: start;
   }
   /* адрес длинный, время короткое: одной строкой */
@@ -1085,6 +1086,21 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       column-gap: 20px;
     }
   }
+  @media (min-width: 721px) and (max-width: 980px) {
+    /* В узкой правой колонке планшета длинные варианты идут друг под другом. */
+    .pickup-method .seg {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+      border-radius: 28px;
+    }
+    .pickup-method .seg label {
+      min-width: 0;
+    }
+    .pickup-method .seg span {
+      text-align: center;
+    }
+  }
   @media (max-width: 720px) {
     .panel {
       grid-template-columns: 1fr;
@@ -1172,7 +1188,16 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       max-width: 100%;
     }
     .seg span {
-      padding: 11px 16px;
+      padding: 11px 12px;
+      text-align: center;
+    }
+    .pickup-method .seg {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+    .pickup-method .seg label {
+      min-width: 0;
     }
     .summary {
       padding-inline: 14px;

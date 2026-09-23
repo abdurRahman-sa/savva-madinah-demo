@@ -17,7 +17,7 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
   <div class="wrap">
     <p class="hand">{r.hand}</p>
     <h2 class="h-section">{r.title}</h2>
-    <div class="tape">
+    <div class="tape" id="reviews-tape">
       <div class="score">
         <div class="score-main">
           <b>{cafe.rating}</b>
@@ -60,6 +60,21 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
         </ul>
       </div>
     </div>
+    <div
+      class="horizontal-scrollbar reviews-scrollbar"
+      role="scrollbar"
+      tabindex="0"
+      aria-label="Прокрутка отзывов"
+      aria-controls="reviews-tape"
+      aria-orientation="horizontal"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      data-horizontal-scrollbar
+      data-scroll-target="reviews-tape"
+    >
+      <span class="horizontal-scroll-thumb" data-horizontal-scroll-thumb></span>
+    </div>
   </div>
 </section>
 
@@ -82,9 +97,14 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 1px;
-    padding: 0 0 18px;
-    scrollbar-color: var(--color-coffee) color-mix(in srgb, var(--color-line) 55%, transparent);
-    scrollbar-width: thin;
+    padding: 0;
+    scrollbar-width: none;
+  }
+  .tape::-webkit-scrollbar { display: none; }
+  .reviews-scrollbar {
+    --horizontal-scroll-track: color-mix(in srgb, var(--color-line) 60%, transparent);
+    --horizontal-scroll-thumb: var(--color-coffee);
+    --horizontal-scroll-focus: var(--color-coffee);
   }
   .tape > * {
     scroll-snap-align: start;
@@ -322,7 +342,6 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
       grid-auto-flow: initial;
       grid-template-columns: minmax(220px, 0.78fr) repeat(2, minmax(300px, 1.2fr)) minmax(230px, 0.86fr);
       overflow: visible;
-      padding-bottom: 0;
     }
   }
 
@@ -360,9 +379,12 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
 </style>
 
 <script>
+  import { bindHorizontalScrollbars } from '../scripts/horizontal-scrollbar';
+
   const reviewsSection = document.querySelector<HTMLElement>('#reviews');
 
   if (reviewsSection) {
+    bindHorizontalScrollbars(reviewsSection);
     const reviewsObserver = new IntersectionObserver(([entry]) => {
       document.body.dataset.reviewsInView = String(entry.isIntersecting);
     });

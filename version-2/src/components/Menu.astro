@@ -51,22 +51,39 @@ const groups = await Promise.all(
     <div class="shelf">
       <div class="side">
         <h3 class="title">{m.title}</h3>
-        <div class="groups" role="tablist" aria-label={m.tabsLabel}>
-          {
-            groups.map((g, i) => (
-              <button
-                type="button"
-                role="tab"
-                id={`menu-tab-${g.id}`}
-                aria-controls={`menu-${g.id}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-                tabindex={i === 0 ? 0 : -1}
-                data-group={g.id}
-              >
-                {m.groups[g.id]}
-              </button>
-            ))
-          }
+        <div class="groups-shell">
+          <div class="groups" id="menu-groups" role="tablist" aria-label={m.tabsLabel}>
+            {
+              groups.map((g, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`menu-tab-${g.id}`}
+                  aria-controls={`menu-${g.id}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  tabindex={i === 0 ? 0 : -1}
+                  data-group={g.id}
+                >
+                  {m.groups[g.id]}
+                </button>
+              ))
+            }
+          </div>
+          <div
+            class="horizontal-scrollbar menu-scrollbar groups-scrollbar"
+            role="scrollbar"
+            tabindex="0"
+            aria-label="Прокрутка категорий меню"
+            aria-controls="menu-groups"
+            aria-orientation="horizontal"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-horizontal-scrollbar
+            data-scroll-target="menu-groups"
+          >
+            <span class="horizontal-scroll-thumb" data-horizontal-scroll-thumb></span>
+          </div>
         </div>
         <div class="arrows">
           <button type="button" class="arrow" data-step="-1" aria-label={m.prev}>
@@ -82,9 +99,10 @@ const groups = await Promise.all(
       <div class="stage">
         {
           groups.map((g, i) => (
-            <ul class="track" role="tabpanel" id={`menu-${g.id}`} aria-labelledby={`menu-tab-${g.id}`} tabindex="0" hidden={i !== 0}>
-              {g.cards.map(({ item, photo }) => (
-                <li class="card">
+            <>
+              <ul class="track" role="tabpanel" id={`menu-${g.id}`} aria-labelledby={`menu-tab-${g.id}`} tabindex="0" hidden={i !== 0}>
+                {g.cards.map(({ item, photo }) => (
+                  <li class="card">
                   <div class="shot">
                     {photo ? (
                       <img
@@ -125,9 +143,25 @@ const groups = await Promise.all(
                       </button>
                     </div>
                   </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+              <div
+                class="horizontal-scrollbar menu-scrollbar"
+                role="scrollbar"
+                tabindex="0"
+                aria-label={`Прокрутка меню «${m.groups[g.id]}»`}
+                aria-controls={`menu-${g.id}`}
+                aria-orientation="horizontal"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                data-horizontal-scrollbar
+                data-scroll-target={`menu-${g.id}`}
+              >
+                <span class="horizontal-scroll-thumb" data-horizontal-scroll-thumb></span>
+              </div>
+            </>
           ))
         }
       </div>
@@ -204,12 +238,15 @@ const groups = await Promise.all(
     grid-area: title;
     font: 400 clamp(34px, 4vw, 52px) / 1 var(--font-display);
   }
-  .groups {
+  .groups-shell {
     grid-area: groups;
+    min-width: 0;
+    margin-top: 18px;
+  }
+  .groups {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 18px;
   }
   .groups button {
     font: 500 15px/1 var(--font-sans);
@@ -263,48 +300,16 @@ const groups = await Promise.all(
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    padding-bottom: 18px;
-    scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
-    scrollbar-width: thin;
+    scrollbar-width: none;
   }
   .track[hidden] {
     display: none;
   }
-  .track::-webkit-scrollbar {
-    height: 6px;
-  }
-  .track::-webkit-scrollbar-track {
-    border-radius: 999px;
-    background: rgb(247 239 224 / 0.16);
-  }
-  .track::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: var(--color-blush);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .track {
-      scrollbar-color: transparent transparent;
-    }
-    .track:hover,
-    .track:focus-visible,
-    .track:focus-within {
-      scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
-    }
-    .track::-webkit-scrollbar-track,
-    .track::-webkit-scrollbar-thumb {
-      background: transparent;
-      transition: background-color 0.2s var(--ease-out-expo);
-    }
-    .track:hover::-webkit-scrollbar-track,
-    .track:focus-visible::-webkit-scrollbar-track,
-    .track:focus-within::-webkit-scrollbar-track {
-      background: rgb(247 239 224 / 0.16);
-    }
-    .track:hover::-webkit-scrollbar-thumb,
-    .track:focus-visible::-webkit-scrollbar-thumb,
-    .track:focus-within::-webkit-scrollbar-thumb {
-      background: var(--color-blush);
-    }
+  .track::-webkit-scrollbar { display: none; }
+  .menu-scrollbar {
+    --horizontal-scroll-track: rgb(247 239 224 / 0.18);
+    --horizontal-scroll-thumb: var(--color-blush);
+    --horizontal-scroll-focus: var(--color-blush);
   }
   .track:focus-visible {
     outline: 2px solid var(--color-blush);
@@ -512,9 +517,7 @@ const groups = await Promise.all(
       margin-top: 0;
       margin-inline-end: calc(-1 * var(--gutter));
     }
-    .groups {
-      margin-top: 22px;
-    }
+    .groups-shell { margin-top: 22px; }
     .arrows {
       justify-content: flex-start;
       margin-top: 26px;
@@ -528,27 +531,19 @@ const groups = await Promise.all(
   /* Телефон и планшет: категории остаются одной свайпаемой строкой и явно
      показывают горизонтальный скроллбар, как лента отзывов. */
   @media (max-width: 1023px) {
+    .groups-shell {
+      margin-inline: calc(-1 * var(--gutter));
+    }
     .groups {
       flex-wrap: nowrap;
       overflow-x: auto;
-      margin-inline: calc(-1 * var(--gutter));
-      padding: 0 var(--gutter) 14px;
+      padding-inline: var(--gutter);
       overscroll-behavior-x: contain;
       scroll-snap-type: x proximity;
-      scrollbar-color: var(--color-blush) rgb(247 239 224 / 0.16);
-      scrollbar-width: thin;
+      scrollbar-width: none;
     }
-    .groups::-webkit-scrollbar {
-      height: 6px;
-    }
-    .groups::-webkit-scrollbar-track {
-      border-radius: 999px;
-      background: rgb(247 239 224 / 0.16);
-    }
-    .groups::-webkit-scrollbar-thumb {
-      border-radius: 999px;
-      background: var(--color-blush);
-    }
+    .groups::-webkit-scrollbar { display: none; }
+    .groups-scrollbar { margin-inline: var(--gutter); }
     .groups button {
       flex: none;
       scroll-snap-align: start;
@@ -564,6 +559,7 @@ const groups = await Promise.all(
 
 <script>
   import { changeQty, onCart, qtyOf } from '../scripts/cart';
+  import { bindHorizontalScrollbars } from '../scripts/horizontal-scrollbar';
 
   const root = document.querySelector<HTMLElement>('[data-menu]');
   if (root) {
@@ -649,5 +645,6 @@ const groups = await Promise.all(
     root.querySelectorAll('.track').forEach((t) => t.addEventListener('scroll', sync, { passive: true }));
     addEventListener('resize', sync);
     sync();
+    bindHorizontalScrollbars(root);
   }
 </script>

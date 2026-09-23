@@ -2,11 +2,48 @@
 import { cafe } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
 import wordmark from '../assets/brand/savva-wordmark.svg?raw';
+import videoPoster1 from '../../../references/1 видео.png';
+import videoPoster2 from '../../../references/2 видео.png';
+import videoPoster3 from '../../../references/3 видео.png';
+import videoPoster4 from '../../../references/4 видео.png';
+import videoPoster5 from '../../../references/5 видео.png';
 
 interface Props { t: Dict; }
 
 const { t } = Astro.props;
 const f = t.footer;
+const videos = [
+  {
+    id: '7683963699484249364',
+    title: 'Фирменный напиток',
+    poster: videoPoster1.src,
+    alt: 'Фирменный напиток наливают в стакан Savva',
+  },
+  {
+    id: '7672085518733102354',
+    title: 'Десерт Savva',
+    poster: videoPoster2.src,
+    alt: 'Десерт Savva на деревянном подносе',
+  },
+  {
+    id: '7678773303112174868',
+    title: 'Десерты на террасе',
+    poster: videoPoster3.src,
+    alt: 'Два десерта Savva на столе террасы',
+  },
+  {
+    id: '7642044670780001554',
+    title: 'Шоколадный десерт',
+    poster: videoPoster4.src,
+    alt: 'Шоколадный десерт Savva на тарелке',
+  },
+  {
+    id: '7647594977849003271',
+    title: 'Матча с малиной',
+    poster: videoPoster5.src,
+    alt: 'Матча с малиной в фирменном стакане Savva',
+  },
+];
 ---
 
 <footer class="footer" id="footer" data-footer>
@@ -16,12 +53,52 @@ const f = t.footer;
       <i lang="ar" dir="rtl">سافا</i>
     </div>
 
+    <div class="video-head">
+      <h2>Видео Savva</h2>
+      <a href={cafe.tiktokUrl} target="_blank" rel="noopener">Все видео</a>
+    </div>
+
+    <div class="video-strip" id="savva-video-strip" aria-label="Видео Savva">
+      {videos.map((video) => (
+        <article class="video-card" data-video-card>
+          <img src={video.poster} alt={video.alt} loading="lazy" />
+          <h3>{video.title}</h3>
+          <button
+            class="play"
+            type="button"
+            aria-label={`Воспроизвести видео «${video.title}»`}
+            aria-haspopup="dialog"
+            aria-controls="savva-video-player"
+            data-video-id={video.id}
+            data-video-title={video.title}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7.6 16.2 12 9 16.4V7.6Z" /></svg>
+          </button>
+        </article>
+      ))}
+    </div>
+    <div
+      class="horizontal-scrollbar video-scrollbar"
+      role="scrollbar"
+      tabindex="0"
+      aria-label="Прокрутка видео"
+      aria-controls="savva-video-strip"
+      aria-orientation="horizontal"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      data-horizontal-scrollbar
+      data-scroll-target="savva-video-strip"
+    >
+      <span class="horizontal-scroll-thumb" data-horizontal-scroll-thumb></span>
+    </div>
+
     <div class="footer-grid">
       <nav aria-label="Навигация в футере">
         <h2>На сайте</h2>
         <a href="#menu">Меню</a>
         <a href="#reviews">Отзывы</a>
-        <a href="#fork">О месте</a>
+        <a href="#fork">Сделать заказ</a>
       </nav>
 
       <div class="contacts">
@@ -39,7 +116,49 @@ const f = t.footer;
     </div>
 
   </div>
+
+  <dialog class="video-player" id="savva-video-player" aria-label="Видео Savva" data-video-dialog>
+    <div class="video-player-shell" data-video-frame></div>
+    <button class="video-player-close" type="button" aria-label="Закрыть видео" data-video-close>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.8 6.8 10.4 10.4m0-10.4L6.8 17.2" /></svg>
+    </button>
+  </dialog>
 </footer>
+
+<script>
+  import { bindHorizontalScrollbars } from '../scripts/horizontal-scrollbar';
+
+  bindHorizontalScrollbars(document.querySelector('[data-footer]') ?? document);
+
+  const videoDialog = document.querySelector<HTMLDialogElement>('[data-video-dialog]');
+  const videoFrame = videoDialog?.querySelector<HTMLElement>('[data-video-frame]');
+
+  const closeVideo = () => {
+    if (videoDialog?.open) videoDialog.close();
+  };
+
+  videoDialog?.querySelector<HTMLButtonElement>('[data-video-close]')?.addEventListener('click', closeVideo);
+  videoDialog?.addEventListener('click', (event) => {
+    if (event.target === videoDialog) closeVideo();
+  });
+  videoDialog?.addEventListener('close', () => videoFrame?.replaceChildren());
+
+  document.querySelectorAll<HTMLButtonElement>('[data-video-id]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.videoId;
+      if (!videoDialog || !videoFrame || !id) return;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.tiktok.com/player/v1/${id}?autoplay=1&loop=1&music_info=0&description=0&rel=0`;
+      iframe.title = button.dataset.videoTitle ?? 'Видео Savva';
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'eager';
+      videoFrame.replaceChildren(iframe);
+      videoDialog.showModal();
+    });
+  });
+</script>
 
 <style>
   .footer {
@@ -56,19 +175,98 @@ const f = t.footer;
   .wordmark { display: inline-flex; width: clamp(160px, 20vw, 250px); line-height: 0; }
   .wordmark :global(svg) { display: block; width: 100%; height: auto; }
   .footer-brand i { margin-bottom: .06em; color: var(--footer-muted); font-size: clamp(20px, 2vw, 28px); font-style: normal; }
-  .footer-grid { display: grid; grid-template-columns: .8fr 1fr 1.4fr; gap: clamp(40px, 8vw, 120px); margin-top: 50px; padding-top: 46px; border-top: 1px solid var(--footer-rule); }
-  .footer-grid h2 { margin: 0; font-size: 16px; font-weight: 700; }
-  .footer-grid h2 { margin-bottom: 21px; color: var(--footer-muted); }
-  .footer-grid a, .footer-grid p { display: block; margin: 0 0 13px; color: inherit; font-size: 16px; line-height: 1.55; text-decoration: none; }
-  .footer-grid a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+  .video-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin: 46px 0 16px; }
+  .video-head h2, .footer-grid h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .video-head a { color: var(--footer-muted); font-size: 14px; text-underline-offset: 4px; }
+  .video-strip {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0;
+    scroll-padding-inline: 1px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    touch-action: pan-x;
+  }
+  .video-strip::-webkit-scrollbar { display: none; }
+  .video-scrollbar {
+    --horizontal-scroll-track: rgba(244, 234, 216, .18);
+    --horizontal-scroll-thumb: var(--footer-ink);
+    --horizontal-scroll-focus: var(--footer-ink);
+  }
+  .video-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 123px minmax(0, 1fr) 58px;
+    align-items: center;
+    flex: 0 0 clamp(375px, 38vw, 460px);
+    min-height: 132px;
+    overflow: hidden;
+    background: var(--footer-ink);
+    color: var(--footer-bg);
+    scroll-snap-align: start;
+  }
+  .video-card img { width: 123px; height: 132px; object-fit: cover; }
+  .video-card h3 { min-width: 0; margin: 0; padding: 18px; font-size: 18px; line-height: 1.2; }
+  .play { display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--footer-bg); cursor: pointer; }
+  .play svg { width: 22px; height: 22px; fill: currentColor; }
+  .play:hover { background: var(--footer-bg); color: var(--footer-ink); }
+  .play:focus-visible { outline: 2px solid var(--footer-bg); outline-offset: 2px; }
   .footer a:focus-visible { outline: 2px solid var(--footer-ink); outline-offset: 4px; }
+  .video-player {
+    position: fixed;
+    inset: 0;
+    width: fit-content;
+    max-width: 92vw;
+    max-height: 88dvh;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+  }
+  .video-player::backdrop { background: rgba(18, 18, 24, .76); }
+  .video-player-shell {
+    height: min(82dvh, 820px);
+    max-width: 88vw;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: 26px;
+    background: #000;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .34);
+  }
+  .video-player iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .video-player-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(244, 234, 216, .55);
+    border-radius: 50%;
+    background: rgba(18, 18, 24, .72);
+    color: var(--footer-ink);
+    cursor: pointer;
+  }
+  .video-player-close svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+  .video-player-close:focus-visible { outline: 2px solid var(--footer-ink); outline-offset: 3px; }
+  .footer-grid { display: grid; grid-template-columns: .8fr 1fr 1.4fr; gap: clamp(40px, 8vw, 120px); margin-top: 44px; padding-top: 46px; border-top: 1px solid var(--footer-rule); }
+  .footer-grid h2 { margin-bottom: 21px; color: var(--footer-muted); }
+  .footer-grid nav, .footer-grid .contacts { display: flex; flex-direction: column; align-items: flex-start; gap: var(--footer-row-gap); }
+  .footer-grid a, .footer-grid p { display: block; margin: 0; color: inherit; font-size: 16px; line-height: 1.55; text-decoration: none; }
+  .visit { display: flex; flex-direction: column; align-items: flex-start; gap: var(--footer-row-gap); }
+  .footer-grid a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
   .visit p { color: var(--footer-muted); }
   .footer ::selection { background: var(--footer-ink); color: var(--footer-bg); }
 
   @media (min-width: 721px) and (max-width: 1099px) {
     .footer { padding-top: 62px; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 44px 72px; }
-    .visit { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 72px; }
+    .visit { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--footer-row-gap) 72px; }
     .visit h2 { grid-column: 1 / -1; }
   }
 
@@ -79,6 +277,17 @@ const f = t.footer;
     }
     .wordmark { width: clamp(150px, 48vw, 210px); }
     .footer-brand i { font-size: 21px; }
+    .video-head { margin-top: 38px; }
+    .video-head a { min-height: 44px; display: inline-flex; align-items: center; }
+    .video-strip { width: calc(100vw - 12px); gap: 10px; }
+    .video-card {
+      grid-template-columns: 108px minmax(0, 1fr) 52px;
+      flex-basis: min(88vw, 390px);
+      min-height: 120px;
+    }
+    .video-card img { width: 108px; height: 120px; }
+    .video-card h3 { padding: 14px; font-size: 17px; }
+    .video-player-shell { height: min(76dvh, 720px); }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 38px 28px; margin-top: 42px; padding-top: 42px; }
     .footer-grid h2 { font-size: 16px; }
     .footer-grid a, .footer-grid p { font-size: 16px; }
