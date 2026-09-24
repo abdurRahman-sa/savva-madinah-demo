@@ -2,7 +2,8 @@ import type { Dict } from './ru';
 
 export const ar: Dict = {
   lang: 'ar',
-  dir: 'rtl',
+  // Геометрия страницы совпадает с русской версией; RTL применяется только к самому тексту.
+  dir: 'ltr',
   language: { label: 'Русский', short: 'RU', href: '/', ariaLabel: 'التبديل إلى اللغة الروسية' },
   meta: {
     title: 'سافا | SAVVA: مقهى في المدينة المنورة',

@@ -11,7 +11,7 @@ export const cafe = {
   plusCode: 'FHVJ+3W Madinah',
   routeUrl: 'https://www.google.com/maps/dir/?api=1&destination=24.4926931,39.5823565',
   mapsUrl:
-    'https://www.google.com/maps/place/%D8%B3%D8%A7%D9%81%D8%A7+savva%E2%80%AD/@24.4926931,39.5823565,17z/data=!3m1!4b1!4m6!3m5!1s0x15bdbf7c00dd71e3:0x8c75251d63b13c1!8m2!3d24.4926931!4d39.5823565',
+    'https://www.google.com/maps/place/%D8%B3%D8%A7%D9%81%D8%A7+savva%E2%80%AD/@24.4926931,39.5823565,17z/data=!3m1!4b1!4m6!3m5!1s0x15bdbf7c00dd71e3:0x8c75251d63b13c1!8m2!3d24.4926931!4d39.5823565!16s%2Fg%2F11kj12kz9s',
   rating: '4.7',
   reviewCount: 730,
   // Темы отзывов в Google Maps: сколько отзывов упоминают тему.

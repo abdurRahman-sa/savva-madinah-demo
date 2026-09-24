@@ -257,14 +257,21 @@ body {
   }
 }
 
-html[dir='rtl'] body {
+html[lang='ar'] body {
   font-family: var(--font-display);
 }
 
-html[dir='rtl'] input,
-html[dir='rtl'] select,
-html[dir='rtl'] button {
+html[lang='ar'] input,
+html[lang='ar'] select,
+html[lang='ar'] button {
   font-family: inherit;
+}
+
+/* Арабский читается справа налево внутри текста, но сетки и порядок блоков
+   остаются такими же, как в русской версии. */
+html[lang='ar'] :where(p, h2, h3, h4, label, legend, blockquote, figcaption, input, textarea, select, option) {
+  direction: rtl;
+  unicode-bidi: plaintext;
 }
 
 @layer components {

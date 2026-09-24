@@ -31,7 +31,7 @@ const h = t.hero;
       <span class="short">{b.order}</span>
       <span class="full">{h.order}</span>
     </a>
-    <a class="item" href={cafe.routeUrl} target="_blank" rel="noopener">
+    <a class="item" href={cafe.mapsUrl} target="_blank" rel="noopener">
       <Icon name="pin" class="ico" />
       <span class="short">{b.route}</span>
       <span class="full">{h.route}</span>
@@ -84,14 +84,15 @@ const h = t.hero;
     min-width: 44px;
     min-height: 44px;
     margin-inline-end: 4px;
-    border: 1.5px solid var(--color-coffee);
+    border: 1.5px solid var(--color-sage);
     border-radius: 999px;
-    color: var(--color-ink);
-    background: transparent;
+    color: var(--color-on-dark);
+    background: var(--color-sage);
     font-size: 12px;
     font-weight: 600;
     text-decoration: none;
   }
+  .bar-language:hover { background: var(--color-coffee-deep); }
   .bar-language:active { transform: translateY(1px) scale(.98); }
   .bar-language:focus-visible { outline: 2px solid var(--color-red); outline-offset: 2px; }
   .language-full { display: none; }
