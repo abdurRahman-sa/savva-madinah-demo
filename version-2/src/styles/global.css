@@ -61,7 +61,7 @@
   --reviews-quote-size: 19px;
   --reviews-rating-size: 64px;
   /* футер: вертикальный ритм ссылок, контактов и строк адреса */
-  --footer-row-gap: 13px;
+  --footer-row-gap: 9px;
   /* единая длина бегунка горизонтальных лент: меню, отзывы и футер */
   --horizontal-scroll-thumb-size: 68px;
   --radius-block: 34px;

@@ -365,9 +365,9 @@ const maxTopic = Math.max(...topics.map(([, n]) => n));
 </style>
 
 <style is:global>
-  /* На телефоне и планшете плавающие сервисные элементы закрывают нижнюю часть
-     высоких карточек. Пока отзывы находятся в кадре, освобождаем контенту экран. */
-  @media (max-width: 1179px) {
+  /* На телефоне плавающие сервисные элементы закрывают нижнюю часть высоких
+     карточек. Пока отзывы находятся в кадре, освобождаем контенту экран. */
+  @media (max-width: 720px) {
     body[data-reviews-in-view='true'] [data-cart-fab],
     body[data-reviews-in-view='true'] [data-open-status],
     body[data-reviews-in-view='true'] [data-tweaks-open] {

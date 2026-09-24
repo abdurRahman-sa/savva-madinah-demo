@@ -3,6 +3,32 @@ import { getImage } from 'astro:assets';
 import Icon from './Icon.astro';
 import { cafe, menuGroups, type MenuItem } from '../data/cafe';
 import type { Dict } from '../i18n/ru';
+import icedAmericano from '../../../references/для меню/iced-americano.jpg';
+import icedLatte from '../../../references/для меню/iced-latte.jpg';
+import icedSpanishLatte from '../../../references/для меню/iced-spanish-latte.jpg';
+import icedMatchaLatte from '../../../references/для меню/iced-matcha-latte.jpg';
+import icedMatchaSpanishLatte from '../../../references/для меню/iced-matcha-spanish-latte.jpg';
+import savvaIcedTea from '../../../references/для меню/savva-iced-tea.jpg';
+import iceShaken from '../../../references/для меню/ice-shaken.jpg';
+import icedWhiteMocha from '../../../references/для меню/iced-white-mocha.jpg';
+import icedChocolate from '../../../references/для меню/iced-chocolate.jpg';
+import espresso from '../../../references/для меню/espresso.jpg';
+import americano from '../../../references/для меню/americano.jpg';
+import cortado from '../../../references/для меню/cortado.jpg';
+import macchiato from '../../../references/для меню/macchiato.jpg';
+import flatWhite from '../../../references/для меню/flat-white.jpg';
+import latte from '../../../references/для меню/latte.jpg';
+import spanishLatte from '../../../references/для меню/spanish-latte.jpg';
+import matchaLatte from '../../../references/для меню/matcha-latte.jpg';
+import whiteMocha from '../../../references/для меню/white-mocha.jpg';
+import englishTea from '../../../references/для меню/english-tea.jpg';
+import turkishCoffee from '../../../references/для меню/turkish-coffee.jpg';
+import turkishCoffeeMilk from '../../../references/для меню/turkish-coffee-milk.jpg';
+import coffeeOfDay from '../../../references/для меню/coffee-of-day.jpg';
+import dripCoffee from '../../../references/для меню/drip-coffee.jpg';
+import marbleCake from '../../../references/для меню/marble-cake.jpg';
+import crunchyChocolate from '../../../references/для меню/crunchy-chocolate.jpg';
+import turkeySandwich from '../../../references/для меню/turkey-sandwich.jpg';
 
 interface Props {
   t: Dict;
@@ -13,9 +39,40 @@ const c = t.calm;
 const m = t.menu;
 const k = t.cart;
 
-// Фото позиций: общие кадры кафе и кадры, вырезанные из сторис меню
+// Фото позиций: общие кадры кафе, реальные фото меню и финальные AI-композиции из references
 const files = import.meta.glob<{ default: ImageMetadata }>(['../assets/photos/*.jpg', '../assets/menu/*.jpg'], { eager: true });
-const byName = new Map(Object.entries(files).map(([path, mod]) => [path.split('/').pop()!.replace('.jpg', ''), mod.default]));
+const generatedFiles: Record<string, ImageMetadata> = {
+  'iced-americano': icedAmericano,
+  'iced-latte': icedLatte,
+  'iced-spanish-latte': icedSpanishLatte,
+  'iced-matcha-latte': icedMatchaLatte,
+  'iced-matcha-spanish-latte': icedMatchaSpanishLatte,
+  'savva-iced-tea': savvaIcedTea,
+  'ice-shaken': iceShaken,
+  'iced-white-mocha': icedWhiteMocha,
+  'iced-chocolate': icedChocolate,
+  espresso,
+  americano,
+  cortado,
+  macchiato,
+  'flat-white': flatWhite,
+  latte,
+  'spanish-latte': spanishLatte,
+  'matcha-latte': matchaLatte,
+  'white-mocha': whiteMocha,
+  'english-tea': englishTea,
+  'turkish-coffee': turkishCoffee,
+  'turkish-coffee-milk': turkishCoffeeMilk,
+  'coffee-of-day': coffeeOfDay,
+  'drip-coffee': dripCoffee,
+  'marble-cake': marbleCake,
+  'crunchy-chocolate': crunchyChocolate,
+  'turkey-sandwich': turkeySandwich,
+};
+const byName = new Map([
+  ...Object.entries(files).map(([path, mod]) => [path.split('/').pop()!.replace('.jpg', ''), mod.default] as const),
+  ...Object.entries(generatedFiles),
+]);
 
 const photoOf = async (item: MenuItem) => {
   const src = item.photo ? byName.get(item.photo) : undefined;

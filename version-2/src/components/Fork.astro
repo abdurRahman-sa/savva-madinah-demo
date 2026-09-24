@@ -1552,7 +1552,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     form.id === 'takeaway-form' || form.id === 'order-form' || (form.id === 'visit-form' && !!preorder?.checked);
 
   // Демо-формы: проверяем поля и показываем подтверждение с номером, ничего не отправляя.
-  // Отправленная форма тоже помнится 15 минут: после обновления видно то же подтверждение.
+  // Отправленная форма тоже помнится 10 минут: после обновления видно то же подтверждение.
   const submitted: Record<string, string> = {};
   function showOk(form: HTMLFormElement, number: string) {
     const ok = form.nextElementSibling as HTMLElement;
@@ -1628,9 +1628,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   });
 
   // Черновик заказа и брони: поля, зона, столик, открытая вкладка и отправленные формы сохраняются
-  // в этом браузере, переживают обновление страницы и живут 15 минут с последней правки. Никуда не уходят.
+  // в этом браузере, переживают обновление страницы и живут 10 минут с последней правки. Никуда не уходят.
   const DRAFT_KEY = 'savva-order-draft';
-  const DRAFT_TTL = 15 * 60 * 1000;
+  const DRAFT_TTL = 10 * 60 * 1000;
   // поля форм и то, что относится к форме брони снаружи (зона, столик)
   const draftFields = () => [
     ...document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
@@ -1665,9 +1665,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
     } catch {
       return;
     }
-    // после «Забыть» подпись снова говорит про 15 минут
+    // после «Забыть» подпись снова говорит про 10 минут
     document.querySelectorAll<HTMLElement>('[data-kept-text]').forEach((text) => (text.textContent = text.dataset.text!));
-    // через 15 минут без правок черновик стирается, даже если страница открыта
+    // через 10 минут без правок черновик стирается, даже если страница открыта
     clearTimeout(expiry);
     expiry = window.setTimeout(dropDraft, DRAFT_TTL);
   }
