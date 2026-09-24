@@ -31,6 +31,7 @@ import crunchyChocolate from '../../../references/для меню/crunchy-chocol
 import turkeySandwich from '../../../references/для меню/turkey-sandwich.jpg';
 import savvaMatcha from '../../../references/для меню/матча савва.png';
 import hotChocolate from '../../../references/для меню/горячий шоколад.png';
+import alfredo from '../../../references/для меню/alfredo.png';
 
 interface Props {
   t: Dict;
@@ -72,6 +73,7 @@ const menuFiles: Record<string, ImageMetadata> = {
   'turkey-sandwich': turkeySandwich,
   'savva-matcha': savvaMatcha,
   'hot-chocolate': hotChocolate,
+  alfredo,
 };
 const byName = new Map([
   ...Object.entries(files).map(([path, mod]) => [path.split('/').pop()!.replace('.jpg', ''), mod.default] as const),

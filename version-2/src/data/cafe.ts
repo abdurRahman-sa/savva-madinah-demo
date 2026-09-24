@@ -47,7 +47,7 @@ export type MenuItem = {
 // Фото привязаны только там, где позиция на кадре точно известна (подпись кафе или однозначный вид).
 const cold = {
   americano: { en: 'Iced Americano', ru: 'Айс американо', ar: 'ايس أمريكانو', price: 15, kcal: 2, photo: 'iced-americano' },
-  alfredo: { en: 'Alfredo', ru: 'Альфредо', ar: 'ألفريدو', price: 14, kcal: 100 },
+  alfredo: { en: 'Alfredo', ru: 'Альфредо', ar: 'ألفريدو', price: 14, kcal: 100, photo: 'alfredo' },
   latte: { en: 'Iced Latte', ru: 'Айс латте', ar: 'ايس لاتيه', price: 17, kcal: 100, photo: 'iced-latte' },
   spanishLatte: { en: 'Iced Spanish Latte', ru: 'Айс спаниш латте', ar: 'ايس سبانيش لاتيه', price: 19, kcal: 230, photo: 'iced-spanish-latte' },
   matchaLatte: { en: 'Iced Matcha Latte', ru: 'Айс матча латте', ar: 'ايس ماتشا لاتيه', price: 17, kcal: 130, photo: 'iced-matcha-latte' },
