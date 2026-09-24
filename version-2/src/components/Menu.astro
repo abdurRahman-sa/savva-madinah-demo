@@ -41,6 +41,7 @@ const { t } = Astro.props;
 const c = t.calm;
 const m = t.menu;
 const k = t.cart;
+const itemName = (item: MenuItem) => t.lang === 'ar' ? item.ar : item.ru;
 
 // Фото позиций: общие кадры кафе, реальные фото меню и финальные AI-композиции из references
 const files = import.meta.glob<{ default: ImageMetadata }>(['../assets/photos/*.jpg', '../assets/menu/*.jpg'], { eager: true });
@@ -104,7 +105,7 @@ const groups = await Promise.all(
       <p class="hand text-blush!">{c.hand}</p>
       <h2 class="h-section text-on-dark">{c.title}</h2>
       <div class="facts">
-        <a class="fact" href="#reviews" aria-label={`${cafe.reviewTopics.atmosphere} ${c.atmosphere}. Перейти к отзывам`}>
+        <a class="fact" href="#reviews" aria-label={`${cafe.reviewTopics.atmosphere} ${c.atmosphere}. ${c.reviewsLink}`}>
           <b>{cafe.reviewTopics.atmosphere}</b> {c.atmosphere}
         </a>
       </div>
@@ -136,7 +137,7 @@ const groups = await Promise.all(
             class="horizontal-scrollbar menu-scrollbar groups-scrollbar"
             role="scrollbar"
             tabindex="0"
-            aria-label="Прокрутка категорий меню"
+            aria-label={m.categoriesScroll}
             aria-controls="menu-groups"
             aria-orientation="horizontal"
             aria-valuemin="0"
@@ -172,7 +173,7 @@ const groups = await Promise.all(
                         src={photo.large}
                         srcset={`${photo.small} 320w, ${photo.large} 520w`}
                         sizes="(max-width: 640px) 44vw, (max-width: 1023px) 28vw, 16vw"
-                        alt={item.ru}
+                        alt={itemName(item)}
                         loading="lazy"
                         decoding="async"
                         style={item.focus ? `object-position:${item.focus}` : undefined}
@@ -190,18 +191,18 @@ const groups = await Promise.all(
                       </span>
                     ) : null}
                   </div>
-                  <p class="name">{item.ru}</p>
+                  <p class="name">{itemName(item)}</p>
                   <p class="kcal">
                     {item.kcal !== undefined ? `${item.kcal} ${m.kcal}` : item.price === undefined && !item.priceText ? m.askPrice : ' '}
                   </p>
                   <div class="qty" data-qty={item.id}>
-                    <button type="button" class="add" data-add aria-label={`${k.add}: ${item.ru}`}>{k.add}</button>
+                    <button type="button" class="add" data-add aria-label={`${k.add}: ${itemName(item)}`}>{k.add}</button>
                     <div class="stepper" data-stepper hidden>
-                      <button type="button" data-step-qty="-1" aria-label={`${k.removeOne}: ${item.ru}`}>
+                      <button type="button" data-step-qty="-1" aria-label={`${k.removeOne}: ${itemName(item)}`}>
                         <Icon name="minus" />
                       </button>
                       <output data-count aria-live="polite">0</output>
-                      <button type="button" data-step-qty="1" aria-label={`${k.addOne}: ${item.ru}`}>
+                      <button type="button" data-step-qty="1" aria-label={`${k.addOne}: ${itemName(item)}`}>
                         <Icon name="plus" />
                       </button>
                     </div>
@@ -213,7 +214,7 @@ const groups = await Promise.all(
                 class="horizontal-scrollbar menu-scrollbar"
                 role="scrollbar"
                 tabindex="0"
-                aria-label={`Прокрутка меню «${m.groups[g.id]}»`}
+                aria-label={m.groupScroll.replace('{group}', m.groups[g.id])}
                 aria-controls={`menu-${g.id}`}
                 aria-orientation="horizontal"
                 aria-valuemin="0"
@@ -668,7 +669,8 @@ const groups = await Promise.all(
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => select(tab));
       tab.addEventListener('keydown', (e) => {
-        const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        const direction = document.documentElement.dir === 'rtl' ? -1 : 1;
+        const step = (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0) * direction;
         if (!step) return;
         e.preventDefault();
         const next = tabs[(i + step + tabs.length) % tabs.length];

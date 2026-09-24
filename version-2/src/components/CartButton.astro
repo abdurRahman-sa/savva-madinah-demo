@@ -25,6 +25,8 @@ const c = t.cart;
   data-total={c.total}
   data-at-counter={c.atCounter}
   data-plus-counter={c.plusCounter}
+  data-lang={t.lang}
+  data-currency={t.menu.currency}
   aria-labelledby="cart-dialog-title"
 >
   <div class="cart-sheet">
@@ -51,7 +53,7 @@ const c = t.cart;
   .cart-fab {
     position: fixed;
     z-index: 39;
-    right: max(16px, env(safe-area-inset-right));
+    inset-inline-end: max(16px, env(safe-area-inset-right));
     bottom: max(16px, env(safe-area-inset-bottom));
     display: inline-flex;
     align-items: center;
@@ -106,7 +108,9 @@ const c = t.cart;
 
   .cart-dialog {
     position: fixed;
-    inset: auto max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) auto;
+    inset: auto;
+    inset-inline-end: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
     width: min(calc(100% - 32px), 480px);
     max-width: none;
     max-height: min(720px, calc(100dvh - 32px));
@@ -264,7 +268,9 @@ const c = t.cart;
       bottom: calc(146px + env(safe-area-inset-bottom, 0px));
     }
     .cart-dialog {
-      inset: auto 0 0;
+      inset: auto;
+      inset-inline: 0;
+      bottom: 0;
       width: 100%;
       max-height: calc(100dvh - 24px);
       border-radius: 28px 28px 0 0;
@@ -290,18 +296,21 @@ const c = t.cart;
     const totalLabel = dialog.dataset.total!;
     const atCounter = dialog.dataset.atCounter!;
     const plusCounter = dialog.dataset.plusCounter!;
+    const lang = dialog.dataset.lang === 'ar' ? 'ar' : 'ru';
+    const currency = dialog.dataset.currency ?? 'SAR';
     const linesRoot = dialog.querySelector<HTMLElement>('[data-cart-dialog-lines]')!;
     const totalRoot = dialog.querySelector<HTMLElement>('[data-cart-dialog-total]')!;
     const paint = () => {
       const { count, sum, unpriced } = cartTotals();
       fab.hidden = count === 0;
       fab.querySelector('[data-fab-count]')!.textContent = String(count);
-      fab.querySelector('[data-fab-sum]')!.textContent = sum ? `${sum} SAR` : '';
+      fab.querySelector('[data-fab-sum]')!.textContent = sum ? `${sum} ${currency}` : '';
       linesRoot.innerHTML = cartLines().map(({ item, qty }) => {
-        const price = item.price !== undefined ? `${item.price * qty} SAR` : item.priceText ? `${item.priceText} SAR` : atCounter;
-        return `<li><span class="cart-line-name">${item.ru}</span><span class="cart-line-qty">${qty} ×</span><span class="cart-line-price">${price}</span></li>`;
+        const price = item.price !== undefined ? `${item.price * qty} ${currency}` : item.priceText ? `${item.priceText} ${currency}` : atCounter;
+        const name = lang === 'ar' ? item.ar : item.ru;
+        return `<li><span class="cart-line-name">${name}</span><span class="cart-line-qty">${qty} ×</span><span class="cart-line-price">${price}</span></li>`;
       }).join('');
-      totalRoot.innerHTML = `<span>${totalLabel}${unpriced ? `<small>${plusCounter}</small>` : ''}</span><strong>${sum} SAR</strong>`;
+      totalRoot.innerHTML = `<span>${totalLabel}${unpriced ? `<small>${plusCounter}</small>` : ''}</span><strong>${sum} ${currency}</strong>`;
       if (!count && dialog.open) dialog.close();
     };
     fab.addEventListener('click', () => dialog.showModal());

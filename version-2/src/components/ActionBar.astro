@@ -16,6 +16,10 @@ const h = t.hero;
 <!-- Действия остаются под рукой после первого экрана: снизу на телефоне, сверху на компьютере -->
 <nav class="action-bar" aria-label={b.label} data-action-bar hidden>
   <p class="brand-mark" aria-hidden="true" set:html={wordmark} />
+  <a class="bar-language" href={t.language.href} hreflang={t.lang === 'ar' ? 'ru' : 'ar'} aria-label={t.language.ariaLabel}>
+    <span class="language-full">{t.language.label}</span>
+    <span class="language-short" aria-hidden="true">{t.language.short}</span>
+  </a>
   <div class="items">
     <a class="item item-primary" href="#fork" data-open-door="visit">
       <Icon name="chair" class="ico" />
@@ -69,8 +73,28 @@ const h = t.hero;
   }
   .items {
     display: flex;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
   }
+  .bar-language {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-inline-end: 4px;
+    border: 1.5px solid var(--color-coffee);
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .bar-language:active { transform: translateY(1px) scale(.98); }
+  .bar-language:focus-visible { outline: 2px solid var(--color-red); outline-offset: 2px; }
+  .language-full { display: none; }
   .item {
     flex: 1;
     display: grid;
@@ -145,9 +169,21 @@ const h = t.hero;
       width: auto;
     }
     .items {
+      flex: none;
       width: auto;
       gap: 8px;
     }
+    .bar-language {
+      order: 1;
+      min-width: 0;
+      padding-inline: 16px;
+      margin-inline-start: auto;
+      margin-inline-end: 0;
+      font-size: 14px;
+    }
+    .language-full { display: inline; }
+    .language-short { display: none; }
+    .items { order: 2; }
     .item {
       flex: none;
       grid-auto-flow: column;

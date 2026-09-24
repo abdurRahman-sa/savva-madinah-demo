@@ -64,7 +64,7 @@ const visitGalleries = [
 const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? i + 1 : 11 + i);
 ---
 
-<section class="section fork" id="fork" data-bg="sage" data-bg-default="sage">
+<section class="section fork" id="fork" data-bg="sage" data-bg-default="sage" data-lang={t.lang} data-currency={t.menu.currency}>
   <div class="wrap">
     <div class="flex flex-wrap items-end justify-between gap-5">
       <div>
@@ -1230,6 +1230,9 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 <script>
   import { cartLines, cartTotals, clearCart, onCart } from '../scripts/cart';
 
+  const forkRoot = document.querySelector<HTMLElement>('[data-bg-default][data-lang]');
+  const pageLang = forkRoot?.dataset.lang === 'ar' ? 'ar' : 'ru';
+  const currency = forkRoot?.dataset.currency ?? 'SAR';
   const doors = [...document.querySelectorAll<HTMLButtonElement>('[data-door]')];
 
   // Саудовский мобильный номер: +966 показан отдельно, в поле остаётся ровно 9 цифр с первой 5.
@@ -1296,7 +1299,8 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   doors.forEach((door, i) => {
     door.addEventListener('click', () => openDoor(door));
     door.addEventListener('keydown', (e) => {
-      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      const direction = document.documentElement.dir === 'rtl' ? -1 : 1;
+      const step = (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0) * direction;
       if (!step) return;
       e.preventDefault();
       const next = doors[(i + step + doors.length) % doors.length];
@@ -1424,12 +1428,12 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
 
   if (dateSelect && timeSelect) {
     const today = madinahNow();
-    const labels = ['сегодня', 'завтра', 'послезавтра'];
+    const labels = pageLang === 'ar' ? ['اليوم', 'غدًا', 'بعد غد'] : ['сегодня', 'завтра', 'послезавтра'];
     const days = [0, 1, 2].map((offset) => {
       const date = new Date(`${today.iso}T12:00:00Z`);
       date.setUTCDate(date.getUTCDate() + offset);
       const iso = date.toISOString().slice(0, 10);
-      const human = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(date);
+      const human = new Intl.DateTimeFormat(pageLang === 'ar' ? 'ar-SA' : 'ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(date);
       return { iso, offset, label: `${labels[offset]}, ${human}` };
     });
     dateSelect.innerHTML = days.map((day) => `<option value="${day.iso}" data-offset="${day.offset}">${day.label}</option>`).join('');
@@ -1490,7 +1494,7 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
   // Сводка заказа: то, что гость набрал в меню (src/scripts/cart.ts), видно в «Заказать»
   // и в «Прийти» при галочке «заказ к приходу»
   const preorder = document.querySelector<HTMLInputElement>('#visit-preorder');
-  const money = (n: number) => `${n} SAR`;
+  const money = (n: number) => `${n} ${currency}`;
   function renderLines(list: HTMLElement, total: HTMLElement) {
     const lines = cartLines();
     const { sum, unpriced } = cartTotals();
@@ -1501,14 +1505,14 @@ const tableNumber = (zone: 'hall' | 'terrace', i: number) => (zone === 'hall' ? 
       main.className = 'line-main';
       const name = document.createElement('strong');
       name.className = 'line-name';
-      name.textContent = item.ru;
+      name.textContent = pageLang === 'ar' ? item.ar : item.ru;
       const quantity = document.createElement('small');
       quantity.className = 'line-qty';
       quantity.textContent = `× ${qty}`;
       const price = document.createElement('b');
       price.className = 'line-price';
       price.textContent =
-        item.price !== undefined ? money(item.price * qty) : item.priceText ? `${item.priceText} SAR` : list.dataset.atCounter ?? '';
+        item.price !== undefined ? money(item.price * qty) : item.priceText ? `${item.priceText} ${currency}` : list.dataset.atCounter ?? '';
       main.append(name, quantity);
       li.append(main, price);
       list.append(li);

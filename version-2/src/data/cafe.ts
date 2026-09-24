@@ -78,7 +78,7 @@ const hot = {
   englishTea: { en: 'English Tea', ru: 'Английский чай', ar: 'شاي انجليزي', price: 6, kcal: 2, photo: 'english-tea' },
   turkish: { en: 'Turkish Coffee', ru: 'Турецкий кофе', ar: 'تركي سادة', price: 11, kcal: 50, photo: 'turkish-coffee' },
   turkishMilk: { en: 'Turkish Coffee with Milk', ru: 'Турецкий кофе с молоком', ar: 'تركي حليب', price: 13, kcal: 50, photo: 'turkish-coffee-milk' },
-  coffeeOfDay: { en: 'Coffee of the Day, hot / ice', ru: 'Кофе дня, горячий или со льдом', ar: 'قهوة اليوم بارد / حار', priceText: '10–13', photo: 'coffee-of-day' },
+  coffeeOfDay: { en: 'Coffee of the Day, hot / ice', ru: 'Кофе дня, горячий или со льдом', ar: 'قهوة اليوم بارد / حار', priceText: '10-13', photo: 'coffee-of-day' },
   // цена в меню закрыта полем ответа Instagram
   drip: { en: 'Drip', ru: 'Дрип', ar: 'قهوة المقطرة', photo: 'drip-coffee' },
 } satisfies Record<string, MenuItem>;

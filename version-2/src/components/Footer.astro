@@ -15,33 +15,33 @@ const f = t.footer;
 const videos = [
   {
     id: '7683963699484249364',
-    title: 'Фирменный напиток',
+    title: f.videoTitles[0],
     poster: videoPoster1.src,
-    alt: 'Фирменный напиток наливают в стакан Savva',
+    alt: f.videoAlts[0],
   },
   {
     id: '7672085518733102354',
-    title: 'Десерт Savva',
+    title: f.videoTitles[1],
     poster: videoPoster2.src,
-    alt: 'Десерт Savva на деревянном подносе',
+    alt: f.videoAlts[1],
   },
   {
     id: '7678773303112174868',
-    title: 'Десерты на террасе',
+    title: f.videoTitles[2],
     poster: videoPoster3.src,
-    alt: 'Два десерта Savva на столе террасы',
+    alt: f.videoAlts[2],
   },
   {
     id: '7642044670780001554',
-    title: 'Шоколадный десерт',
+    title: f.videoTitles[3],
     poster: videoPoster4.src,
-    alt: 'Шоколадный десерт Savva на тарелке',
+    alt: f.videoAlts[3],
   },
   {
     id: '7647594977849003271',
-    title: 'Матча с малиной',
+    title: f.videoTitles[4],
     poster: videoPoster5.src,
-    alt: 'Матча с малиной в фирменном стакане Savva',
+    alt: f.videoAlts[4],
   },
 ];
 ---
@@ -54,11 +54,11 @@ const videos = [
     </div>
 
     <div class="video-head">
-      <h2>Видео Savva</h2>
-      <a href={cafe.tiktokUrl} target="_blank" rel="noopener">Все видео</a>
+      <h2>{f.videos}</h2>
+      <a href={cafe.tiktokUrl} target="_blank" rel="noopener">{f.allVideos}</a>
     </div>
 
-    <div class="video-strip" id="savva-video-strip" aria-label="Видео Savva">
+    <div class="video-strip" id="savva-video-strip" aria-label={f.videos}>
       {videos.map((video) => (
         <article class="video-card" data-video-card>
           <img src={video.poster} alt={video.alt} loading="lazy" />
@@ -66,7 +66,7 @@ const videos = [
           <button
             class="play"
             type="button"
-            aria-label={`Воспроизвести видео «${video.title}»`}
+            aria-label={f.playVideo.replace('{title}', video.title)}
             aria-haspopup="dialog"
             aria-controls="savva-video-player"
             data-video-id={video.id}
@@ -81,7 +81,7 @@ const videos = [
       class="horizontal-scrollbar video-scrollbar"
       role="scrollbar"
       tabindex="0"
-      aria-label="Прокрутка видео"
+      aria-label={f.videoScroll}
       aria-controls="savva-video-strip"
       aria-orientation="horizontal"
       aria-valuemin="0"
@@ -94,15 +94,15 @@ const videos = [
     </div>
 
     <div class="footer-grid">
-      <nav aria-label="Навигация в футере">
-        <h2>На сайте</h2>
-        <a href="#menu">Меню</a>
-        <a href="#reviews">Отзывы</a>
-        <a href="#fork">Сделать заказ</a>
+      <nav aria-label={f.footerNav}>
+        <h2>{f.onSite}</h2>
+        <a href="#menu">{f.menu}</a>
+        <a href="#reviews">{f.reviews}</a>
+        <a href="#fork">{f.order}</a>
       </nav>
 
       <div class="contacts">
-        <h2>Связаться</h2>
+        <h2>{f.contact}</h2>
         <a href={cafe.phoneHref} dir="ltr">{cafe.phone}</a>
         <a href={cafe.instagramUrl} target="_blank" rel="noopener">Instagram</a>
         <a href={cafe.tiktokUrl} target="_blank" rel="noopener">TikTok</a>
@@ -117,9 +117,9 @@ const videos = [
 
   </div>
 
-  <dialog class="video-player" id="savva-video-player" aria-label="Видео Savva" data-video-dialog>
+  <dialog class="video-player" id="savva-video-player" aria-label={f.videos} data-video-dialog>
     <div class="video-player-shell" data-video-frame></div>
-    <button class="video-player-close" type="button" aria-label="Закрыть видео" data-video-close>
+    <button class="video-player-close" type="button" aria-label={f.closeVideo} data-video-close>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.8 6.8 10.4 10.4m0-10.4L6.8 17.2" /></svg>
     </button>
   </dialog>
@@ -150,7 +150,7 @@ const videos = [
 
       const iframe = document.createElement('iframe');
       iframe.src = `https://www.tiktok.com/player/v1/${id}?autoplay=1&loop=1&music_info=0&description=0&rel=0`;
-      iframe.title = button.dataset.videoTitle ?? 'Видео Savva';
+      iframe.title = button.dataset.videoTitle ?? videoDialog.getAttribute('aria-label') ?? 'Savva';
       iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
       iframe.allowFullscreen = true;
       iframe.loading = 'eager';
@@ -240,7 +240,7 @@ const videos = [
   .video-player-close {
     position: absolute;
     top: 12px;
-    right: 12px;
+    inset-inline-end: 12px;
     display: grid;
     place-items: center;
     width: 44px;

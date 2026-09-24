@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/Hero.astro';
+import Fork from '../../components/Fork.astro';
+import Menu from '../../components/Menu.astro';
+import Reviews from '../../components/Reviews.astro';
+import Footer from '../../components/Footer.astro';
+import ActionBar from '../../components/ActionBar.astro';
+import CartButton from '../../components/CartButton.astro';
+import OpenStatus from '../../components/OpenStatus.astro';
+import DesignTweaks from '../../components/DesignTweaks.astro';
+import { ar as t } from '../../i18n/ar';
+---
+
+<Layout t={t}>
+  <main>
+    <Hero t={t} />
+    <Fork t={t} />
+    <Menu t={t} />
+    <Reviews t={t} />
+  </main>
+  <Footer t={t} />
+  <ActionBar t={t} />
+  <OpenStatus t={t} />
+  <CartButton t={t} />
+  {import.meta.env.DEV && <DesignTweaks />}
+</Layout>

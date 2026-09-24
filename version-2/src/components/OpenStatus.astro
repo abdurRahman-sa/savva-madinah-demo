@@ -31,7 +31,7 @@ const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${St
   .open-status {
     position: fixed;
     z-index: 39;
-    left: max(16px, env(safe-area-inset-left));
+    inset-inline-start: max(16px, env(safe-area-inset-left));
     bottom: max(16px, env(safe-area-inset-bottom));
     display: inline-flex;
     align-items: center;

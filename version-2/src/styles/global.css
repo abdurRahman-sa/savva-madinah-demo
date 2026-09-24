@@ -129,15 +129,20 @@
 
 .horizontal-scroll-thumb {
   --horizontal-scroll-x: 0px;
+  --horizontal-scroll-direction: 1;
   position: absolute;
   top: 50%;
-  left: 0;
+  inset-inline-start: 0;
   width: var(--horizontal-scroll-thumb-size);
   height: 6px;
   background: var(--horizontal-scroll-thumb, var(--color-coffee));
   cursor: grab;
-  transform: translate3d(var(--horizontal-scroll-x), -50%, 0);
+  transform: translate3d(calc(var(--horizontal-scroll-x) * var(--horizontal-scroll-direction)), -50%, 0);
   will-change: transform;
+}
+
+html[dir='rtl'] .horizontal-scroll-thumb {
+  --horizontal-scroll-direction: -1;
 }
 
 .horizontal-scroll-thumb:active {
@@ -216,7 +221,7 @@
     }
   }
 
-  body {
+body {
     @apply bg-linen font-sans text-ink antialiased;
     font-size: var(--text-size);
     line-height: var(--text-leading);
@@ -250,6 +255,16 @@
     text-underline-offset: 4px;
     text-decoration-thickness: 1.5px;
   }
+}
+
+html[dir='rtl'] body {
+  font-family: var(--font-display);
+}
+
+html[dir='rtl'] input,
+html[dir='rtl'] select,
+html[dir='rtl'] button {
+  font-family: inherit;
 }
 
 @layer components {

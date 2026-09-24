@@ -3,6 +3,7 @@
 export const ru = {
   lang: 'ru',
   dir: 'ltr',
+  language: { label: 'العربية', short: 'AR', href: '/ar/', ariaLabel: 'Переключить сайт на арабский язык' },
   meta: {
     title: 'Savva | سافا: кофейня в Медине',
     description:
@@ -167,6 +168,7 @@ export const ru = {
     hand: 'и остаться',
     title: 'Тихо, светло, до двух ночи',
     atmosphere: 'отзыва про атмосферу',
+    reviewsLink: 'Перейти к отзывам',
   },
   menu: {
     title: 'Меню',
@@ -184,6 +186,8 @@ export const ru = {
     noPhoto: 'фото скоро',
     prev: 'Предыдущие позиции',
     next: 'Следующие позиции',
+    categoriesScroll: 'Прокрутка категорий меню',
+    groupScroll: 'Прокрутка меню «{group}»',
     note: 'Цены в саудовских риалах (SAR), калорийность указана по меню кафе.',
   },
   reviews: {
@@ -199,6 +203,7 @@ export const ru = {
     source: 'Google Maps',
     topicsTitle: 'О чём пишут чаще всего',
     topics: { atmosphere: 'Атмосфера', cheesecake: 'Чизкейк', madiniCookies: 'Мединское печенье' },
+    scroll: 'Прокрутка отзывов',
   },
   footer: {
     address: 'Адрес',
@@ -208,6 +213,19 @@ export const ru = {
     phone: 'Телефон',
     instagram: 'Instagram',
     tiktok: 'TikTok',
+    videos: 'Видео Savva',
+    allVideos: 'Все видео',
+    videoScroll: 'Прокрутка видео',
+    playVideo: 'Воспроизвести видео «{title}»',
+    closeVideo: 'Закрыть видео',
+    onSite: 'На сайте',
+    contact: 'Связаться',
+    footerNav: 'Навигация в футере',
+    menu: 'Меню',
+    reviews: 'Отзывы',
+    order: 'Сделать заказ',
+    videoTitles: ['Фирменный напиток', 'Десерт Savva', 'Десерты на террасе', 'Шоколадный десерт', 'Матча с малиной'],
+    videoAlts: ['Фирменный напиток наливают в стакан Savva', 'Десерт Savva на деревянном подносе', 'Два десерта Savva на столе террасы', 'Шоколадный десерт Savva на тарелке', 'Матча с малиной в фирменном стакане Savva'],
   },
 };
 

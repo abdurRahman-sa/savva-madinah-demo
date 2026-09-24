@@ -60,6 +60,10 @@ const h = t.hero;
 ---
 
 <section class="hero" data-hero>
+  <a class="language-switch" href={t.language.href} hreflang={t.lang === 'ar' ? 'ru' : 'ar'} aria-label={t.language.ariaLabel}>
+    <span class="language-full">{t.language.label}</span>
+    <span class="language-short" aria-hidden="true">{t.language.short}</span>
+  </a>
   <!-- имя, строка и действия стоят над коллажем, на чистом фоне -->
   <div class="wrap band">
     <div class="brand-row">
@@ -107,7 +111,7 @@ const h = t.hero;
       </div>
 
       <div class="meta">
-        <span class="pill"><b>6:30 – 02:00</b> {h.hours}</span>
+        <span class="pill"><b>6:30 - 02:00</b> {h.hours}</span>
         <span class="pill"><b>{cafe.rating}</b> {h.rating}</span>
         <span class="pill">{h.area}</span>
       </div>
@@ -160,6 +164,29 @@ const h = t.hero;
     overflow: hidden;
     isolation: isolate;
   }
+
+  .language-switch {
+    position: absolute;
+    z-index: 6;
+    inset-block-start: max(18px, env(safe-area-inset-top));
+    inset-inline-end: max(20px, env(safe-area-inset-right));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1.5px solid var(--color-coffee);
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-linen) 92%, transparent);
+    font: 600 14px/1 var(--font-sans);
+    text-decoration: none;
+    transition: transform calc(0.2s * var(--motion)) var(--ease), background-color calc(0.2s * var(--motion)) var(--ease);
+  }
+  .language-switch:hover { background: var(--color-cream); }
+  .language-switch:active { transform: translateY(1px) scale(.98); }
+  .language-switch:focus-visible { outline: 2px solid var(--color-red); outline-offset: 3px; }
+  .language-short { display: none; }
 
   .band {
     display: grid;
@@ -304,7 +331,7 @@ const h = t.hero;
 
   .skip {
     position: absolute;
-    right: 20px;
+    inset-inline-end: 20px;
     bottom: 20px;
     font: 500 14px/1 var(--font-sans);
     color: var(--color-ink);
@@ -385,9 +412,18 @@ const h = t.hero;
       font-size: 13px;
     }
     .skip {
-      right: 50%;
+      inset-inline-end: 50%;
       transform: translateX(50%);
     }
+    :global(html[dir='rtl']) .skip { transform: translateX(-50%); }
+    .language-switch {
+      inset-block-start: max(12px, env(safe-area-inset-top));
+      inset-inline-end: max(12px, env(safe-area-inset-right));
+      min-width: 44px;
+      padding-inline: 12px;
+    }
+    .language-full { display: none; }
+    .language-short { display: inline; }
   }
 
   /* Заставка в три такта:
