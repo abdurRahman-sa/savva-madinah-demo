@@ -29,6 +29,8 @@ import dripCoffee from '../../../references/для меню/drip-coffee.jpg';
 import marbleCake from '../../../references/для меню/marble-cake.jpg';
 import crunchyChocolate from '../../../references/для меню/crunchy-chocolate.jpg';
 import turkeySandwich from '../../../references/для меню/turkey-sandwich.jpg';
+import savvaMatcha from '../../../references/для меню/матча савва.png';
+import hotChocolate from '../../../references/для меню/горячий шоколад.png';
 
 interface Props {
   t: Dict;
@@ -41,7 +43,7 @@ const k = t.cart;
 
 // Фото позиций: общие кадры кафе, реальные фото меню и финальные AI-композиции из references
 const files = import.meta.glob<{ default: ImageMetadata }>(['../assets/photos/*.jpg', '../assets/menu/*.jpg'], { eager: true });
-const generatedFiles: Record<string, ImageMetadata> = {
+const menuFiles: Record<string, ImageMetadata> = {
   'iced-americano': icedAmericano,
   'iced-latte': icedLatte,
   'iced-spanish-latte': icedSpanishLatte,
@@ -68,10 +70,12 @@ const generatedFiles: Record<string, ImageMetadata> = {
   'marble-cake': marbleCake,
   'crunchy-chocolate': crunchyChocolate,
   'turkey-sandwich': turkeySandwich,
+  'savva-matcha': savvaMatcha,
+  'hot-chocolate': hotChocolate,
 };
 const byName = new Map([
   ...Object.entries(files).map(([path, mod]) => [path.split('/').pop()!.replace('.jpg', ''), mod.default] as const),
-  ...Object.entries(generatedFiles),
+  ...Object.entries(menuFiles),
 ]);
 
 const photoOf = async (item: MenuItem) => {

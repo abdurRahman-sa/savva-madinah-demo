@@ -52,7 +52,7 @@ const cold = {
   spanishLatte: { en: 'Iced Spanish Latte', ru: 'Айс спаниш латте', ar: 'ايس سبانيش لاتيه', price: 19, kcal: 230, photo: 'iced-spanish-latte' },
   matchaLatte: { en: 'Iced Matcha Latte', ru: 'Айс матча латте', ar: 'ايس ماتشا لاتيه', price: 17, kcal: 130, photo: 'iced-matcha-latte' },
   matchaSpanish: { en: 'Iced Matcha Spanish Latte', ru: 'Айс матча спаниш латте', ar: 'ايس ماتشا سبانيش لاتيه', price: 19, kcal: 230, photo: 'iced-matcha-spanish-latte' },
-  savvaMatcha: { en: 'Savva Matcha', ru: 'Матча Savva', ar: 'سافا ماتشا', price: 22, kcal: 2 },
+  savvaMatcha: { en: 'Savva Matcha', ru: 'Матча Savva', ar: 'سافا ماتشا', price: 22, kcal: 2, photo: 'savva-matcha' },
   matchaBerry: { en: 'Matcha Berry', ru: 'Матча берри', ar: 'ماتشا بيري', price: 24, kcal: 230, photo: 'matcha-berry-vs-melon', focus: '22% 60%' },
   iceTea: { en: 'Ice Tea Savva', ru: 'Холодный чай Savva', ar: 'ايس تي سافا', price: 17, kcal: 189, photo: 'savva-iced-tea' },
   hibiscus: { en: 'Ice Hibiscus Savva', ru: 'Каркаде Savva', ar: 'ايس كركديه سافا', price: 17, kcal: 180, photo: 'hibiscus-pour', focus: '50% 70%' },
@@ -74,7 +74,7 @@ const hot = {
   spanishLatte: { en: 'Spanish Latte', ru: 'Спаниш латте', ar: 'سبانش لاتيه', price: 18, kcal: 178, photo: 'spanish-latte' },
   matchaLatte: { en: 'Matcha Latte', ru: 'Матча латте', ar: 'ماتشا لاتيه', price: 16, kcal: 75, photo: 'matcha-latte' },
   whiteMocha: { en: 'White Mocha', ru: 'Уайт мока', ar: 'وايت موكا', price: 16, kcal: 230, photo: 'white-mocha' },
-  hotChocolate: { en: 'Hot Chocolate', ru: 'Горячий шоколад', ar: 'هوت شوكليت', price: 15, kcal: 237 },
+  hotChocolate: { en: 'Hot Chocolate', ru: 'Горячий шоколад', ar: 'هوت شوكليت', price: 15, kcal: 237, photo: 'hot-chocolate' },
   englishTea: { en: 'English Tea', ru: 'Английский чай', ar: 'شاي انجليزي', price: 6, kcal: 2, photo: 'english-tea' },
   turkish: { en: 'Turkish Coffee', ru: 'Турецкий кофе', ar: 'تركي سادة', price: 11, kcal: 50, photo: 'turkish-coffee' },
   turkishMilk: { en: 'Turkish Coffee with Milk', ru: 'Турецкий кофе с молоком', ar: 'تركي حليب', price: 13, kcal: 50, photo: 'turkish-coffee-milk' },
@@ -95,7 +95,7 @@ const sweet = {
 
 const breakfast = {
   turkey: { en: 'Turkey Sandwich', ru: 'Сэндвич с индейкой', ar: 'ساندوتش تركي', price: 19, kcal: 300, photo: 'turkey-sandwich' },
-  halloumi: { en: 'Halloumi Sandwich', ru: 'Сэндвич с халуми', ar: 'ساندوتش حلوم', price: 18, kcal: 300 },
+  halloumi: { en: 'Halloumi Sandwich', ru: 'Сэндвич с халуми', ar: 'ساندوتش حلوم', price: 18, kcal: 300, photo: 'sandwich-plate' },
 } satisfies Record<string, MenuItem>;
 
 export const menu = { cold, hot, sweet, breakfast };
