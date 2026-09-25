@@ -90,9 +90,9 @@
   --brand-lift-tablet: 0px;
   --brand-lift-desktop: 58px;
   /* заставка: имя наливается по центру, стоит, переезжает на место */
-  --brand-reveal: 1.5s;
-  --intro-lead: 0s;
-  --intro-move: 1s;
+  --brand-reveal: 1.8s;
+  --intro-lead: 0.8s;
+  --intro-move: 1.2s;
   --collage-reveal: 0.5s;
 }
 

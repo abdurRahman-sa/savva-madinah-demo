@@ -60,6 +60,10 @@ const h = t.hero;
 ---
 
 <section class="hero" data-hero>
+  <a class="language-switch" href={t.language.href} hreflang={t.lang === 'ar' ? 'ru' : 'ar'} aria-label={t.language.ariaLabel}>
+    <span class="language-full">{t.language.label}</span>
+    <span class="language-short" aria-hidden="true">{t.language.short}</span>
+  </a>
   <!-- имя, строка и действия стоят над коллажем, на чистом фоне -->
   <div class="wrap band">
     <div class="brand-row">
@@ -104,10 +108,6 @@ const h = t.hero;
         <a class="btn btn-dark" href="#fork" data-open-door="order">{h.order}</a>
         <a class="btn btn-line" href={cafe.mapsUrl} target="_blank" rel="noopener">{h.route}</a>
         <a class="btn btn-line" href={cafe.phoneHref}>{h.call}</a>
-        <a class="btn btn-line language-action" href={t.language.href} hreflang={t.lang === 'ar' ? 'ru' : 'ar'} aria-label={t.language.ariaLabel}>
-          <span class="language-code" aria-hidden="true">{t.language.short}</span>
-          <span>{t.language.label}</span>
-        </a>
       </div>
 
       <div class="meta">
@@ -164,6 +164,31 @@ const h = t.hero;
     overflow: hidden;
     isolation: isolate;
   }
+
+  .language-switch {
+    position: absolute;
+    z-index: 6;
+    inset-block-start: max(18px, env(safe-area-inset-top));
+    inset-inline-end: max(20px, env(safe-area-inset-right));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1.5px solid var(--color-sage);
+    border-radius: 999px;
+    color: var(--color-on-dark);
+    background: var(--color-sage);
+    font: 600 14px/1 var(--font-sans);
+    text-decoration: none;
+    transition:
+      transform calc(0.2s * var(--motion)) var(--ease),
+      background-color calc(0.2s * var(--motion)) var(--ease);
+  }
+  .language-switch:hover { background: var(--color-coffee-deep); }
+  .language-switch:active { transform: translateY(1px) scale(.98); }
+  .language-switch:focus-visible { outline: 2px solid var(--color-red); outline-offset: 3px; }
+  .language-short { display: none; }
 
   .band {
     display: grid;
@@ -266,26 +291,6 @@ const h = t.hero;
     justify-content: center;
     gap: 10px;
     margin-top: clamp(14px, 2.2vh, 22px);
-  }
-  .actions .language-action {
-    color: var(--color-on-dark);
-    background: var(--color-sage);
-    box-shadow: none;
-  }
-  .actions .language-action:hover {
-    color: var(--color-on-dark);
-    background: var(--color-coffee-deep);
-  }
-  .language-code {
-    display: grid;
-    place-items: center;
-    min-width: 27px;
-    min-height: 27px;
-    padding-inline: 5px;
-    border-radius: 999px;
-    background: rgb(247 239 224 / 0.18);
-    font: 700 11px/1 var(--font-sans);
-    letter-spacing: 0.04em;
   }
   .meta {
     display: flex;
@@ -404,9 +409,6 @@ const h = t.hero;
       padding-inline: 12px;
       font-size: 15px;
     }
-    .actions .language-action {
-      grid-column: 1 / -1;
-    }
     .meta .pill {
       padding: 8px 12px;
       font-size: 13px;
@@ -416,6 +418,14 @@ const h = t.hero;
       transform: translateX(50%);
     }
     :global(html[dir='rtl']) .skip { transform: translateX(-50%); }
+    .language-switch {
+      inset-block-start: max(12px, env(safe-area-inset-top));
+      inset-inline-end: max(12px, env(safe-area-inset-right));
+      min-width: 44px;
+      padding-inline: 12px;
+    }
+    .language-full { display: none; }
+    .language-short { display: inline; }
   }
 
   /* Заставка в три такта:
@@ -665,8 +675,5 @@ const h = t.hero;
     // Помечаем как просмотренную, когда сцена доиграла
     setTimeout(finishIntro, introLength() + 300);
     document.querySelector('[data-skip-intro]')?.addEventListener('click', finishIntro);
-    window.addEventListener('pointerdown', finishIntro, { once: true });
-    window.addEventListener('keydown', finishIntro, { once: true });
-    window.addEventListener('wheel', finishIntro, { once: true, passive: true });
   }
 </script>
